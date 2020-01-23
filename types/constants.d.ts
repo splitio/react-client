@@ -1,0 +1,11 @@
+import { Treatment, TreatmentWithConfig } from '@splitsoftware/splitio/types/splitio';
+export declare const VERSION: string;
+export declare const ON: Treatment;
+export declare const OFF: Treatment;
+export declare const CONTROL: Treatment;
+export declare const CONTROL_WITH_CONFIG: TreatmentWithConfig;
+export declare const getControlTreatmentsWithConfig: (splitNames: string[]) => import("@splitsoftware/splitio/types/splitio").TreatmentsWithConfig;
+export declare const WARN_SF_CONFIG_AND_FACTORY: string;
+export declare const ERROR_SF_NO_CONFIG_AND_FACTORY: string;
+export declare const ERROR_SC_NO_FACTORY: string;
+export declare const WARN_ST_NO_CLIENT: string;

@@ -1,0 +1,97 @@
+{
+  "name": "@splitsoftware/splitio-react",
+  "version": "0.6.3",
+  "description": "A React library to easily integrate and use Split JS SDK",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "README.md",
+    "CONTRIBUTORS-GUIDE.md",
+    "LICENSE",
+    "CHANGES.txt",
+    "lib",
+    "es",
+    "types"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build-cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
+    "build-esm": "rimraf es/* && tsc -m es2015 -t es6 --outDir es",
+    "build-umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
+    "build": "npm run build-cjs && npm run build-esm && npm run build-umd",
+    "postbuild": "./version_replace.sh",
+    "lint": "tslint -p tsconfig.json 'src/**/*.ts*'",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
+    "publish:rc": "npm publish --tag rc",
+    "publish:stable": "npm publish",
+    "prepublishOnly": "npm run build-cjs && npm run build-esm && ./version_replace.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/splitio/react-sdk-library.git"
+  },
+  "keywords": [
+    "splitio",
+    "react",
+    "sdk"
+  ],
+  "author": "Split Software",
+  "contributors": [
+    {
+      "name": "Emiliano Sanchez",
+      "email": "emiliano.sanchez@split.io",
+      "url": "https://github.com/EmilianoSanchez"
+    },
+    {
+      "name": "Nico Zelaya",
+      "email": "nicolas.zelaya@split.io",
+      "url": "https://github.com/NicoZelaya"
+    }
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/splitio/react-sdk-library/issues"
+  },
+  "homepage": "https://github.com/splitio/react-sdk-library#readme",
+  "dependencies": {
+    "@splitsoftware/splitio": "10.10.0"
+  },
+  "devDependencies": {
+    "@types/enzyme": "^3.10.4",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/events": "^3.0.0",
+    "@types/jest": "^24.0.24",
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.4",
+    "@types/react-test-renderer": "^16.9.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "husky": "^3.1.0",
+    "jest": "^24.9.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-test-renderer": "^16.12.0",
+    "replace": "^1.1.5",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.2.0",
+    "ts-loader": "^6.2.1",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-merge": "^4.2.2"
+  },
+  "peerDependencies": {
+    "react": "^16.3.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "pre-push": "npm test && npm run build"
+    }
+  }
+}

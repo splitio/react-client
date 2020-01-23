@@ -1,0 +1,11 @@
+export { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+export { default as withSplitFactory } from './withSplitFactory';
+export { default as withSplitClient } from './withSplitClient';
+export { default as withSplitTreatments } from './withSplitTreatments';
+export { default as SplitTreatments } from './SplitTreatments';
+export { default as SplitClient } from './SplitClient';
+export { default as SplitFactory } from './SplitFactory';
+export { default as useClient } from './useClient';
+export { default as useTreatments } from './useTreatments';
+export { default as useTrack } from './useTrack';
+export { default as useManager } from './useManager';
