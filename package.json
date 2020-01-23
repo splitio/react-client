@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/splitio/react-sdk-library.git"
+    "url": "git+https://github.com/splitio/react-client.git"
   },
   "keywords": [
     "splitio",
@@ -54,9 +54,9 @@
   ],
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/splitio/react-sdk-library/issues"
+    "url": "https://github.com/splitio/react-client/issues"
   },
-  "homepage": "https://github.com/splitio/react-sdk-library#readme",
+  "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
     "@splitsoftware/splitio": "10.10.0"
   },
