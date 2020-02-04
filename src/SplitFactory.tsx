@@ -100,6 +100,10 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     this.setState({ lastUpdate: Date.now() });
   }
 
+  componentWillUnmount() {
+    this.state.client?.destroy();
+  }
+
   render() {
     const { children } = this.props;
     const { factory, isReady, isTimedout, lastUpdate } = this.state;
