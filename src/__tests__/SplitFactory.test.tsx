@@ -236,12 +236,30 @@ describe('SplitFactory', () => {
     const errorSpy = jest.spyOn(console, 'error');
     mount(
       <SplitFactory>
-        {({factory}) => {
+        {({ factory }) => {
           expect(factory).toBe(null);
           return null;
         }}
       </SplitFactory>);
     expect(errorSpy).toBeCalledWith(ERROR_SF_NO_CONFIG_AND_FACTORY);
+  });
+
+  test('cleans up on unmount.', () => {
+    // let destroySpy;
+    const outerFactory = SplitSdk(sdkBrowser);
+    getClientWithStatus(outerFactory);
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+    const wrapper = mount(
+      <SplitFactory>
+        {({ factory }) => {
+          expect(outerFactory).toBe(outerFactory);
+          console.log(outerFactory.client());
+          // destroySpy = jest.spyOn(outerFactory.client(), 'destroy');
+          return null;
+        }}
+      </SplitFactory>);
+    wrapper.unmount();
+    // expect(destroySpy).toBeCalled();
   });
 
   /**
