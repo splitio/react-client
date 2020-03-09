@@ -17,9 +17,13 @@ import useTreatments from './src/useTreatments';
 import useTrack from './src/useTrack';
 import useManager from './src/useManager';
 
+// SplitContext
+import SplitContext from './src/SplitContext';
+
 export default {
   SplitSdk,
   withSplitFactory, withSplitClient, withSplitTreatments,
   SplitFactory, SplitClient, SplitTreatments,
-  useClient, useTreatments, useTrack, useManager
+  useClient, useTreatments, useTrack, useManager,
+  SplitContext,
 };

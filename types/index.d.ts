@@ -9,3 +9,4 @@ export { default as useClient } from './useClient';
 export { default as useTreatments } from './useTreatments';
 export { default as useTrack } from './useTrack';
 export { default as useManager } from './useManager';
+export { default as SplitContext } from './SplitContext';

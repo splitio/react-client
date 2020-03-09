@@ -8,7 +8,7 @@ export function getClientWithStatus(factory: SplitIO.ISDK, key?: SplitIO.SplitKe
     // We cannot use event listeners, since clients might be already Ready or Timedout
     client.ready().then(() => {
       client.isReady = true;
-    }).catch(() => {
+    }, () => {
       client.isTimedout = true;
       // register a listener for SDK_READY event, that might trigger after a timeout
       client.once(client.Event.SDK_READY, () => {
