@@ -62,7 +62,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
         if (this.state.client === client && updateOnSdkReady) {
           this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
         }
-      }).catch(() => {
+      }, () => {
         // Update isTimedout if the client was not changed and updateOnSdkTimedout is true
         if (this.state.client === client) {
           if (updateOnSdkTimedout) {
