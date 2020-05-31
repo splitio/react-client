@@ -1,3 +1,9 @@
+1.2.0 (Jun XX, 2020)
+ - Added support for the new Split streaming architecture. When enabled, the SDK will not poll for updates but instead receive notifications every time there's a change in your environments,
+  allowing to process those much quicker. If disabled (default) or in the event of an issue, the SDK will fallback to the known polling mechanism to provide a seamless experience.
+ - Added `isReadyFromCache` prop @TODO.
+ - Bugfixing - @TODO.
+
 1.1.0 (March 11, 2020)
  - Exported `SplitContext` to access Split readiness state when using React hooks.
  - Bugfixing - issue with SDK_READY_TIMED_OUT events.
