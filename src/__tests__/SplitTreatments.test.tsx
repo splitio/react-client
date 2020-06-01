@@ -10,7 +10,7 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 import { sdkBrowser } from './utils/sdkConfigs';
 
 /** Test target */
-import { ISplitTreatmentsChildProps } from '../types';
+import { ISplitTreatmentsChildProps, IClientWithStatus } from '../types';
 import SplitTreatments from '../SplitTreatments';
 import SplitClient from '../SplitClient';
 import SplitFactory from '../SplitFactory';
@@ -22,7 +22,6 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
-import { getClientWithStatus } from '../utils';
 
 describe('SplitTreatments', () => {
 
@@ -51,13 +50,12 @@ describe('SplitTreatments', () => {
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig" if the SDK is ready.', (done) => {
     const splitNames = ['split1', 'split2'];
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     setTimeout(() => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect(getClientWithStatus(outerFactory).isReady).toBe(isReady);
+            expect((outerFactory.client() as IClientWithStatus).isReady()).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >

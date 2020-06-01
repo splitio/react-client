@@ -15,7 +15,6 @@ import SplitFactory from '../SplitFactory';
 import SplitClient from '../SplitClient';
 import SplitContext, { ISplitContextValues } from '../SplitContext';
 import { ERROR_SC_NO_FACTORY } from '../constants';
-import { getClientWithStatus } from '../utils';
 
 describe('SplitClient', () => {
 
@@ -35,7 +34,6 @@ describe('SplitClient', () => {
 
   test('passes ready props to the child if client is ready.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
@@ -57,7 +55,6 @@ describe('SplitClient', () => {
 
   test('rerender child on SDK_READY_TIMEDOUT, SDK_READY and SDK_UPDATE events.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
 
@@ -118,7 +115,6 @@ describe('SplitClient', () => {
 
   test('rerender child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
 
@@ -175,7 +171,6 @@ describe('SplitClient', () => {
 
   test('rerender child only on SDK_READY event, as default behaviour.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
 

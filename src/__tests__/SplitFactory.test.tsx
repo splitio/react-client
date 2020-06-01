@@ -14,7 +14,6 @@ import { ISplitFactoryChildProps } from '../types';
 import SplitFactory from '../SplitFactory';
 import SplitContext, { ISplitContextValues } from '../SplitContext';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../constants';
-import { getClientWithStatus } from '../utils';
 
 describe('SplitFactory', () => {
 
@@ -33,7 +32,6 @@ describe('SplitFactory', () => {
 
   test('passes ready props to the child if initialized with a ready factory.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
