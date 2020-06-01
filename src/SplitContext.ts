@@ -10,8 +10,11 @@ const SplitContext = createContext<ISplitContextValues>({
   client: null,
   factory: null,
   isReady: false,
+  isReadyFromCache: false,
   isTimedout: false,
+  hasTimedout: false,
   lastUpdate: 0,
+  isDestroyed: false,
 });
 
 export default SplitContext;

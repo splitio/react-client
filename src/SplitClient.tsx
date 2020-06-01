@@ -2,7 +2,6 @@ import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IClientWithStatus } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
-import { getClientWithStatus } from './utils';
 
 /**
  * SplitClient will initialize a new Split Client and listen for its events in order to update the Split Context.
@@ -18,6 +17,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     updateOnSdkUpdate: false,
     updateOnSdkTimedout: false,
     updateOnSdkReady: true,
+    updateOnSdkReadyFromCache: true,
     children: null,
   };
 
@@ -26,7 +26,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
   constructor(props: ISplitClientProps & { splitContext: ISplitContextValues }) {
     super(props);
 
-    const { splitKey, trafficType, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, splitContext: { factory } } = props;
+    const { splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkUpdate, updateOnSdkTimedout, splitContext: { factory } } = props;
 
     // Log error if factory is not available
     if (!factory) {
@@ -34,98 +34,119 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     }
 
     // Init new client
-    const client = factory ? getClientWithStatus(factory, splitKey, trafficType) : null;
+    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithStatus) : null;
 
     if (client) {
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady);
+      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
     }
 
     this.state = {
       ...props.splitContext,
       client,
-      isReady: client ? client.isReady : false,
-      isTimedout: client ? client.isTimedout : false,
+      isReady: client ? client.isReady() : false,
+      isReadyFromCache: client ? client.isReadyFromCache() : false,
+      isTimedout: client ? client.hasTimedout() && !client.isReady() : false,
+      hasTimedout: client ? client.hasTimedout() : false,
+      isDestroyed: client ? client.isDestroyed() : false,
     };
   }
 
-  // Listen SDK events. This method will be updated when SDK provides self synchronous status
-  subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean) {
+  // Listen SDK events
+  subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
 
-    if (!client.isReady) { // client is not ready
-      /**
-       * client still might be ready if it was created before using `getClientWithStatus` function
-       * (for example if the client was instantiated outside SplitClient),
-       * thus we have to use the ready() promise instead of an event listener.
-       */
-      client.ready().then(() => {
-        // Update isReady if the client was not changed and updateOnSdkReady is true
-        if (this.state.client === client && updateOnSdkReady) {
-          this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-        }
-      }, () => {
-        // Update isTimedout if the client was not changed and updateOnSdkTimedout is true
-        if (this.state.client === client) {
-          if (updateOnSdkTimedout) {
-            this.setState({ isTimedout: true, lastUpdate: Date.now() });
-          }
-          // register a listener for SDK_READY event, that might trigger after a timeout
-          client.once(client.Event.SDK_READY, () => {
-            // Update isReady if the client was not changed and updateOnSdkReady is true
-            if (this.state.client === client && updateOnSdkReady) {
-              this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-            }
-          });
-        }
-      });
+    if (updateOnSdkReady && !client.isReady()) {
+      client.once(client.Event.SDK_READY, this.setReady);
     }
 
-    // register a listener for SDK_UPDATE event
+    if (updateOnSdkReadyFromCache && !client.isReadyFromCache()) {
+      client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+    }
+
+    if (updateOnSdkTimedout && !client.hasTimedout()) {
+      client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+    }
+
     if (updateOnSdkUpdate) {
-      client.on(client.Event.SDK_UPDATE, this.sdkUpdate);
+      client.on(client.Event.SDK_UPDATE, this.setUpdate);
     }
   }
 
-  sdkUpdate = () => {
+  setReady = () => {
+    this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
+  }
+
+  setReadyFromCache = () => {
+    this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
+  }
+
+  setTimedout = () => {
+    this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
+  }
+
+  setUpdate = () => {
     this.setState({ lastUpdate: Date.now() });
   }
 
+  unsubscribeFromEvents(client: SplitIO.IClient) {
+    client.removeListener(client.Event.SDK_READY, this.setReady);
+    client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+    client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+    client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
+  }
+
+  /**
+   * The component is updated if:
+   *  - the factory at Split context change or `splitKey` and `trafficType` props change, because it implies that the component has a new SDK client.
+   *  - the client status change for the subscribed events set by `updateOnSdk***` props.
+   *
+   * The component is not updated if updateOnSdk** props change, but they change what status events trigger component updates.
+   */
   shouldComponentUpdate(
-    { splitContext: { factory }, splitKey, trafficType, updateOnSdkReady, updateOnSdkTimedout, updateOnSdkUpdate }: ISplitClientProps & { splitContext: ISplitContextValues },
+    { splitContext: { factory }, splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate }: ISplitClientProps & { splitContext: ISplitContextValues },
     nextState: ISplitContextValues) {
 
-    const client = factory ? getClientWithStatus(factory, splitKey, trafficType) : null;
+    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithStatus) : null;
 
-    if (client !== nextState.client && client) {
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady);
+    // resubscribe to events whether client changed or updateOnSdk** props changed
+    const changeListeners = client !== nextState.client ||
+      this.props.updateOnSdkReady !== updateOnSdkReady ||
+      this.props.updateOnSdkReadyFromCache !== updateOnSdkReadyFromCache ||
+      this.props.updateOnSdkTimedout !== updateOnSdkTimedout ||
+      this.props.updateOnSdkUpdate !== updateOnSdkUpdate;
 
-      // Deregister listener for previous client
-      if (nextState.client) {
-        nextState.client.removeListener(client.Event.SDK_UPDATE, this.sdkUpdate);
-      }
+    if (changeListeners) {
+      if (nextState.client) this.unsubscribeFromEvents(nextState.client);
+      if (client) this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
+    }
 
+    // if client has changed, we update it and its status at the component state
+    if (client !== nextState.client) {
       this.setState({
         client,
-        isReady: client ? client.isReady : false,
-        isTimedout: client ? client.isTimedout : false,
+        factory, // factory might have changed in the Split context
+        isReady: client ? client.isReady() : false,
+        isReadyFromCache: client ? client.isReadyFromCache() : false,
+        isTimedout: client ? client.hasTimedout() && !client.isReady() : false,
+        hasTimedout: client ? client.hasTimedout() : false,
+        isDestroyed: client ? client.isDestroyed() : false,
       });
       return false;
     }
 
     // Update when the client or its status change
-    // (no need to compara isReady or isTimedout, lastUpdate is enough).
+    // (no need to compara isReady, isReadyFromCache or isTimedout. lastUpdate is enough).
     // Don't update when updateOnSdk** props change.
     return this.state.client !== nextState.client ||
-           this.state.lastUpdate !== nextState.lastUpdate;
+      this.state.lastUpdate !== nextState.lastUpdate;
   }
 
   render() {
     const { children } = this.props;
-    const { client, isReady, isTimedout, lastUpdate } = this.state;
 
     return (
       <SplitContext.Provider value={this.state} >{
         typeof children === 'function' ?
-          children({ client, isReady, isTimedout, lastUpdate }) :
+          children({ ...this.state }) :
           children
       }</SplitContext.Provider>
     );

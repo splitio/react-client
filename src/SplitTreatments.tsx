@@ -21,16 +21,17 @@ class SplitTreatments extends React.PureComponent<ISplitTreatmentsProps> {
 
     return (
       <SplitContext.Consumer>
-        {({ client, isReady, isTimedout, lastUpdate }: ISplitContextValues) => {
+        {({ client, isReady, isReadyFromCache, isTimedout, hasTimedout, lastUpdate, isDestroyed }: ISplitContextValues) => {
           let treatments;
-          if (!isReady || !client) {
+          const isOperational = !isDestroyed && (isReady || isReadyFromCache);
+          if (client && isOperational) {
+            treatments = client.getTreatmentsWithConfig(names, attributes);
+          } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
-          } else {
-            treatments = client.getTreatmentsWithConfig(names, attributes);
           }
           return children({
-            treatments, isReady, isTimedout, lastUpdate,
+            treatments, isReady, isReadyFromCache, isTimedout, hasTimedout, lastUpdate, isDestroyed,
           });
         }}
       </SplitContext.Consumer>

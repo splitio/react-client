@@ -244,10 +244,4 @@ describe('SplitFactory', () => {
     expect(errorSpy).toBeCalledWith(ERROR_SF_NO_CONFIG_AND_FACTORY);
   });
 
-  /**
-   * TODO other tests:
-   * - multiple SplitFactory
-   * - An SplitFactory inside another SplitFactory
-   */
-
 });

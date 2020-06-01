@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { SplitFactory as SplitSDK } from '@splitsoftware/splitio';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
-import SplitContext, { ISplitContextValues } from './SplitContext';
 import { ISplitFactoryChildProps } from './types';
 import SplitFactory from './SplitFactory';
 
@@ -20,6 +18,7 @@ export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: Sp
     updateOnSdkUpdate: boolean = false,
     updateOnSdkTimedout: boolean = false,
     updateOnSdkReady: boolean = true,
+    updateOnSdkReadyFromCache: boolean = true,
   ) {
 
     return (props: OuterProps) => {
@@ -29,7 +28,8 @@ export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: Sp
           factory={factory}
           updateOnSdkUpdate={updateOnSdkUpdate}
           updateOnSdkTimedout={updateOnSdkTimedout}
-          updateOnSdkReady={updateOnSdkReady}  >
+          updateOnSdkReady={updateOnSdkReady}
+          updateOnSdkReadyFromCache={updateOnSdkReadyFromCache} >
           {(splitProps) => {
             return (
               <WrappedComponent
