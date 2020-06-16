@@ -1,15 +1,14 @@
-import { Treatment, TreatmentWithConfig } from '@splitsoftware/splitio/types/splitio';
 // The string below is a marker and will be replaced by the real version number. DO NOT CHANGE
 export const VERSION: string = 'react-' + 'REACT_SDK_VERSION_NUMBER';
 
 // Treatments
-export const ON: Treatment = 'on';
+export const ON: SplitIO.Treatment = 'on';
 
-export const OFF: Treatment = 'off';
+export const OFF: SplitIO.Treatment = 'off';
 
-export const CONTROL: Treatment = 'control'; // SplitIO default value
+export const CONTROL: SplitIO.Treatment = 'control'; // SplitIO default value
 
-export const CONTROL_WITH_CONFIG: TreatmentWithConfig = {
+export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   treatment: 'control', // SplitIO default value
   config: null,
 };
