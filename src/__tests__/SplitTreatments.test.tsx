@@ -22,7 +22,7 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
-import { IClientWithContext, getIsReady } from '../utils';
+import { getIsReady } from '../utils';
 
 describe('SplitTreatments', () => {
 
@@ -56,7 +56,7 @@ describe('SplitTreatments', () => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect(getIsReady(outerFactory.client() as IClientWithContext)).toBe(isReady);
+            expect(getIsReady(outerFactory.client())).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >

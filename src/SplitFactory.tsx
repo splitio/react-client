@@ -4,7 +4,7 @@ import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitContextValues, ISplitFactoryProps } from './types';
 import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout, IClientWithContext } from './utils';
+import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout } from './utils';
 
 /**
  * SplitFactory will initialize the Split SDK and listen for its events in order to update the Split Context.
@@ -44,7 +44,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
       (factory.settings.version as any) = VERSION;
     }
 
-    const client = factory ? (factory.client() as IClientWithContext) : null;
+    const client = factory ? factory.client() : null;
 
     if (client) {
       this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
@@ -59,7 +59,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
   }
 
   // Listen SDK events
-  subscribeToEvents(client: IClientWithContext, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
+  subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
 
     if (updateOnSdkReady && !getIsReady(client)) {
       client.once(client.Event.SDK_READY, () => {

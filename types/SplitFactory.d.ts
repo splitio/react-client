@@ -1,5 +1,5 @@
 import React from 'react';
-import { ISplitContextValues, ISplitFactoryProps, IClientWithStatus } from './types';
+import { ISplitContextValues, ISplitFactoryProps } from './types';
 /**
  * SplitFactory will initialize the Split SDK and listen for its events in order to update the Split Context.
  * SplitFactory must wrap other components and functions from this library, since they access the Split Context
@@ -11,7 +11,8 @@ declare class SplitFactory extends React.Component<ISplitFactoryProps, ISplitCon
     static defaultProps: ISplitFactoryProps;
     readonly state: Readonly<ISplitContextValues>;
     constructor(props: ISplitFactoryProps);
-    subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean): void;
+    subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean): void;
+    componentWillUnmount(): void;
     render(): JSX.Element;
 }
 export default SplitFactory;

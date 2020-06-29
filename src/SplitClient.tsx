@@ -1,7 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues } from './types';
-import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout, IClientWithContext } from './utils';
+import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
 /**
@@ -35,7 +35,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     }
 
     // Init new client
-    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithContext) : null;
+    const client = factory ? factory.client(splitKey, trafficType) : null;
 
     if (client) {
       this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
@@ -49,7 +49,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
   }
 
   // Listen SDK events
-  subscribeToEvents(client: IClientWithContext, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
+  subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
 
     if (updateOnSdkReady && !getIsReady(client)) {
       client.once(client.Event.SDK_READY, this.setReady);
@@ -102,7 +102,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     { splitContext: { factory }, splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate }: ISplitClientProps & { splitContext: ISplitContextValues },
     nextState: ISplitContextValues) {
 
-    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithContext) : null;
+    const client = factory ? factory.client(splitKey, trafficType) : null;
 
     // resubscribe to events whether client changed or updateOnSdk** props changed
     const changeListeners = client !== nextState.client ||

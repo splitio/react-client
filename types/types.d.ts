@@ -165,13 +165,4 @@ export interface ISplitTreatmentsProps {
      */
     children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null);
 }
-/**
- * ClientWithStatus interface.
- */
-export interface IClientWithStatus extends SplitIO.IClient {
-    isReady: () => boolean;
-    isReadyFromCache: () => boolean;
-    hasTimedout: () => boolean;
-    isDestroyed: () => boolean;
-}
 export {};

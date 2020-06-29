@@ -1,7 +1,9 @@
+// This utils might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
+
 /**
  * ClientWithContext interface.
  */
-export interface IClientWithContext extends SplitIO.IClient {
+interface IClientWithContext extends SplitIO.IClient {
   __context: {
     constants: {
       READY: 'is_ready',
@@ -21,30 +23,30 @@ export interface IClientStatus {
   isDestroyed: boolean;
 }
 
-export function getIsReady(client: IClientWithContext | null) {
-  return client && client.__context.get(client.__context.constants.READY, true) ? true : false;
+export function getIsReady(client: SplitIO.IClient): boolean {
+  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY, true) ? true : false;
 }
 
-export function getIsReadyFromCache(client: IClientWithContext | null) {
-  return client && client.__context.get(client.__context.constants.READY_FROM_CACHE, true) ? true : false;
+export function getIsReadyFromCache(client: SplitIO.IClient): boolean {
+  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY_FROM_CACHE, true) ? true : false;
 }
 
-export function getHasTimedout(client: IClientWithContext | null) {
-  return client && client.__context.get(client.__context.constants.HAS_TIMEDOUT, true) ? true : false;
+export function getHasTimedout(client: SplitIO.IClient): boolean {
+  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
 }
 
-export function getIsDestroyed(client: IClientWithContext | null) {
-  return client && client.__context.get(client.__context.constants.DESTROYED, true) ? true : false;
+export function getIsDestroyed(client: SplitIO.IClient): boolean {
+  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
 }
 
-export function getStatus(client: IClientWithContext | null): IClientStatus {
-  const isReady = getIsReady(client);
-  const hasTimedout = getHasTimedout(client);
+export function getStatus(client: SplitIO.IClient | null): IClientStatus {
+  const isReady = client ? getIsReady(client) : false;
+  const hasTimedout = client ? getHasTimedout(client) : false;
   return {
     isReady,
-    isReadyFromCache: getIsReadyFromCache(client),
+    isReadyFromCache: client ? getIsReadyFromCache(client) : false,
     isTimedout: hasTimedout && !isReady,
     hasTimedout,
-    isDestroyed: getIsDestroyed(client),
+    isDestroyed: client ? getIsDestroyed(client) : false,
   };
 }
