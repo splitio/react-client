@@ -10,6 +10,7 @@ import { ISplitContextValues, ISplitFactoryProps } from './types';
 declare class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValues> {
     static defaultProps: ISplitFactoryProps;
     readonly state: Readonly<ISplitContextValues>;
+    readonly isFactoryExternal: boolean;
     constructor(props: ISplitFactoryProps);
     subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean): void;
     componentWillUnmount(): void;
