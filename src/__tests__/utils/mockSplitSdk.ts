@@ -27,14 +27,14 @@ function buildInstanceId(key: any, trafficType: string | undefined) {
 
 function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   // Readiness
-  let __isReady__ = false;
-  let __isReadyFromCache__ = false;
-  let __isTimedout__ = false;
-  let __isDestroyed__ = false;
+  let __isReady__: boolean | undefined;
+  let __isReadyFromCache__: boolean | undefined;
+  let __hasTimedout__: boolean | undefined;
+  let __isDestroyed__: boolean | undefined;
   const __emitter__ = new EventEmitter();
   __emitter__.once(Event.SDK_READY, () => { __isReady__ = true; });
   __emitter__.once(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
-  __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { __isTimedout__ = true; });
+  __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
 
   // Client methods
   const track: jest.Mock = jest.fn(() => {
@@ -46,21 +46,30 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   const ready: jest.Mock = jest.fn(() => {
     return new Promise((res, rej) => {
       __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
-      __isTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
+      __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
     });
   });
-  const isReady: jest.Mock = jest.fn(() => {
-    return __isReady__;
-  });
-  const isReadyFromCache: jest.Mock = jest.fn(() => {
-    return __isReadyFromCache__;
-  });
-  const hasTimedout: jest.Mock = jest.fn(() => {
-    return __isTimedout__;
-  });
-  const isDestroyed: jest.Mock = jest.fn(() => {
-    return __isDestroyed__;
-  });
+  const context = {
+    constants: {
+      READY: 'is_ready',
+      READY_FROM_CACHE: 'is_ready_from_cache',
+      HAS_TIMEDOUT: 'has_timedout',
+      DESTROYED: 'is_destroyed',
+    },
+    get(name: string, flagCheck: boolean = false): boolean | undefined {
+      if (flagCheck !== true) throw new Error('Don\'t use promise result on SDK context');
+      switch (name) {
+        case this.constants.READY:
+          return __isReady__;
+        case this.constants.READY_FROM_CACHE:
+          return __isReadyFromCache__;
+        case this.constants.HAS_TIMEDOUT:
+          return __hasTimedout__;
+        case this.constants.DESTROYED:
+          return __isDestroyed__;
+      }
+    },
+  };
   const destroy: jest.Mock = jest.fn(() => {
     __isDestroyed__ = true;
     return Promise.resolve();
@@ -70,14 +79,12 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
     getTreatmentsWithConfig,
     track,
     ready,
-    isReady,
-    isReadyFromCache,
-    hasTimedout,
-    isDestroyed,
     destroy,
     Event,
     // EventEmitter exposed to trigger events manually
     __emitter__,
+    // Factory context exposed to get client readiness status (READY, READY_FROM_CACHE, HAS_TIMEDOUT, DESTROYED)
+    __context: context,
   });
 }
 

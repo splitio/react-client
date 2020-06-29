@@ -1,6 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
-import { ISplitClientProps, ISplitContextValues, IClientWithStatus } from './types';
+import { ISplitClientProps, ISplitContextValues } from './types';
+import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout, IClientWithContext } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
 /**
@@ -34,7 +35,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     }
 
     // Init new client
-    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithStatus) : null;
+    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithContext) : null;
 
     if (client) {
       this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
@@ -43,26 +44,22 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     this.state = {
       ...props.splitContext,
       client,
-      isReady: client ? client.isReady() : false,
-      isReadyFromCache: client ? client.isReadyFromCache() : false,
-      isTimedout: client ? client.hasTimedout() && !client.isReady() : false,
-      hasTimedout: client ? client.hasTimedout() : false,
-      isDestroyed: client ? client.isDestroyed() : false,
+      ...getStatus(client),
     };
   }
 
   // Listen SDK events
-  subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
+  subscribeToEvents(client: IClientWithContext, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
 
-    if (updateOnSdkReady && !client.isReady()) {
+    if (updateOnSdkReady && !getIsReady(client)) {
       client.once(client.Event.SDK_READY, this.setReady);
     }
 
-    if (updateOnSdkReadyFromCache && !client.isReadyFromCache()) {
+    if (updateOnSdkReadyFromCache && !getIsReadyFromCache(client)) {
       client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
     }
 
-    if (updateOnSdkTimedout && !client.hasTimedout()) {
+    if (updateOnSdkTimedout && !getHasTimedout(client)) {
       client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
     }
 
@@ -105,7 +102,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     { splitContext: { factory }, splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate }: ISplitClientProps & { splitContext: ISplitContextValues },
     nextState: ISplitContextValues) {
 
-    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithStatus) : null;
+    const client = factory ? (factory.client(splitKey, trafficType) as IClientWithContext) : null;
 
     // resubscribe to events whether client changed or updateOnSdk** props changed
     const changeListeners = client !== nextState.client ||
@@ -124,11 +121,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
       this.setState({
         client,
         factory, // factory might have changed in the Split context
-        isReady: client ? client.isReady() : false,
-        isReadyFromCache: client ? client.isReadyFromCache() : false,
-        isTimedout: client ? client.hasTimedout() && !client.isReady() : false,
-        hasTimedout: client ? client.hasTimedout() : false,
-        isDestroyed: client ? client.isDestroyed() : false,
+        ...getStatus(client),
       });
       return false;
     }

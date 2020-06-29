@@ -10,7 +10,7 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 import { sdkBrowser } from './utils/sdkConfigs';
 
 /** Test target */
-import { ISplitTreatmentsChildProps, IClientWithStatus } from '../types';
+import { ISplitTreatmentsChildProps } from '../types';
 import SplitTreatments from '../SplitTreatments';
 import SplitClient from '../SplitClient';
 import SplitFactory from '../SplitFactory';
@@ -22,6 +22,7 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
+import { IClientWithContext, getIsReady } from '../utils';
 
 describe('SplitTreatments', () => {
 
@@ -55,7 +56,7 @@ describe('SplitTreatments', () => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect((outerFactory.client() as IClientWithStatus).isReady()).toBe(isReady);
+            expect(getIsReady(outerFactory.client() as IClientWithContext)).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >

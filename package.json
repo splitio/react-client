@@ -58,7 +58,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "10.12.2-canary.0"
+    "@splitsoftware/splitio": "^10.13.0"
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.4",
