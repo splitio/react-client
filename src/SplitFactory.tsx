@@ -89,6 +89,10 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
   }
 
+  componentWillUnmount() {
+    this.state.client?.destroy();
+  }
+
   render() {
     const { children } = this.props;
 
