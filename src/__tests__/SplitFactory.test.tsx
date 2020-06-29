@@ -49,7 +49,7 @@ describe('SplitFactory', () => {
     });
   });
 
-  test('rerender child on SDK_READY_TIMEDOUT, SDK_READY and SDK_UPDATE events.', (done) => {
+  test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY and SDK_UPDATE events.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -101,7 +101,7 @@ describe('SplitFactory', () => {
     });
   });
 
-  test('rerender child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', (done) => {
+  test('rerenders child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -149,7 +149,7 @@ describe('SplitFactory', () => {
     });
   });
 
-  test('rerender child only on SDK_READY event, as default behaviour.', (done) => {
+  test('rerenders child only on SDK_READY event, as default behaviour.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -244,19 +244,29 @@ describe('SplitFactory', () => {
 
   test('cleans up on unmount.', () => {
     let destroySpy;
-    const outerFactory = SplitSdk(sdkBrowser);
-    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     const wrapper = mount(
-      <SplitFactory factory={outerFactory}>
+      <SplitFactory config={sdkBrowser} >
         {({ factory }) => {
-          expect(outerFactory).toBe(outerFactory);
-          console.log(outerFactory.client());
-          destroySpy = jest.spyOn(outerFactory.client(), 'destroy');
+          destroySpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
           return null;
         }}
       </SplitFactory>);
     wrapper.unmount();
     expect(destroySpy).toBeCalled();
+  });
+
+  test('doesn\'t clean up on unmount if the factory is provided as a prop.', () => {
+    let destroySpy;
+    const outerFactory = SplitSdk(sdkBrowser);
+    const wrapper = mount(
+      <SplitFactory factory={outerFactory}>
+        {({ factory }) => {
+          destroySpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          return null;
+        }}
+      </SplitFactory>);
+    wrapper.unmount();
+    expect(destroySpy).not.toBeCalled();
   });
 
 });
