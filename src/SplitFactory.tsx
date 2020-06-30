@@ -38,6 +38,8 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     // Instantiate factory and main client.
+    // We use an idempotent variant of the SplitSdk factory (given the same config,
+    // it returns the same instance), since the constructor can be invoked multiple times.
     const factory = propFactory || (config ? IdempotentSplitSDK(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
@@ -59,40 +61,59 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     this.subscribeToEvents();
   }
 
-  // Listen SDK events
+  // Attach listeners to SDK events and update state if client status change,
+  // considering the value of `updateOnSdk***` props
   subscribeToEvents() {
-    const { client } = this.state;
+    const { client, isReady, isReadyFromCache, hasTimedout } = this.state;
     if (client) {
       const status = getStatus(client);
       const { updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate } = this.props;
 
-      if (updateOnSdkReady && !status.isReady) {
-        client.once(client.Event.SDK_READY, () => {
-          this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-        });
+      if (updateOnSdkReady) {
+        if (!status.isReady) {
+          client.once(client.Event.SDK_READY, this.setReady);
+        } else {
+          if (!isReady) this.setReady();
+        }
       }
 
-      if (updateOnSdkReadyFromCache && !status.isReadyFromCache) {
-        client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-          this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
-        });
+      if (updateOnSdkReadyFromCache) {
+        if (!status.isReadyFromCache) {
+          client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+        } else {
+          if (!isReadyFromCache) this.setReadyFromCache();
+        }
       }
 
-      if (updateOnSdkTimedout && !status.hasTimedout) {
-        client.once(client.Event.SDK_READY_TIMED_OUT, () => {
-          this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
-        });
+      if (updateOnSdkTimedout) {
+        if (!status.hasTimedout) {
+          client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+        } else {
+          if (!hasTimedout) this.setTimedout();
+        }
       }
 
       if (updateOnSdkUpdate) {
-        client.on(client.Event.SDK_UPDATE, () => {
-          this.setState({ lastUpdate: Date.now() });
-        });
+        client.on(client.Event.SDK_UPDATE, this.setUpdate);
       }
 
-      // @TODO update state in case some status property change
-      // this.setState(status);
     }
+  }
+
+  setReady = () => {
+    this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
+  }
+
+  setReadyFromCache = () => {
+    this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
+  }
+
+  setTimedout = () => {
+    this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
+  }
+
+  setUpdate = () => {
+    this.setState({ lastUpdate: Date.now() });
   }
 
   componentWillUnmount() {
