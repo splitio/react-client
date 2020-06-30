@@ -24,6 +24,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
   };
 
   readonly state: Readonly<ISplitContextValues>;
+  readonly isFactoryExternal: boolean;
 
   constructor(props: ISplitFactoryProps) {
     super(props);
@@ -39,6 +40,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
 
     // Instantiate factory and main client.
     const factory = propFactory || (config ? SplitSDK(config) : null);
+    this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
     if (config && factory) {
       (factory.settings.version as any) = VERSION;
@@ -101,7 +103,10 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
   }
 
   componentWillUnmount() {
-    this.state.client?.destroy();
+    // only destroy the client if the factory was created internally. Otherwise, the shutdown must be handled by the user
+    if (!this.isFactoryExternal && this.state.client) {
+      this.state.client.destroy();
+    }
   }
 
   render() {
