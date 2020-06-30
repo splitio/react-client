@@ -1,4 +1,15 @@
-// This utils might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
+import { SplitFactory as SplitSDK } from '@splitsoftware/splitio';
+
+const factories: Map<SplitIO.IBrowserSettings, SplitIO.ISDK> = new Map();
+
+export function IdempotentSplitSDK(config: SplitIO.IBrowserSettings): SplitIO.ISDK {
+  if (!factories.has(config)) {
+    factories.set(config, SplitSDK(config));
+  }
+  return (factories.get(config) as SplitIO.ISDK);
+}
+
+// The following utils might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 
 /**
  * ClientWithContext interface.
@@ -24,19 +35,19 @@ export interface IClientStatus {
 }
 
 export function getIsReady(client: SplitIO.IClient): boolean {
-  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY, true) ? true : false;
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY, true) ? true : false;
 }
 
 export function getIsReadyFromCache(client: SplitIO.IClient): boolean {
-  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY_FROM_CACHE, true) ? true : false;
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY_FROM_CACHE, true) ? true : false;
 }
 
 export function getHasTimedout(client: SplitIO.IClient): boolean {
-  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
 }
 
 export function getIsDestroyed(client: SplitIO.IClient): boolean {
-  return client && (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
 }
 
 export function getStatus(client: SplitIO.IClient | null): IClientStatus {

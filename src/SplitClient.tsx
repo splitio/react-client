@@ -1,7 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues } from './types';
-import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout } from './utils';
+import { getStatus } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
 /**
@@ -27,7 +27,7 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
   constructor(props: ISplitClientProps & { splitContext: ISplitContextValues }) {
     super(props);
 
-    const { splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkUpdate, updateOnSdkTimedout, splitContext: { factory } } = props;
+    const { splitKey, trafficType, splitContext: { factory } } = props;
 
     // Log error if factory is not available
     if (!factory) {
@@ -37,10 +37,6 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     // Init new client
     const client = factory ? factory.client(splitKey, trafficType) : null;
 
-    if (client) {
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
-    }
-
     this.state = {
       ...props.splitContext,
       client,
@@ -48,24 +44,37 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     };
   }
 
+  componentDidMount() {
+    const { client } = this.state;
+    if (client) {
+      const { updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkUpdate, updateOnSdkTimedout } = this.props;
+      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
+    }
+  }
+
   // Listen SDK events
   subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
 
-    if (updateOnSdkReady && !getIsReady(client)) {
+    const status = getStatus(client);
+
+    if (updateOnSdkReady && !status.isReady) {
       client.once(client.Event.SDK_READY, this.setReady);
     }
 
-    if (updateOnSdkReadyFromCache && !getIsReadyFromCache(client)) {
+    if (updateOnSdkReadyFromCache && !status.isReadyFromCache) {
       client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
     }
 
-    if (updateOnSdkTimedout && !getHasTimedout(client)) {
+    if (updateOnSdkTimedout && !status.hasTimedout) {
       client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
     }
 
     if (updateOnSdkUpdate) {
       client.on(client.Event.SDK_UPDATE, this.setUpdate);
     }
+
+    // @TODO update state in case some status property change
+    // this.setState(status);
   }
 
   setReady = () => {

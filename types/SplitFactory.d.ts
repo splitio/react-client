@@ -12,7 +12,8 @@ declare class SplitFactory extends React.Component<ISplitFactoryProps, ISplitCon
     readonly state: Readonly<ISplitContextValues>;
     readonly isFactoryExternal: boolean;
     constructor(props: ISplitFactoryProps);
-    subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean): void;
+    componentDidMount(): void;
+    subscribeToEvents(): void;
     componentWillUnmount(): void;
     render(): JSX.Element;
 }

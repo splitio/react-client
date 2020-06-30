@@ -1,10 +1,9 @@
-import { SplitFactory as SplitSDK } from '@splitsoftware/splitio';
 import React from 'react';
 
 import SplitContext from './SplitContext';
 import { ISplitContextValues, ISplitFactoryProps } from './types';
 import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getStatus, getIsReady, getIsReadyFromCache, getHasTimedout } from './utils';
+import { getStatus, IdempotentSplitSDK } from './utils';
 
 /**
  * SplitFactory will initialize the Split SDK and listen for its events in order to update the Split Context.
@@ -30,7 +29,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     super(props);
 
     // Log warning and error
-    const { factory: propFactory, config, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate } = props;
+    const { factory: propFactory, config } = props;
     if (!config && !propFactory) {
       console.error(ERROR_SF_NO_CONFIG_AND_FACTORY);
     }
@@ -39,7 +38,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     // Instantiate factory and main client.
-    const factory = propFactory || (config ? SplitSDK(config) : null);
+    const factory = propFactory || (config ? IdempotentSplitSDK(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
     if (config && factory) {
@@ -47,10 +46,6 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     const client = factory ? factory.client() : null;
-
-    if (client) {
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
-    }
 
     this.state = {
       client,
@@ -60,31 +55,43 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     };
   }
 
+  componentDidMount() {
+    this.subscribeToEvents();
+  }
+
   // Listen SDK events
-  subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
+  subscribeToEvents() {
+    const { client } = this.state;
+    if (client) {
+      const status = getStatus(client);
+      const { updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate } = this.props;
 
-    if (updateOnSdkReady && !getIsReady(client)) {
-      client.once(client.Event.SDK_READY, () => {
-        this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-      });
-    }
+      if (updateOnSdkReady && !status.isReady) {
+        client.once(client.Event.SDK_READY, () => {
+          this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
+        });
+      }
 
-    if (updateOnSdkReadyFromCache && !getIsReadyFromCache(client)) {
-      client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-        this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
-      });
-    }
+      if (updateOnSdkReadyFromCache && !status.isReadyFromCache) {
+        client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+          this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
+        });
+      }
 
-    if (updateOnSdkTimedout && !getHasTimedout(client)) {
-      client.once(client.Event.SDK_READY_TIMED_OUT, () => {
-        this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
-      });
-    }
+      if (updateOnSdkTimedout && !status.hasTimedout) {
+        client.once(client.Event.SDK_READY_TIMED_OUT, () => {
+          this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
+        });
+      }
 
-    if (updateOnSdkUpdate) {
-      client.on(client.Event.SDK_UPDATE, () => {
-        this.setState({ lastUpdate: Date.now() });
-      });
+      if (updateOnSdkUpdate) {
+        client.on(client.Event.SDK_UPDATE, () => {
+          this.setState({ lastUpdate: Date.now() });
+        });
+      }
+
+      // @TODO update state in case some status property change
+      // this.setState(status);
     }
   }
 
