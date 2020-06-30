@@ -10,9 +10,11 @@ import { ISplitContextValues, ISplitFactoryProps, IClientWithStatus } from './ty
 declare class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValues> {
     static defaultProps: ISplitFactoryProps;
     readonly state: Readonly<ISplitContextValues>;
+    readonly isFactoryExternal: boolean;
     constructor(props: ISplitFactoryProps);
     subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean): void;
     sdkUpdate: () => void;
+    componentWillUnmount(): void;
     render(): JSX.Element;
 }
 export default SplitFactory;

@@ -28,6 +28,7 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   // Readiness
   let __isReady__ = false;
   let __isTimedout__ = false;
+  let __isDestroyed__ = false;
   const __emitter__ = new EventEmitter();
   __emitter__.once(Event.SDK_READY, () => { __isReady__ = true; });
   __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { __isTimedout__ = true; });
@@ -45,11 +46,16 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
       __isTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
     });
   });
+  const destroy: jest.Mock = jest.fn(() => {
+    __isDestroyed__ = true;
+    return Promise.resolve();
+  });
 
   return Object.assign(Object.create(__emitter__), {
     getTreatmentsWithConfig,
     track,
     ready,
+    destroy,
     Event,
     // EventEmitter exposed to trigger events manually
     __emitter__,
