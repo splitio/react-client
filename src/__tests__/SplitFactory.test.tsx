@@ -108,19 +108,22 @@ describe('SplitFactory', () => {
 
     shallow(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isTimedout, hasTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           switch (renderTimes) {
             case 0: // No ready
               expect(isReady).toBe(false);
               expect(isTimedout).toBe(false);
+              expect(hasTimedout).toBe(false);
               break;
             case 1: // Timedout
               expect(isReady).toBe(false);
               expect(isTimedout).toBe(true);
+              expect(hasTimedout).toBe(true);
               break;
-            case 2: // Updated. Although the SDK main client is ready, props are like timedout.
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(true);
+            case 2: // Updated. Although `updateOnSdkReady` is false, status props must reflect the current status of the client.
+              expect(isReady).toBe(true);
+              expect(isTimedout).toBe(false);
+              expect(hasTimedout).toBe(true);
               break;
             default:
               fail('Child must not be rerendered');
