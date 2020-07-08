@@ -14,6 +14,7 @@ declare class SplitFactory extends React.Component<ISplitFactoryProps, ISplitCon
     constructor(props: ISplitFactoryProps);
     componentDidMount(): void;
     subscribeToEvents(): void;
+    unsubscribeFromEvents(): void;
     setReady: () => void;
     setReadyFromCache: () => void;
     setTimedout: () => void;

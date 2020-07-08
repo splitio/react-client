@@ -143,7 +143,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
       <SplitContext.Provider value={this.state} >{
         typeof children === 'function' ?
           children({ ...this.state }) :
-          this.props.children
+          children
       }</SplitContext.Provider>
     );
   }
