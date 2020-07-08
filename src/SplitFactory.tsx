@@ -38,8 +38,8 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     // Instantiate factory and main client.
-    // We use an idempotent variant of the SplitSdk factory (given the same config,
-    // it returns the same instance), since the constructor can be invoked multiple times.
+    // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the
+    // same already created instance), since React component constructors can be invoked multiple times.
     const factory = propFactory || (config ? IdempotentSplitSDK(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
@@ -66,11 +66,11 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
   subscribeToEvents() {
     const { client, isReady, isReadyFromCache, hasTimedout } = this.state;
     if (client) {
-      const status = getStatus(client);
+      const currentStatus = getStatus(client);
       const { updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate } = this.props;
 
       if (updateOnSdkReady) {
-        if (!status.isReady) {
+        if (!currentStatus.isReady) {
           client.once(client.Event.SDK_READY, this.setReady);
         } else {
           if (!isReady) this.setReady();
@@ -78,7 +78,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
       }
 
       if (updateOnSdkReadyFromCache) {
-        if (!status.isReadyFromCache) {
+        if (!currentStatus.isReadyFromCache) {
           client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
         } else {
           if (!isReadyFromCache) this.setReadyFromCache();
@@ -86,7 +86,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
       }
 
       if (updateOnSdkTimedout) {
-        if (!status.hasTimedout) {
+        if (!currentStatus.hasTimedout) {
           client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
         } else {
           if (!hasTimedout) this.setTimedout();
@@ -97,6 +97,16 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
         client.on(client.Event.SDK_UPDATE, this.setUpdate);
       }
 
+    }
+  }
+
+  unsubscribeFromEvents() {
+    const { client } = this.state;
+    if (client) {
+      client.removeListener(client.Event.SDK_READY, this.setReady);
+      client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+      client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+      client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
     }
   }
 
@@ -117,6 +127,9 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
   }
 
   componentWillUnmount() {
+    // unsubscrite to SDK client events. Mainly required when the factory is provided externally
+    this.unsubscribeFromEvents();
+
     // only destroy the client if the factory was created internally. Otherwise, the shutdown must be handled by the user
     if (!this.isFactoryExternal && this.state.client) {
       this.state.client.destroy();

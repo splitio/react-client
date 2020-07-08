@@ -1,10 +1,10 @@
 1.2.0 (Jul XX, 2020)
- - Updated `@splitsoftware/splitio` dependency to version 10.13.0, that uses streaming synchronization by default. Streaming can be disabled via the `streamingEnabled` config param.
-  If disabled or in the event of an issue, the SDK will fallback to the known polling mechanism to provide a seamless experience.
- - Added missing status properties of Split clients (`isReadyFromCache`, `hasTimedout`, and `isDestroyed`) into SplitContext. They are passed down as props to the child of both SplitFactory,
- SplitClient and SplitTreatments components.
- - Added gracefull shut down of Split SDK, when SplitFactory component is unmounted.
+ - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
+ - Added missing status properties of Split clients (`isReadyFromCache`, `hasTimedout`, and `isDestroyed`) into SplitContext. They are passed down as props when using functions as a child of both SplitFactory, SplitClient and SplitTreatments components.
+ - Added gracefull shutdown of the SDK, when SplitFactory component is unmounted.
  - Bugfixing - Incorrect status properties in SplitContext when using SplitClient component.
+ - Bugfixing - Properly handling side-effects (creating Split factory) in SplitFactory component constructor.
+ - Bugfixing - Properly handling component state updates in React commit phase.
 
 1.1.0 (March 11, 2020)
  - Exported `SplitContext` to access Split readiness state when using React hooks.
