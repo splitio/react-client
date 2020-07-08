@@ -12,8 +12,6 @@ import { ERROR_SC_NO_FACTORY } from './constants';
  */
 class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
 
-  static contextType = SplitContext;
-
   static defaultProps = {
     updateOnSdkUpdate: false,
     updateOnSdkTimedout: false,
@@ -24,17 +22,18 @@ class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO
     client: null,
   };
 
-  // We could avoid this method by removing the client and its status from the component state.
-  // But we would need another instance object to keep this data and use, instead of the state, as unique reference value for SplitContext.Producer
+  // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
+  // It could be avoided by removing the client and its status from the component state.
+  // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, state: ISplitContextValues) {
     const { client, factory } = props;
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
-      (status.isReady !== state.isReady && props.updateOnSdkReady) ||
-      (status.isReadyFromCache !== state.isReadyFromCache && props.updateOnSdkReadyFromCache) ||
-      (status.hasTimedout !== state.hasTimedout && props.updateOnSdkTimedout) ||
-      (status.isDestroyed !== state.isDestroyed)) {
+      status.isReady !== state.isReady ||
+      status.isReadyFromCache !== state.isReadyFromCache ||
+      status.hasTimedout !== state.hasTimedout ||
+      status.isDestroyed !== state.isDestroyed) {
       return {
         client,
         factory,
@@ -61,22 +60,6 @@ class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO
       ...getStatus(client),
       lastUpdate: 0,
     };
-  }
-
-  componentDidMount() {
-    this.subscribeToEvents(this.props.client);
-  }
-
-  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
-    if (this.props.client !== prevProps.client) {
-      this.unsubscribeFromEvents(prevProps.client);
-      this.subscribeToEvents(this.props.client);
-    }
-  }
-
-  componentWillUnmount() {
-    // unsubscrite to SDK client events, to remove references to SplitClient instance methods
-    this.unsubscribeFromEvents(this.props.client);
   }
 
   // Attach listeners for SDK events, to update state if client status change.
@@ -113,6 +96,22 @@ class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO
 
   setUpdate = () => {
     if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: Date.now() });
+  }
+
+  componentDidMount() {
+    this.subscribeToEvents(this.props.client);
+  }
+
+  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
+    if (this.props.client !== prevProps.client) {
+      this.unsubscribeFromEvents(prevProps.client);
+      this.subscribeToEvents(this.props.client);
+    }
+  }
+
+  componentWillUnmount() {
+    // unsubscrite to SDK client events, to remove references to SplitClient instance methods
+    this.unsubscribeFromEvents(this.props.client);
   }
 
   render() {
