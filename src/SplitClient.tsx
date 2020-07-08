@@ -10,7 +10,7 @@ import { ERROR_SC_NO_FACTORY } from './constants';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-class SplitClient extends React.Component<ISplitClientProps & { splitContext: ISplitContextValues }, ISplitContextValues> {
+class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
 
   static contextType = SplitContext;
 
@@ -20,126 +20,99 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
     updateOnSdkReady: true,
     updateOnSdkReadyFromCache: true,
     children: null,
+    factory: null,
+    client: null,
   };
+
+  // We could avoid this method by removing the client and its status from the component state.
+  // But we would need another instance object to keep this data and use, instead of the state, as unique reference value for SplitContext.Producer
+  static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, state: ISplitContextValues) {
+    const { client, factory } = props;
+    const status = getStatus(client);
+    // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
+    if (client !== state.client ||
+      (status.isReady !== state.isReady && props.updateOnSdkReady) ||
+      (status.isReadyFromCache !== state.isReadyFromCache && props.updateOnSdkReadyFromCache) ||
+      (status.hasTimedout !== state.hasTimedout && props.updateOnSdkTimedout) ||
+      (status.isDestroyed !== state.isDestroyed)) {
+      return {
+        client,
+        factory,
+        ...status,
+      };
+    }
+    return null;
+  }
 
   readonly state: Readonly<ISplitContextValues>;
 
-  constructor(props: ISplitClientProps & { splitContext: ISplitContextValues }) {
+  constructor(props: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
     super(props);
-
-    const { splitKey, trafficType, splitContext: { factory } } = props;
+    const { factory, client } = props;
 
     // Log error if factory is not available
     if (!factory) {
       console.error(ERROR_SC_NO_FACTORY);
     }
 
-    // Init new client
-    const client = factory ? factory.client(splitKey, trafficType) : null;
-
     this.state = {
-      ...props.splitContext,
+      factory,
       client,
       ...getStatus(client),
+      lastUpdate: 0,
     };
   }
 
   componentDidMount() {
-    const { client } = this.state;
-    if (client) {
-      const { updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkUpdate, updateOnSdkTimedout } = this.props;
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
+    this.subscribeToEvents(this.props.client);
+  }
+
+  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
+    if (this.props.client !== prevProps.client) {
+      this.unsubscribeFromEvents(prevProps.client);
+      this.subscribeToEvents(this.props.client);
     }
   }
 
-  // Listen SDK events
-  subscribeToEvents(client: SplitIO.IClient, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) {
+  componentWillUnmount() {
+    // unsubscrite to SDK client events, to remove references to SplitClient instance methods
+    this.unsubscribeFromEvents(this.props.client);
+  }
 
-    const status = getStatus(client);
-
-    if (updateOnSdkReady && !status.isReady) {
+  // Attach listeners for SDK events, to update state if client status change.
+  // The listeners take into account the value of `updateOnSdk***` props.
+  subscribeToEvents(client: SplitIO.IClient | null) {
+    if (client) {
       client.once(client.Event.SDK_READY, this.setReady);
-    }
-
-    if (updateOnSdkReadyFromCache && !status.isReadyFromCache) {
       client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-    }
-
-    if (updateOnSdkTimedout && !status.hasTimedout) {
       client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-    }
-
-    if (updateOnSdkUpdate) {
       client.on(client.Event.SDK_UPDATE, this.setUpdate);
     }
+  }
 
-    // @TODO update state in case some status property change
-    // this.setState(status);
+  unsubscribeFromEvents(client: SplitIO.IClient | null) {
+    if (client) {
+      client.removeListener(client.Event.SDK_READY, this.setReady);
+      client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+      client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+      client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
+    }
   }
 
   setReady = () => {
-    this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
+    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
   }
 
   setReadyFromCache = () => {
-    this.setState({ isReadyFromCache: true, lastUpdate: Date.now() });
+    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: Date.now() });
   }
 
   setTimedout = () => {
-    this.setState({ isTimedout: true, hasTimedout: true, lastUpdate: Date.now() });
+    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: Date.now() });
   }
 
   setUpdate = () => {
-    this.setState({ lastUpdate: Date.now() });
-  }
-
-  unsubscribeFromEvents(client: SplitIO.IClient) {
-    client.removeListener(client.Event.SDK_READY, this.setReady);
-    client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-    client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-    client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
-  }
-
-  /**
-   * The component is updated if:
-   *  - the factory at Split context change or `splitKey` and `trafficType` props change, because it implies that the component has a new SDK client.
-   *  - the client status change for the subscribed events set by `updateOnSdk***` props.
-   *
-   * The component is not updated if updateOnSdk** props change, but they change what status events trigger component updates.
-   */
-  shouldComponentUpdate(
-    { splitContext: { factory }, splitKey, trafficType, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate }: ISplitClientProps & { splitContext: ISplitContextValues },
-    nextState: ISplitContextValues) {
-
-    const client = factory ? factory.client(splitKey, trafficType) : null;
-
-    // resubscribe to events whether client changed or updateOnSdk** props changed
-    const changeListeners = client !== nextState.client ||
-      this.props.updateOnSdkReady !== updateOnSdkReady ||
-      this.props.updateOnSdkReadyFromCache !== updateOnSdkReadyFromCache ||
-      this.props.updateOnSdkTimedout !== updateOnSdkTimedout ||
-      this.props.updateOnSdkUpdate !== updateOnSdkUpdate;
-
-    if (changeListeners) {
-      if (nextState.client) this.unsubscribeFromEvents(nextState.client);
-      if (client) this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
-    }
-
-    // if client has changed, we update it and its status at the component state
-    if (client !== nextState.client) {
-      this.setState({
-        client,
-        factory, // factory might have changed in the Split context
-        ...getStatus(client),
-      });
-      return false;
-    }
-
-    // Update when the client or its status change
-    // (no need to compara isReady, isReadyFromCache or isTimedout. lastUpdate is enough).
-    // Don't update when updateOnSdk** props change.
-    return this.state.client !== nextState.client ||
-      this.state.lastUpdate !== nextState.lastUpdate;
+    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: Date.now() });
   }
 
   render() {
@@ -157,9 +130,14 @@ class SplitClient extends React.Component<ISplitClientProps & { splitContext: IS
 
 // Wrapper to access Split context on SplitClient constructor
 export default (props: ISplitClientProps) => (
-  <SplitContext.Consumer>
-    {(splitContext: ISplitContextValues) =>
-      <SplitClient {...props} splitContext={splitContext} />
+  <SplitContext.Consumer>{
+    (splitContext: ISplitContextValues) => {
+      const { factory } = splitContext;
+      // factory.client is idempotent: it returns the same client given the same Split Key and TT
+      const client = factory ? factory.client(props.splitKey, props.trafficType) : null;
+      return (
+        <SplitClient {...props} factory={factory} client={client} />
+      );
     }
-  </SplitContext.Consumer>
+  }</SplitContext.Consumer>
 );
