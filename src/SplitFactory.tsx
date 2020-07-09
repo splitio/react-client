@@ -3,7 +3,7 @@ import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitContextValues, ISplitFactoryProps } from './types';
 import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getStatus, IdempotentSplitSDK } from './utils';
+import { getStatus, getSplitFactory, destroySplitFactory, IFactoryWithClients } from './utils';
 
 /**
  * SplitFactory will initialize the Split SDK and listen for its events in order to update the Split Context.
@@ -52,9 +52,9 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     // Instantiate factory and main client.
-    // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the
-    // same already created instance), since React component constructors can be invoked multiple times.
-    const factory = propFactory || (config ? IdempotentSplitSDK(config) : null);
+    // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
+    // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
+    const factory = propFactory || (config ? getSplitFactory(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
     if (config && factory) {
@@ -116,8 +116,8 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     this.unsubscribeFromEvents(this.state.client);
 
     // only destroy the client if the factory was created internally. Otherwise, the shutdown must be handled by the user
-    if (!this.isFactoryExternal && this.state.client) {
-      this.state.client.destroy();
+    if (!this.isFactoryExternal && this.state.factory) {
+      destroySplitFactory(this.state.factory as IFactoryWithClients);
     }
   }
 

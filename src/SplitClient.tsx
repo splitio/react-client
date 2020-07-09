@@ -1,7 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues } from './types';
-import { getStatus } from './utils';
+import { getStatus, getSplitSharedClient } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
 /**
@@ -132,8 +132,8 @@ export default (props: ISplitClientProps) => (
   <SplitContext.Consumer>{
     (splitContext: ISplitContextValues) => {
       const { factory } = splitContext;
-      // factory.client is idempotent: it returns the same client given the same Split Key and TT
-      const client = factory ? factory.client(props.splitKey, props.trafficType) : null;
+      // getSplitSharedClient is idempotent: it returns the same client given the same factory, Split Key and TT
+      const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
       return (
         <SplitClient {...props} factory={factory} client={client} />
       );
