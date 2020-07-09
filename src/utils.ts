@@ -1,25 +1,25 @@
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 
-// Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown clients alltogether.
+// Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 
 /**
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.ISDK {
-  sharedClientInstances: { [instanceId: string]: IClientWithContext };
+  sharedClientInstances: Set<IClientWithContext>;
 }
 
 const factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
 
 // idempotent operation
-export function getSplitFactory(config: SplitIO.IBrowserSettings): SplitIO.ISDK {
+export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
   if (!factories.has(config)) {
     // SplitSDK is not an idempotent operation
     const newFactory = SplitSdk(config) as IFactoryWithClients;
-    newFactory.sharedClientInstances = {};
+    newFactory.sharedClientInstances = new Set();
     factories.set(config, newFactory);
   }
-  return (factories.get(config) as SplitIO.ISDK);
+  return (factories.get(config) as IFactoryWithClients);
 }
 
 // idempotent operation
@@ -27,22 +27,17 @@ export function getSplitSharedClient(factory: SplitIO.ISDK, key: SplitIO.SplitKe
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
   if ((factory as IFactoryWithClients).sharedClientInstances) {
-    const instanceId = buildInstanceId(key, trafficType);
-    (factory as IFactoryWithClients).sharedClientInstances[instanceId] = client;
+    (factory as IFactoryWithClients).sharedClientInstances.add(client);
   }
   return client;
 }
 
 export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
   // call destroy of shared clients and main one
-  const destroyPromises = Object.keys(factory.sharedClientInstances).map((instanceId) => factory.sharedClientInstances[instanceId].destroy());
+  const destroyPromises = [];
+  factory.sharedClientInstances.forEach((client) => destroyPromises.push(client.destroy()));
   destroyPromises.push(factory.client().destroy());
   return Promise.all(destroyPromises);
-}
-
-function buildInstanceId(key: SplitIO.SplitKey | undefined, trafficType: string | undefined): string {
-  // @ts-ignore
-  return `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 }
 
 // Utils used to access client status.
