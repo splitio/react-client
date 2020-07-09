@@ -91,7 +91,10 @@ describe('SplitTreatments', () => {
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(passedTreatments);
   });
 
-  // This test might change if sCU is updated to perform a deep comparison of split names and attributes.
+  /**
+   * Tests for shouldComponentUpdate
+   */
+
   it('does not rerender if names and attributes are the same object.', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
@@ -107,8 +110,7 @@ describe('SplitTreatments', () => {
     expect(renderTimes).toBe(1);
   });
 
-  // This test might change if sCU is updated to perform a deep comparison of split names and attributes.
-  it('rerenders if names or attributes are a different object.', () => {
+  it('does not rerender if names and attributes are equals (shallow comparison).', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
@@ -119,7 +121,37 @@ describe('SplitTreatments', () => {
           return null;
         }}
       </SplitTreatments>);
-    wrapper.setProps({ names, attributes: { ...attributes } });
+    wrapper.setProps({ names: [...names], attributes: { ...attributes } });
+    expect(renderTimes).toBe(1);
+  });
+
+  it('rerenders if names are not equals (shallow array comparison).', () => {
+    const names = ['split1', 'split2'];
+    const attributes = { att1: 'att1' };
+    let renderTimes = 0;
+    const wrapper = mount(
+      <SplitTreatments names={names} attributes={attributes} >
+        {() => {
+          renderTimes++;
+          return null;
+        }}
+      </SplitTreatments>);
+    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes } });
+    expect(renderTimes).toBe(2);
+  });
+
+  it('rerenders if attributes are not equals (shallow object comparison).', () => {
+    const names = ['split1', 'split2'];
+    const attributes = { att1: 'att1' };
+    let renderTimes = 0;
+    const wrapper = mount(
+      <SplitTreatments names={names} attributes={attributes} >
+        {() => {
+          renderTimes++;
+          return null;
+        }}
+      </SplitTreatments>);
+    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' } });
     expect(renderTimes).toBe(2);
   });
 
@@ -131,7 +163,7 @@ describe('SplitTreatments', () => {
 
     mount(
       <SplitFactory factory={outerFactory} >
-        <SplitTreatments names={names} attributes={{ ...attributes }} >
+        <SplitTreatments names={names} attributes={attributes} >
           {() => {
             renderTimes++;
             return null;

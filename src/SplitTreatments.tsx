@@ -1,4 +1,5 @@
 import React from 'react';
+import shallowEqual from 'shallowequal';
 import SplitContext from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
@@ -12,9 +13,14 @@ import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-class SplitTreatments extends React.PureComponent<ISplitTreatmentsProps> {
+class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   logWarning?: boolean;
+
+  shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>) {
+    return !shallowEqual(this.props.names, nextProps.names) ||
+      !shallowEqual(this.props.attributes, nextProps.attributes);
+  }
 
   render() {
     const { names, children, attributes } = this.props;
@@ -30,6 +36,7 @@ class SplitTreatments extends React.PureComponent<ISplitTreatmentsProps> {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
           }
+          // SplitTreatments only accepts a function as a child, not an React (JSX) Element
           return children({
             treatments, isReady, isReadyFromCache, isTimedout, hasTimedout, lastUpdate, isDestroyed,
           });
