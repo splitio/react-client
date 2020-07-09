@@ -13,18 +13,15 @@ import { sdkBrowser } from './utils/sdkConfigs';
 import withSplitFactory from '../withSplitFactory';
 import withSplitClient from '../withSplitClient';
 import SplitClient from '../SplitClient';
-import SplitFactory from '../SplitFactory';
 
 describe('SplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
     const Component = withSplitFactory(sdkBrowser)<{}>(
       withSplitClient('user1')(
-        ({ client, isReady, isTimedout, lastUpdate }) => {
+        ({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }) => {
           expect(client).not.toBe(null);
-          expect(isReady).toBe(false);
-          expect(isTimedout).toBe(false);
-          expect(lastUpdate).toBe(0);
+          expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
         }));
     mount(<Component />);
@@ -37,11 +34,9 @@ describe('SplitClient', () => {
     outerFactory.client().ready().then(() => {
       const Component = withSplitFactory(undefined, outerFactory)<{}>(
         withSplitClient('user1')(
-          ({ client, isReady, isTimedout, lastUpdate }) => {
+          ({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }) => {
             expect(client).toBe(outerFactory.client('user1'));
-            expect(isReady).toBe(false);
-            expect(isTimedout).toBe(false);
-            expect(lastUpdate).toBe(0);
+            expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
             return null;
           }));
       mount(<Component />);
@@ -52,13 +47,11 @@ describe('SplitClient', () => {
   test('passes Split props and outer props to the child.', () => {
     const Component = withSplitFactory(sdkBrowser)<{ outerProp1: string, outerProp2: number }>(
       withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
-        ({ outerProp1, outerProp2, client, isReady, isTimedout, lastUpdate }) => {
+        ({ outerProp1, outerProp2, client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }) => {
           expect(outerProp1).toBe('outerProp1');
           expect(outerProp2).toBe(2);
           expect(client).not.toBe(null);
-          expect(isReady).toBe(false);
-          expect(isTimedout).toBe(false);
-          expect(lastUpdate).toBe(0);
+          expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
         }));
     mount(<Component outerProp1='outerProp1' outerProp2={2} />);
@@ -68,13 +61,15 @@ describe('SplitClient', () => {
     const updateOnSdkUpdate = true;
     const updateOnSdkTimedout = false;
     const updateOnSdkReady = true;
+    const updateOnSdkReadyFromCache = false;
     const Component = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
-      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady);
+      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
     const wrapper = shallow(<Component outerProp1='outerProp1' outerProp2={2} />);
     expect(wrapper.type()).toBe(SplitClient);
     expect(wrapper.prop('updateOnSdkUpdate')).toBe(updateOnSdkUpdate);
     expect(wrapper.prop('updateOnSdkTimedout')).toBe(updateOnSdkTimedout);
     expect(wrapper.prop('updateOnSdkReady')).toBe(updateOnSdkReady);
+    expect(wrapper.prop('updateOnSdkReadyFromCache')).toBe(updateOnSdkReadyFromCache);
   });
 
 });

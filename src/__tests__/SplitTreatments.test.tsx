@@ -60,11 +60,12 @@ describe('SplitTreatments', () => {
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
+                {({ treatments, isReady: isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitTreatmentsChildProps) => {
                   const clientMock: any = factory?.client();
                   expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
                   expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
                   expect(splitNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
+                  expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
                   done();
                   return null;
                 }}
@@ -155,14 +156,16 @@ describe('SplitTreatments', () => {
     expect(renderTimes).toBe(2);
   });
 
-  test('rerenders when Split context changes.', (done) => {
+  test('rerenders when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
+    let renderTimesComp2 = 0;
 
+    // test context updates on SplitFactory
     mount(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         <SplitTreatments names={names} attributes={attributes} >
           {() => {
             renderTimes++;
@@ -171,11 +174,46 @@ describe('SplitTreatments', () => {
         </SplitTreatments>
       </SplitFactory>);
 
+    // test context updates on SplitClient
+    mount(
+      <SplitFactory factory={outerFactory} >
+        <SplitClient splitKey='user2' updateOnSdkReadyFromCache={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
+          <SplitTreatments names={names} attributes={attributes} >
+            {() => {
+              renderTimesComp2++;
+              return null;
+            }}
+          </SplitTreatments>
+        </SplitClient>
+      </SplitFactory>);
+
     setTimeout(() => {
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+      expect(renderTimes).toBe(1);
+      expect(renderTimesComp2).toBe(1);
+      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+      (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_FROM_CACHE);
       setTimeout(() => {
         expect(renderTimes).toBe(2);
-        done();
+        expect(renderTimesComp2).toBe(1); // updateOnSdkReadyFromCache === false, in second component
+        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
+        (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT);
+        setTimeout(() => {
+          expect(renderTimes).toBe(3);
+          expect(renderTimesComp2).toBe(2);
+          (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+          (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY);
+          setTimeout(() => {
+            expect(renderTimes).toBe(3); // updateOnSdkReady === false, in first component
+            expect(renderTimesComp2).toBe(3);
+            (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
+            (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
+            setTimeout(() => {
+              expect(renderTimes).toBe(4);
+              expect(renderTimesComp2).toBe(4);
+              done();
+            });
+          });
+        });
       });
     });
 

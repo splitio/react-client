@@ -20,10 +20,13 @@ describe('SplitFactory', () => {
   test('passes no-ready props to the child if initialized with a config.', () => {
     shallow(
       <SplitFactory config={sdkBrowser} >
-        {({ factory, isReady, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
           expect(factory).toBeInstanceOf(Object);
           expect(isReady).toBe(false);
+          expect(isReadyFromCache).toBe(false);
+          expect(hasTimedout).toBe(false);
           expect(isTimedout).toBe(false);
+          expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe(0);
           return null;
         }}
@@ -32,15 +35,19 @@ describe('SplitFactory', () => {
 
   test('passes ready props to the child if initialized with a ready factory.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
       shallow(
         <SplitFactory factory={outerFactory} >
-          {({ factory, isReady, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+          {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
             expect(factory).toBe(outerFactory);
             expect(isReady).toBe(true);
+            expect(isReadyFromCache).toBe(true);
+            expect(hasTimedout).toBe(false);
             expect(isTimedout).toBe(false);
+            expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
             return null;
           }}
@@ -49,30 +56,30 @@ describe('SplitFactory', () => {
     });
   });
 
-  test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY and SDK_UPDATE events.', (done) => {
+  test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
     shallow(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+          const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(false);
+              expect(statusProps).toStrictEqual([false, false, false, false]);
               break;
             case 1: // Timedout
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(true);
+              expect(statusProps).toStrictEqual([false, false, true, true]);
               break;
-            case 2: // Ready
-              expect(isReady).toBe(true);
-              expect(isTimedout).toBe(false);
+            case 2: // Ready from cache
+              expect(statusProps).toStrictEqual([false, true, true, true]);
               break;
-            case 3: // Updated
-              expect(isReady).toBe(true);
-              expect(isTimedout).toBe(false);
+            case 3: // Ready
+              expect(statusProps).toStrictEqual([true, true, true, false]);
+              break;
+            case 4: // Updated
+              expect(statusProps).toStrictEqual([true, true, true, false]);
               break;
             default:
               fail('Child must not be rerendered');
@@ -89,12 +96,15 @@ describe('SplitFactory', () => {
     setTimeout(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
       setTimeout(() => {
-        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
         setTimeout(() => {
-          (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
+          (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
           setTimeout(() => {
-            expect(renderTimes).toBe(4);
-            done();
+            (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
+            setTimeout(() => {
+              expect(renderTimes).toBe(5);
+              done();
+            });
           });
         });
       });
@@ -108,22 +118,17 @@ describe('SplitFactory', () => {
 
     shallow(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isTimedout, hasTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+          const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(false);
-              expect(hasTimedout).toBe(false);
+              expect(statusProps).toStrictEqual([false, false, false, false]);
               break;
             case 1: // Timedout
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(true);
-              expect(hasTimedout).toBe(true);
+              expect(statusProps).toStrictEqual([false, false, true, true]);
               break;
             case 2: // Updated. Although `updateOnSdkReady` is false, status props must reflect the current status of the client.
-              expect(isReady).toBe(true);
-              expect(isTimedout).toBe(false);
-              expect(hasTimedout).toBe(true);
+              expect(statusProps).toStrictEqual([true, false, true, false]);
               break;
             default:
               fail('Child must not be rerendered');
@@ -159,15 +164,14 @@ describe('SplitFactory', () => {
 
     shallow(
       <SplitFactory factory={outerFactory} >
-        {({ factory, isReady, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+          const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
-              expect(isReady).toBe(false);
-              expect(isTimedout).toBe(false);
+              expect(statusProps).toStrictEqual([false, false, false, false]);
               break;
             case 1: // Ready
-              expect(isReady).toBe(true);
-              expect(isTimedout).toBe(false);
+              expect(statusProps).toStrictEqual([true, false, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
               break;
             default:
               fail('Child must not be rerendered');

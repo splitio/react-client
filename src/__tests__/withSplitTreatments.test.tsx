@@ -32,7 +32,10 @@ describe('withSplitTreatments', () => {
               expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(0);
               expect(props.treatments).toEqual(getControlTreatmentsWithConfig(splitNames));
               expect(props.isReady).toBe(false);
+              expect(props.isReadyFromCache).toBe(false);
+              expect(props.hasTimedout).toBe(false);
               expect(props.isTimedout).toBe(false);
+              expect(props.isDestroyed).toBe(false);
               expect(props.lastUpdate).toBe(0);
               done();
               return null;
