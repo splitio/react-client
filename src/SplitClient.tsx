@@ -1,11 +1,14 @@
 import React from 'react';
 import SplitContext from './SplitContext';
-import { ISplitClientProps, ISplitContextValues } from './types';
+import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { getStatus, getSplitSharedClient } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
-// Util component to handle client status and events
-class SplitComponent extends React.Component<ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
+/**
+ * Common component used to handle the status and events of a Split client passed as prop.
+ * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
+ */
+export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
 
   static defaultProps = {
     updateOnSdkUpdate: false,

@@ -63,7 +63,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    mount(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -118,7 +118,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    mount(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -164,7 +164,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    mount(
       <SplitFactory factory={outerFactory} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
