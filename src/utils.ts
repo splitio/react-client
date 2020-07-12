@@ -7,19 +7,22 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
  */
 export interface IFactoryWithClients extends SplitIO.ISDK {
   sharedClientInstances: Set<IClientWithContext>;
+  config: SplitIO.IBrowserSettings;
 }
 
-const factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
+// exported for testing purposes
+export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
 
 // idempotent operation
 export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
-  if (!factories.has(config)) {
+  if (!__factories.has(config)) {
     // SplitSDK is not an idempotent operation
     const newFactory = SplitSdk(config) as IFactoryWithClients;
     newFactory.sharedClientInstances = new Set();
-    factories.set(config, newFactory);
+    newFactory.config = config;
+    __factories.set(config, newFactory);
   }
-  return (factories.get(config) as IFactoryWithClients);
+  return (__factories.get(config) as IFactoryWithClients);
 }
 
 // idempotent operation
@@ -37,6 +40,9 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
   const destroyPromises = [];
   factory.sharedClientInstances.forEach((client) => destroyPromises.push(client.destroy()));
   destroyPromises.push(factory.client().destroy());
+  // remove references to release allocated memory
+  factory.sharedClientInstances.clear();
+  __factories.delete(factory.config);
   return Promise.all(destroyPromises);
 }
 
