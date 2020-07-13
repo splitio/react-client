@@ -1,16 +1,14 @@
 import React from 'react';
 import SplitContext from './SplitContext';
-import { ISplitClientProps, ISplitContextValues } from './types';
-import { getStatus } from './utils';
+import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
+import { getStatus, getSplitSharedClient } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
 
 /**
- * SplitClient will initialize a new Split Client and listen for its events in order to update the Split Context.
- * Children components will have access to this new client when accessing the Split Context.
- *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
+ * Common component used to handle the status and events of a Split client passed as prop.
+ * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
  */
-class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
+export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
 
   static defaultProps = {
     updateOnSdkUpdate: false,
@@ -127,16 +125,25 @@ class SplitClient extends React.Component<ISplitClientProps & { factory: SplitIO
   }
 }
 
-// Wrapper to access Split context on SplitClient constructor
-export default (props: ISplitClientProps) => (
-  <SplitContext.Consumer>{
-    (splitContext: ISplitContextValues) => {
-      const { factory } = splitContext;
-      // factory.client is idempotent: it returns the same client given the same Split Key and TT
-      const client = factory ? factory.client(props.splitKey, props.trafficType) : null;
-      return (
-        <SplitClient {...props} factory={factory} client={client} />
-      );
-    }
-  }</SplitContext.Consumer>
-);
+/**
+ * SplitClient will initialize a new Split Client and listen for its events in order to update the Split Context.
+ * Children components will have access to the new client when accessing Split Context.
+ *
+ * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
+ */
+function SplitClient(props: ISplitClientProps) {
+  return (
+    <SplitContext.Consumer>{
+      (splitContext: ISplitContextValues) => {
+        const { factory } = splitContext;
+        // getSplitSharedClient is idempotent: it returns the same client given the same factory, Split Key and TT
+        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
+        return (
+          <SplitComponent {...props} factory={factory} client={client} />
+        );
+      }
+    }</SplitContext.Consumer>
+  );
+}
+
+export default SplitClient;

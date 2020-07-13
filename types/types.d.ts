@@ -50,7 +50,7 @@ export interface ISplitContextValues extends ISplitStatus {
  * Only `SDK_UPDATE` and `SDK_READY_TIMED_OUT` are configurable.
  * The `SDK_READY` event is always listened to update the Split context value 'isReady'.
  */
-interface IUpdateProps {
+export interface IUpdateProps {
     /**
      * updateOnSdkUpdate indicates if the component will update the `SplitContext` in case of a `SDK_UPDATE` event.
      * If true, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on SDK_UPDATE.
@@ -80,11 +80,7 @@ interface IUpdateProps {
 /**
  * SplitFactory Child Props interface. These are the props that the child component receives from the 'SplitFactory' component.
  */
-export interface ISplitFactoryChildProps extends ISplitStatus {
-    /**
-     * Split factory instance
-     */
-    factory: SplitIO.ISDK | null;
+export interface ISplitFactoryChildProps extends ISplitContextValues {
 }
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
@@ -108,11 +104,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
 /**
  * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
  */
-export interface ISplitClientChildProps extends ISplitStatus {
-    /**
-     * Split client instance
-     */
-    client: SplitIO.IClient | null;
+export interface ISplitClientChildProps extends ISplitContextValues {
 }
 /**
  * SplitClient Props interface. These are the props accepted by SplitClient component,

@@ -1,15 +1,53 @@
-import { SplitFactory as SplitSDK } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 
-const factories: Map<SplitIO.IBrowserSettings, SplitIO.ISDK> = new Map();
+// Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 
-export function IdempotentSplitSDK(config: SplitIO.IBrowserSettings): SplitIO.ISDK {
-  if (!factories.has(config)) {
-    factories.set(config, SplitSDK(config));
-  }
-  return (factories.get(config) as SplitIO.ISDK);
+/**
+ * FactoryWithClientInstances interface.
+ */
+export interface IFactoryWithClients extends SplitIO.ISDK {
+  sharedClientInstances: Set<IClientWithContext>;
+  config: SplitIO.IBrowserSettings;
 }
 
-// The following utils might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
+// exported for testing purposes
+export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
+
+// idempotent operation
+export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
+  if (!__factories.has(config)) {
+    // SplitSDK is not an idempotent operation
+    const newFactory = SplitSdk(config) as IFactoryWithClients;
+    newFactory.sharedClientInstances = new Set();
+    newFactory.config = config;
+    __factories.set(config, newFactory);
+  }
+  return (__factories.get(config) as IFactoryWithClients);
+}
+
+// idempotent operation
+export function getSplitSharedClient(factory: SplitIO.ISDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+  // factory.client is an idempotent operation
+  const client = factory.client(key, trafficType) as IClientWithContext;
+  if ((factory as IFactoryWithClients).sharedClientInstances) {
+    (factory as IFactoryWithClients).sharedClientInstances.add(client);
+  }
+  return client;
+}
+
+export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
+  // call destroy of shared clients and main one
+  const destroyPromises = [];
+  factory.sharedClientInstances.forEach((client) => destroyPromises.push(client.destroy()));
+  destroyPromises.push(factory.client().destroy());
+  // remove references to release allocated memory
+  factory.sharedClientInstances.clear();
+  __factories.delete(factory.config);
+  return Promise.all(destroyPromises);
+}
+
+// Utils used to access client status.
+// They might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 
 /**
  * ClientWithContext interface.

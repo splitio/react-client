@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import SplitContext from './SplitContext';
+import { getSplitSharedClient } from './utils';
 
 /**
  * 'useClient' is a custom hook that returns a client from the Split context.
@@ -12,7 +13,7 @@ import SplitContext from './SplitContext';
 const useClient = (key?: SplitIO.SplitKey, trafficType?: string): SplitIO.IClient | null => {
   const { factory, client } = useContext(SplitContext);
   if (key) {
-    return factory ? factory.client(key, trafficType) : null;
+    return factory ? getSplitSharedClient(factory, key, trafficType) : null;
   }
   return client;
 };
