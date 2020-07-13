@@ -17,6 +17,9 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   logWarning?: boolean;
 
+  // The component updates if:
+  // - SplitContext changes, i.e., if the client or status properties tracked by `updateSdk***` props change
+  // - split names or attributes change (shouldComponentUpdate condition)
   shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>) {
     return !shallowEqual(this.props.names, nextProps.names) ||
       !shallowEqual(this.props.attributes, nextProps.attributes);
