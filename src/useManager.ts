@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React from 'react';
 import SplitContext from './SplitContext';
 
 /**
@@ -10,7 +10,7 @@ import SplitContext from './SplitContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
 const useManager = (): SplitIO.IManager | null => {
-  const { factory } = useContext(SplitContext);
+  const { factory } = React.useContext(SplitContext);
   return factory ? factory.manager() : null;
 };
 
