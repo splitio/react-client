@@ -2,12 +2,12 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk } from './utils/mockSplitSdk';
+import { mockSdk } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 jest.mock('../constants', () => {
   const actual = jest.requireActual('../constants');
   return {
