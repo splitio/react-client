@@ -17,6 +17,7 @@ function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string) {
     updateOnSdkUpdate: boolean = false,
     updateOnSdkTimedout: boolean = false,
     updateOnSdkReady: boolean = true,
+    updateOnSdkReadyFromCache: boolean = true,
   ) {
 
     return (props: OuterProps) => {
@@ -26,7 +27,8 @@ function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string) {
           trafficType={trafficType}
           updateOnSdkUpdate={updateOnSdkUpdate}
           updateOnSdkTimedout={updateOnSdkTimedout}
-          updateOnSdkReady={updateOnSdkReady} >
+          updateOnSdkReady={updateOnSdkReady}
+          updateOnSdkReadyFromCache={updateOnSdkReadyFromCache} >
           {(splitProps) => {
             return (
               <WrappedComponent

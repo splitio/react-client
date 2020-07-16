@@ -1,11 +1,9 @@
-import { SplitFactory as SplitSDK } from '@splitsoftware/splitio';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 import React from 'react';
 
 import SplitContext from './SplitContext';
-import { ISplitContextValues, ISplitFactoryProps, IClientWithStatus } from './types';
+import { ISplitContextValues, ISplitFactoryProps } from './types';
 import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getClientWithStatus } from './utils';
+import { getStatus, IdempotentSplitSDK } from './utils';
 
 /**
  * SplitFactory will initialize the Split SDK and listen for its events in order to update the Split Context.
@@ -20,8 +18,23 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     updateOnSdkUpdate: false,
     updateOnSdkTimedout: false,
     updateOnSdkReady: true,
+    updateOnSdkReadyFromCache: true,
     children: null,
   };
+
+  // We could avoid this method by removing the client and its status from the component state.
+  // But we would need another instance object to keep this data and use, instead of the state, as unique reference value for SplitContext.Producer
+  static getDerivedStateFromProps(props: ISplitFactoryProps, state: ISplitContextValues) {
+    const status = getStatus(state.client);
+    // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
+    if (status.isReady !== state.isReady ||
+      status.isReadyFromCache !== state.isReadyFromCache ||
+      status.hasTimedout !== state.hasTimedout ||
+      status.isDestroyed !== state.isDestroyed) {
+      return status;
+    }
+    return null;
+  }
 
   readonly state: Readonly<ISplitContextValues>;
   readonly isFactoryExternal: boolean;
@@ -30,7 +43,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     super(props);
 
     // Log warning and error
-    const { factory: propFactory, config, updateOnSdkReady, updateOnSdkTimedout, updateOnSdkUpdate } = props;
+    const { factory: propFactory, config } = props;
     if (!config && !propFactory) {
       console.error(ERROR_SF_NO_CONFIG_AND_FACTORY);
     }
@@ -39,70 +52,69 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
     }
 
     // Instantiate factory and main client.
-    const factory = propFactory || (config ? SplitSDK(config) : null);
+    // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the
+    // same already created instance), since React component constructors can be invoked multiple times.
+    const factory = propFactory || (config ? IdempotentSplitSDK(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
     // Don't try this at home. Only override the version when we create our own factory.
     if (config && factory) {
       (factory.settings.version as any) = VERSION;
     }
 
-    const client = factory ? getClientWithStatus(factory) : null;
-
-    if (client) {
-      this.subscribeToEvents(client, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady);
-    }
+    const client = factory ? factory.client() : null;
 
     this.state = {
       client,
       factory,
-      isReady: client ? client.isReady : false,
-      isTimedout: client ? client.isTimedout : false,
+      ...getStatus(client),
       lastUpdate: 0,
     };
   }
 
-  // Listen SDK events. This method will be updated when SDK provides self synchronous status
-  subscribeToEvents(client: IClientWithStatus, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean) {
-
-    if (!client.isReady) { // client is not ready
-      /**
-       * client still might be ready if it was created before using `getClientWithStatus` function
-       * (for example if the client was instantiated outside SplitClient),
-       * thus we have to use the ready() promise instead of an event listener.
-       */
-      client.ready().then(() => {
-        // Update isReady if the client was not changed and updateOnSdkReady is true
-        if (this.state.client === client && updateOnSdkReady) {
-          this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-        }
-      }, () => {
-        // Update isTimedout if the client was not changed and updateOnSdkTimedout is true
-        if (this.state.client === client) {
-          if (updateOnSdkTimedout) {
-            this.setState({ isTimedout: true, lastUpdate: Date.now() });
-          }
-          // register a listener for SDK_READY event, that might trigger after a timeout
-          client.once(client.Event.SDK_READY, () => {
-            // Update isReady if the client was not changed and updateOnSdkReady is true
-            if (this.state.client === client && updateOnSdkReady) {
-              this.setState({ isReady: true, isTimedout: false, lastUpdate: Date.now() });
-            }
-          });
-        }
-      });
-    }
-
-    // register a listener for SDK_UPDATE event
-    if (updateOnSdkUpdate) {
-      client.on(client.Event.SDK_UPDATE, this.sdkUpdate);
+  // Attach listeners for SDK events, to update state if client status change.
+  // The listeners take into account the value of `updateOnSdk***` props.
+  subscribeToEvents(client: SplitIO.IClient | null) {
+    if (client) {
+      client.once(client.Event.SDK_READY, this.setReady);
+      client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+      client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+      client.on(client.Event.SDK_UPDATE, this.setUpdate);
     }
   }
 
-  sdkUpdate = () => {
-    this.setState({ lastUpdate: Date.now() });
+  unsubscribeFromEvents(client: SplitIO.IClient | null) {
+    if (client) {
+      client.removeListener(client.Event.SDK_READY, this.setReady);
+      client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
+      client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
+      client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
+    }
+  }
+
+  setReady = () => {
+    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
+  }
+
+  setReadyFromCache = () => {
+    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: Date.now() });
+  }
+
+  setTimedout = () => {
+    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: Date.now() });
+  }
+
+  setUpdate = () => {
+    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: Date.now() });
+  }
+
+  componentDidMount() {
+    this.subscribeToEvents(this.state.client);
   }
 
   componentWillUnmount() {
+    // unsubscrite to SDK client events. Mainly required when the factory is provided externally
+    this.unsubscribeFromEvents(this.state.client);
+
     // only destroy the client if the factory was created internally. Otherwise, the shutdown must be handled by the user
     if (!this.isFactoryExternal && this.state.client) {
       this.state.client.destroy();
@@ -111,13 +123,12 @@ class SplitFactory extends React.Component<ISplitFactoryProps, ISplitContextValu
 
   render() {
     const { children } = this.props;
-    const { factory, isReady, isTimedout, lastUpdate } = this.state;
 
     return (
       <SplitContext.Provider value={this.state} >{
         typeof children === 'function' ?
-          children({ factory, isReady, isTimedout, lastUpdate }) :
-          this.props.children
+          children({ ...this.state }) :
+          children
       }</SplitContext.Provider>
     );
   }

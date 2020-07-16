@@ -1,9 +1,8 @@
-import { Treatment, TreatmentWithConfig } from '@splitsoftware/splitio/types/splitio';
 export declare const VERSION: string;
-export declare const ON: Treatment;
-export declare const OFF: Treatment;
-export declare const CONTROL: Treatment;
-export declare const CONTROL_WITH_CONFIG: TreatmentWithConfig;
+export declare const ON: SplitIO.Treatment;
+export declare const OFF: SplitIO.Treatment;
+export declare const CONTROL: SplitIO.Treatment;
+export declare const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig;
 export declare const getControlTreatmentsWithConfig: (splitNames: string[]) => import("@splitsoftware/splitio/types/splitio").TreatmentsWithConfig;
 export declare const WARN_SF_CONFIG_AND_FACTORY: string;
 export declare const ERROR_SF_NO_CONFIG_AND_FACTORY: string;
