@@ -2,17 +2,19 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
 import SplitFactory from '../SplitFactory';
+import SplitClient from '../SplitClient';
 import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { __factories } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../constants';
 
 describe('SplitFactory', () => {
@@ -61,7 +63,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    const wrapper = mount(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -103,6 +105,10 @@ describe('SplitFactory', () => {
             (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
             setTimeout(() => {
               expect(renderTimes).toBe(5);
+
+              // check that outerFactory's clients have no event listeners
+              wrapper.unmount();
+              assertNoListeners(outerFactory);
               done();
             });
           });
@@ -116,7 +122,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    const wrapper = mount(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -150,6 +156,10 @@ describe('SplitFactory', () => {
           (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
           setTimeout(() => {
             expect(renderTimes).toBe(3);
+
+            // check that outerFactory's clients have no event listeners
+            wrapper.unmount();
+            assertNoListeners(outerFactory);
             done();
           });
         });
@@ -157,12 +167,12 @@ describe('SplitFactory', () => {
     });
   });
 
-  test('rerenders child only on SDK_READY event, as default behaviour.', (done) => {
+  test('rerenders child only on SDK_READY and SDK_READY_FROM_CACHE event, as default behaviour.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    mount(
       <SplitFactory factory={outerFactory} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -250,30 +260,53 @@ describe('SplitFactory', () => {
   });
 
   test('cleans up on unmount.', () => {
-    let destroySpy;
+    let destroyMainClientSpy;
+    let destroySharedClientSpy;
     const wrapper = mount(
       <SplitFactory config={sdkBrowser} >
         {({ factory }) => {
-          destroySpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
-          return null;
+          expect(__factories.size).toBe(1);
+          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          return (
+            <SplitClient splitKey='other_key' >{
+              ({ client }) => {
+                destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
+                return null;
+              }
+            }</SplitClient>
+          );
         }}
       </SplitFactory>);
     wrapper.unmount();
-    expect(destroySpy).toBeCalled();
+    // the factory created by the component is removed from `factories` cache and its clients are destroyed
+    expect(__factories.size).toBe(0);
+    expect(destroyMainClientSpy).toBeCalledTimes(1);
+    expect(destroySharedClientSpy).toBeCalledTimes(1);
   });
 
   test('doesn\'t clean up on unmount if the factory is provided as a prop.', () => {
-    let destroySpy;
+    let destroyMainClientSpy;
+    let destroySharedClientSpy;
     const outerFactory = SplitSdk(sdkBrowser);
     const wrapper = mount(
       <SplitFactory factory={outerFactory}>
         {({ factory }) => {
-          destroySpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
-          return null;
+          // if factory is provided as a prop, `factories` cache is not modified
+          expect(__factories.size).toBe(0);
+          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          return (
+            <SplitClient splitKey='other_key' >{
+              ({ client }) => {
+                destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
+                return null;
+              }
+            }</SplitClient>
+          );
         }}
       </SplitFactory>);
     wrapper.unmount();
-    expect(destroySpy).not.toBeCalled();
+    expect(destroyMainClientSpy).not.toBeCalled();
+    expect(destroySharedClientSpy).not.toBeCalled();
   });
 
 });

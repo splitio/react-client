@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.0-canary.1",
+  "version": "1.2.0-canary.2",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -58,7 +58,8 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "^10.13.0"
+    "@splitsoftware/splitio": "^10.13.0",
+    "shallowequal": "^1.1.0"
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.4",
@@ -68,6 +69,7 @@
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
     "@types/react-test-renderer": "^16.9.1",
+    "@types/shallowequal": "^1.1.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "husky": "^3.1.0",

@@ -32,9 +32,15 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   let __hasTimedout__: boolean | undefined;
   let __isDestroyed__: boolean | undefined;
   const __emitter__ = new EventEmitter();
-  __emitter__.once(Event.SDK_READY, () => { __isReady__ = true; });
-  __emitter__.once(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
-  __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
+  __emitter__.on(Event.SDK_READY, () => { __isReady__ = true; });
+  __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
+  __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
+  const __internalListenersCount__ = {
+    [Event.SDK_READY]: 1,
+    [Event.SDK_READY_FROM_CACHE]: 1,
+    [Event.SDK_READY_TIMED_OUT]: 1,
+    [Event.SDK_UPDATE]: 0,
+  };
 
   // Client methods
   const track: jest.Mock = jest.fn(() => {
@@ -45,8 +51,10 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   });
   const ready: jest.Mock = jest.fn(() => {
     return new Promise((res, rej) => {
-      __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
-      __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
+      if (__isReady__) res();
+      else { __internalListenersCount__[Event.SDK_READY]++; __emitter__.on(Event.SDK_READY, res); }
+      if (__hasTimedout__) rej();
+      else { __internalListenersCount__[Event.SDK_READY_TIMED_OUT]++; __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
     });
   });
   const context = {
@@ -83,6 +91,8 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
     Event,
     // EventEmitter exposed to trigger events manually
     __emitter__,
+    // Count of internal listeners set by the client mock, used to assert how many external listeners were attached
+    __internalListenersCount__,
     // Factory context exposed to get client readiness status (READY, READY_FROM_CACHE, HAS_TIMEDOUT, DESTROYED)
     __context: context,
   });
@@ -97,7 +107,7 @@ export function mockSdk() {
     const manager: jest.Mock = jest.fn().mockReturnValue({ names });
 
     // Cache of clients
-    const __clients__: { [key: string]: any } = {};
+    const __clients__: { [instanceId: string]: any } = {};
     const client = jest.fn((key?: string, trafficType?: string) => {
       const clientKey = key || parseKey(config.core.key);
       const clientTT = trafficType || config.core.trafficType;
@@ -110,6 +120,7 @@ export function mockSdk() {
       client,
       manager,
       __names__: names,
+      __clients__,
       settings: {
         version: 'mock-x.x.x',
       },
@@ -118,4 +129,15 @@ export function mockSdk() {
     return factory;
   });
 
+}
+
+export function assertNoListeners(factory: any) {
+  Object.values((factory as any).__clients__).forEach((client) => assertNoListenersOnClient(client));
+}
+
+function assertNoListenersOnClient(client: any) {
+  expect(client.__emitter__.listenerCount(Event.SDK_READY)).toBe(client.__internalListenersCount__[Event.SDK_READY]);
+  expect(client.__emitter__.listenerCount(Event.SDK_READY_FROM_CACHE)).toBe(client.__internalListenersCount__[Event.SDK_READY_FROM_CACHE]);
+  expect(client.__emitter__.listenerCount(Event.SDK_READY_TIMED_OUT)).toBe(client.__internalListenersCount__[Event.SDK_READY_TIMED_OUT]);
+  expect(client.__emitter__.listenerCount(Event.SDK_UPDATE)).toBe(client.__internalListenersCount__[Event.SDK_UPDATE]);
 }

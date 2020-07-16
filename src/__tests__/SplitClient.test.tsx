@@ -1,13 +1,13 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 
-/** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+/** Mocks and test utils */
+import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitClientChildProps } from '../types';
@@ -70,7 +70,7 @@ describe('SplitClient', () => {
       let renderTimes = 0;
       let previousLastUpdate = -1;
 
-      mount(
+      const wrapper = mount(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey='user2' updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -114,6 +114,10 @@ describe('SplitClient', () => {
               (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
               setTimeout(() => {
                 expect(renderTimes).toBe(5);
+
+                // check that outerFactory's clients have no event listeners
+                wrapper.unmount();
+                assertNoListeners(outerFactory);
                 done();
               });
             });
@@ -133,7 +137,7 @@ describe('SplitClient', () => {
       let renderTimes = 0;
       let previousLastUpdate = -1;
 
-      mount(
+      const wrapper = mount(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey='user2' updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -169,6 +173,10 @@ describe('SplitClient', () => {
             (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
             setTimeout(() => {
               expect(renderTimes).toBe(3);
+
+              // check that outerFactory's clients have no event listeners
+              wrapper.unmount();
+              assertNoListeners(outerFactory);
               done();
             });
           });
@@ -269,12 +277,16 @@ describe('SplitClient', () => {
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
+    let wrapper: ReactWrapper;
 
     class InnerComponent extends React.Component<any, { splitKey: string }> {
 
       constructor(props: any) {
         super(props);
         this.state = { splitKey: 'user1' };
+      }
+
+      componentDidMount() {
         setTimeout(() => {
           this.setState({ splitKey: 'user2' });
           setTimeout(() => {
@@ -293,6 +305,10 @@ describe('SplitClient', () => {
                         (outerFactory as any).client('user3').__emitter__.emit(Event.SDK_UPDATE);
                         setTimeout(() => {
                           expect(renderTimes).toBe(6);
+
+                          // check that outerFactory's clients have no event listeners
+                          (wrapper as ReactWrapper).unmount();
+                          assertNoListeners(outerFactory);
                           done();
                         });
                       });
@@ -349,7 +365,7 @@ describe('SplitClient', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
       </SplitFactory>);
