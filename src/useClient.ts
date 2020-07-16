@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React from 'react';
 import SplitContext from './SplitContext';
 import { getSplitSharedClient } from './utils';
 
@@ -11,7 +11,7 @@ import { getSplitSharedClient } from './utils';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 const useClient = (key?: SplitIO.SplitKey, trafficType?: string): SplitIO.IClient | null => {
-  const { factory, client } = useContext(SplitContext);
+  const { factory, client } = React.useContext(SplitContext);
   if (key) {
     return factory ? getSplitSharedClient(factory, key, trafficType) : null;
   }

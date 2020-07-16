@@ -30,7 +30,8 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
     return (
       <SplitContext.Consumer>
-        {({ client, isReady, isReadyFromCache, isTimedout, hasTimedout, lastUpdate, isDestroyed }: ISplitContextValues) => {
+        {(splitContext: ISplitContextValues) => {
+          const { client, isReady, isReadyFromCache, isDestroyed } = splitContext;
           let treatments;
           const isOperational = !isDestroyed && (isReady || isReadyFromCache);
           if (client && isOperational) {
@@ -41,7 +42,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
           }
           // SplitTreatments only accepts a function as a child, not an React (JSX) Element
           return children({
-            treatments, isReady, isReadyFromCache, isTimedout, hasTimedout, lastUpdate, isDestroyed,
+            ...splitContext, treatments,
           });
         }}
       </SplitContext.Consumer>

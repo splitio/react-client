@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import React from 'react';
 import { ISplitContextValues } from './types';
 
 /**
@@ -6,7 +6,7 @@ import { ISplitContextValues } from './types';
  * It contains Split SDK objects, such as a factory instance, a client and its status (isReady, isTimedout, lastUpdate)
  * The context is created with default empty values, that eventually SplitFactory and SplitClient access and update.
  */
-const SplitContext = createContext<ISplitContextValues>({
+const SplitContext = React.createContext<ISplitContextValues>({
   client: null,
   factory: null,
   isReady: false,

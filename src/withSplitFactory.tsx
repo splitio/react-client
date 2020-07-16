@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
 import { ISplitFactoryChildProps } from './types';
 import SplitFactory from './SplitFactory';

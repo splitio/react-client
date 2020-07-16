@@ -28,5 +28,9 @@ module.exports = {
         exclude: /node_modules/,
       },
     ],
+  },
+
+  externals: {
+    react: 'React'
   }
 };
