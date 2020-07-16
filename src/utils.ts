@@ -101,9 +101,17 @@ export function getStatus(client: SplitIO.IClient | null): IClientStatus {
   };
 }
 
-export function checkHooks(errorMessage: string): boolean {
+// Other utils
+
+/**
+ * Checks if React.useContext is available, and logs given message if not
+ *
+ * @param message
+ * @returns boolean indicating if React.useContext is available
+ */
+export function checkHooks(message: string): boolean {
   if (!React.useContext) {
-    console.log(errorMessage);
+    console.log(message);
     return false;
   } else {
     return true;
