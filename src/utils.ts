@@ -1,3 +1,4 @@
+import React from 'react';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -98,4 +99,13 @@ export function getStatus(client: SplitIO.IClient | null): IClientStatus {
     hasTimedout,
     isDestroyed: client ? getIsDestroyed(client) : false,
   };
+}
+
+export function checkHooks(errorMessage: string): boolean {
+  if (!React.useContext) {
+    console.log(errorMessage);
+    return false;
+  } else {
+    return true;
+  }
 }
