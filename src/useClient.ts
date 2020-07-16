@@ -1,7 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
-import { getSplitSharedClient, checkHooks } from './utils';
 import { ERROR_UC_NO_USECONTEXT } from './constants';
+import { getSplitSharedClient, checkHooks } from './utils';
 
 /**
  * 'useClient' is a custom hook that returns a client from the Split context.
