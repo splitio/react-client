@@ -2,12 +2,12 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
@@ -63,7 +63,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    const wrapper = mount(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -105,6 +105,10 @@ describe('SplitFactory', () => {
             (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
             setTimeout(() => {
               expect(renderTimes).toBe(5);
+
+              // check that outerFactory's clients have no event listeners
+              wrapper.unmount();
+              assertNoListeners(outerFactory);
               done();
             });
           });
@@ -118,7 +122,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    const wrapper = mount(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -152,6 +156,10 @@ describe('SplitFactory', () => {
           (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
           setTimeout(() => {
             expect(renderTimes).toBe(3);
+
+            // check that outerFactory's clients have no event listeners
+            wrapper.unmount();
+            assertNoListeners(outerFactory);
             done();
           });
         });
@@ -164,7 +172,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    shallow(
+    mount(
       <SplitFactory factory={outerFactory} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];

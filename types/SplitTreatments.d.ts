@@ -9,8 +9,9 @@ import { ISplitTreatmentsProps } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-declare class SplitTreatments extends React.PureComponent<ISplitTreatmentsProps> {
+declare class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
     logWarning?: boolean;
+    shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>): boolean;
     render(): JSX.Element;
     componentDidMount(): void;
 }

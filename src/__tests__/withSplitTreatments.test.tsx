@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import withSplitFactory from '../withSplitFactory';
