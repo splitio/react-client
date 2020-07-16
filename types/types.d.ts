@@ -128,7 +128,7 @@ export interface ISplitClientProps extends IUpdateProps {
 /**
  * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
  */
-export interface ISplitTreatmentsChildProps extends ISplitStatus {
+export interface ISplitTreatmentsChildProps extends ISplitContextValues {
     /**
      * An object with the treatments with configs for a bulk of splits, returned by client.getTreatmentsWithConfig().
      * Each existing configuration is a stringified version of the JSON you defined on the Split web console. For example:
