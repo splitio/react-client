@@ -1,4 +1,4 @@
-1.2.0 (Jul XX, 2020)
+1.2.0 (Jul 20, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
  - Updated `shouldComponentUpdate` method of `SplitTreatments` component for optimization: it only updates if the treatment evaluation changes.
  - Updated build configuration to exclude React library from UMD bundle.
