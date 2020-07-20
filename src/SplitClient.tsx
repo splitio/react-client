@@ -1,8 +1,8 @@
 import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
-import { getStatus, getSplitSharedClient } from './utils';
 import { ERROR_SC_NO_FACTORY } from './constants';
+import { getStatus, getSplitSharedClient } from './utils';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { IBrowserSettings } from '@splitsoftware/splitio/types/splitio';
+import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
@@ -100,7 +100,7 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
 
 export function mockSdk() {
 
-  return jest.fn((config: IBrowserSettings) => {
+  return jest.fn((config: SplitIO.IBrowserSettings) => {
 
     // Manager
     const names: jest.Mock = jest.fn().mockReturnValue([]);

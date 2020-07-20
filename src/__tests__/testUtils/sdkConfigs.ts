@@ -1,7 +1,6 @@
-import { IBrowserSettings, INodeSettings } from '@splitsoftware/splitio/types/splitio';
-import path from 'path';
+import SplitIO from '@splitsoftware/splitio/types/splitio';
 
-export const sdkBrowser: IBrowserSettings = {
+export const sdkBrowser: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'api-key',
     key: 'customer-key',

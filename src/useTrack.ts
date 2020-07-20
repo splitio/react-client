@@ -1,4 +1,6 @@
 import useClient from './useClient';
+import { ERROR_UTRACK_NO_USECONTEXT } from './constants';
+import { checkHooks } from './utils';
 
 // no-op function that returns false
 const noOpFalse = () => false;
@@ -11,7 +13,7 @@ const noOpFalse = () => false;
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track}
  */
 const useTrack = (key?: SplitIO.SplitKey, trafficType?: string): SplitIO.IClient['track'] => {
-  const client = useClient(key, trafficType);
+  const client = checkHooks(ERROR_UTRACK_NO_USECONTEXT) ? useClient(key, trafficType) : null;
   return client ? client.track.bind(client) : noOpFalse;
 };
 
