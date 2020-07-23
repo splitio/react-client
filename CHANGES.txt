@@ -1,11 +1,11 @@
-1.2.0 (Jul XX, 2020)
+1.2.0 (Jul 23, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
  - Updated `shouldComponentUpdate` method of `SplitTreatments` component for optimization: it only updates if the treatment evaluation changes.
  - Updated build configuration to exclude React library from UMD bundle.
- - Added missing status properties of Split clients (`isReadyFromCache`, `hasTimedout`, and `isDestroyed`) into SplitContext. They are passed down as props when using functions as a child of both SplitFactory, SplitClient and SplitTreatments components.
+ - Added missing status properties of Split clients into SplitContext: `isReadyFromCache`, `hasTimedout`, and `isDestroyed`. They are passed down as props when using functions as a child of both SplitFactory, SplitClient and SplitTreatments components.
  - Added an optional prop to `SplitFactory` and `SplitClient`: `updateOnSdkReadyFromCache`, to update the component when an SDK_READY_FROM_CACHE event is emitted. Its value is true by default.
  - Added gracefull shutdown of the SDK, when SplitFactory component is unmounted.
- - Added validation and error logs associated to the use of incompatible React versions.
+ - Added validation and error logs associated to the use of incompatible React library versions.
  - Bugfixing - Incorrect status properties in SplitContext when using SplitClient component.
  - Bugfixing - Properly handling side-effects (creating Split factory) in SplitFactory component constructor.
  - Bugfixing - Properly handling component state updates in React commit phase.
