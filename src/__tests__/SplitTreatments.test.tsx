@@ -2,12 +2,12 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitTreatmentsChildProps } from '../types';
@@ -22,7 +22,7 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
-import { getClientWithStatus } from '../utils';
+import { getIsReady } from '../utils';
 
 describe('SplitTreatments', () => {
 
@@ -51,21 +51,21 @@ describe('SplitTreatments', () => {
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig" if the SDK is ready.', (done) => {
     const splitNames = ['split1', 'split2'];
     const outerFactory = SplitSdk(sdkBrowser);
-    getClientWithStatus(outerFactory);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     setTimeout(() => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect(getClientWithStatus(outerFactory).isReady).toBe(isReady);
+            expect(getIsReady(outerFactory.client())).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
+                {({ treatments, isReady: isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitTreatmentsChildProps) => {
                   const clientMock: any = factory?.client();
                   expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
                   expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
                   expect(splitNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
+                  expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
                   done();
                   return null;
                 }}
@@ -92,7 +92,10 @@ describe('SplitTreatments', () => {
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(passedTreatments);
   });
 
-  // This test might change if sCU is updated to perform a deep comparison of split names and attributes.
+  /**
+   * Tests for shouldComponentUpdate
+   */
+
   it('does not rerender if names and attributes are the same object.', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
@@ -108,8 +111,7 @@ describe('SplitTreatments', () => {
     expect(renderTimes).toBe(1);
   });
 
-  // This test might change if sCU is updated to perform a deep comparison of split names and attributes.
-  it('rerenders if names or attributes are a different object.', () => {
+  it('does not rerender if names and attributes are equals (shallow comparison).', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
@@ -120,19 +122,51 @@ describe('SplitTreatments', () => {
           return null;
         }}
       </SplitTreatments>);
-    wrapper.setProps({ names, attributes: { ...attributes } });
+    wrapper.setProps({ names: [...names], attributes: { ...attributes } });
+    expect(renderTimes).toBe(1);
+  });
+
+  it('rerenders if names are not equals (shallow array comparison).', () => {
+    const names = ['split1', 'split2'];
+    const attributes = { att1: 'att1' };
+    let renderTimes = 0;
+    const wrapper = mount(
+      <SplitTreatments names={names} attributes={attributes} >
+        {() => {
+          renderTimes++;
+          return null;
+        }}
+      </SplitTreatments>);
+    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes } });
     expect(renderTimes).toBe(2);
   });
 
-  test('rerenders when Split context changes.', (done) => {
+  it('rerenders if attributes are not equals (shallow object comparison).', () => {
+    const names = ['split1', 'split2'];
+    const attributes = { att1: 'att1' };
+    let renderTimes = 0;
+    const wrapper = mount(
+      <SplitTreatments names={names} attributes={attributes} >
+        {() => {
+          renderTimes++;
+          return null;
+        }}
+      </SplitTreatments>);
+    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' } });
+    expect(renderTimes).toBe(2);
+  });
+
+  test('rerenders when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
+    let renderTimesComp2 = 0;
 
+    // test context updates on SplitFactory
     mount(
-      <SplitFactory factory={outerFactory} >
-        <SplitTreatments names={names} attributes={{ ...attributes }} >
+      <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
+        <SplitTreatments names={names} attributes={attributes} >
           {() => {
             renderTimes++;
             return null;
@@ -140,11 +174,46 @@ describe('SplitTreatments', () => {
         </SplitTreatments>
       </SplitFactory>);
 
+    // test context updates on SplitClient
+    mount(
+      <SplitFactory factory={outerFactory} >
+        <SplitClient splitKey='user2' updateOnSdkReadyFromCache={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
+          <SplitTreatments names={names} attributes={attributes} >
+            {() => {
+              renderTimesComp2++;
+              return null;
+            }}
+          </SplitTreatments>
+        </SplitClient>
+      </SplitFactory>);
+
     setTimeout(() => {
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+      expect(renderTimes).toBe(1);
+      expect(renderTimesComp2).toBe(1);
+      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+      (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_FROM_CACHE);
       setTimeout(() => {
         expect(renderTimes).toBe(2);
-        done();
+        expect(renderTimesComp2).toBe(1); // updateOnSdkReadyFromCache === false, in second component
+        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
+        (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT);
+        setTimeout(() => {
+          expect(renderTimes).toBe(3);
+          expect(renderTimesComp2).toBe(2);
+          (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+          (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY);
+          setTimeout(() => {
+            expect(renderTimes).toBe(3); // updateOnSdkReady === false, in first component
+            expect(renderTimesComp2).toBe(3);
+            (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
+            (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
+            setTimeout(() => {
+              expect(renderTimes).toBe(4);
+              expect(renderTimesComp2).toBe(4);
+              done();
+            });
+          });
+        });
       });
     });
 

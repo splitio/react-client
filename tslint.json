@@ -17,7 +17,9 @@
     "max-line-length": false,
     "object-literal-sort-keys": false,
     "no-console": false,
-    "variable-name": false
+    "variable-name": false,
+    "curly": false,
+    "no-unused-variable": true
   },
   "rulesDirectory": []
 }

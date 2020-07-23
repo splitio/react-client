@@ -1,5 +1,7 @@
-import { useContext } from 'react';
+import React from 'react';
 import SplitContext from './SplitContext';
+import { ERROR_UM_NO_USECONTEXT } from './constants';
+import { checkHooks } from './utils';
 
 /**
  * 'useManager' is a custom hook that returns the Manager instance from the Split factory.
@@ -10,7 +12,8 @@ import SplitContext from './SplitContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
 const useManager = (): SplitIO.IManager | null => {
-  const { factory } = useContext(SplitContext);
+  if (!checkHooks(ERROR_UM_NO_USECONTEXT)) return null;
+  const { factory } = React.useContext(SplitContext);
   return factory ? factory.manager() : null;
 };
 

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
+import React from 'react';
 import { ISplitFactoryChildProps } from './types';
 /**
  * High-Order Component for SplitFactory.
@@ -9,5 +8,5 @@ import { ISplitFactoryChildProps } from './types';
  * @param config Config object used to instantiate a Split factory
  * @param factory Split factory instance to use instead of creating a new one with the config object.
  */
-export declare function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.ISDK): <OuterProps>(WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean) => (props: OuterProps) => JSX.Element;
+export declare function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.ISDK): <OuterProps>(WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) => (props: OuterProps) => JSX.Element;
 export default withSplitFactory;

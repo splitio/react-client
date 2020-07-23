@@ -1,5 +1,6 @@
 import useClient from './useClient';
-import { getControlTreatmentsWithConfig } from './constants';
+import { getControlTreatmentsWithConfig, ERROR_UT_NO_USECONTEXT } from './constants';
+import { checkHooks } from './utils';
 
 /**
  * 'useTreatments' is a custom hook that returns a list of treatments.
@@ -10,7 +11,7 @@ import { getControlTreatmentsWithConfig } from './constants';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 const useTreatments = (splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
-  const client = useClient(key);
+  const client = checkHooks(ERROR_UT_NO_USECONTEXT) ? useClient(key) : null;
   return client ?
     client.getTreatmentsWithConfig(splitNames, attributes) :
     getControlTreatmentsWithConfig(splitNames);

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
+import React from 'react';
 import { ISplitTreatmentsChildProps } from './types';
 /**
  * High-Order Component for SplitTreatments.

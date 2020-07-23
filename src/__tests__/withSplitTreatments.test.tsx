@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './utils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
-import { sdkBrowser } from './utils/sdkConfigs';
+import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import withSplitFactory from '../withSplitFactory';
@@ -32,7 +32,10 @@ describe('withSplitTreatments', () => {
               expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(0);
               expect(props.treatments).toEqual(getControlTreatmentsWithConfig(splitNames));
               expect(props.isReady).toBe(false);
+              expect(props.isReadyFromCache).toBe(false);
+              expect(props.hasTimedout).toBe(false);
               expect(props.isTimedout).toBe(false);
+              expect(props.isDestroyed).toBe(false);
               expect(props.lastUpdate).toBe(0);
               done();
               return null;

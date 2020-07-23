@@ -1,4 +1,5 @@
 import React from 'react';
+import shallowEqual from 'shallowequal';
 import SplitContext from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
@@ -12,25 +13,36 @@ import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-class SplitTreatments extends React.PureComponent<ISplitTreatmentsProps> {
+class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   logWarning?: boolean;
+
+  // The component updates if:
+  // - SplitContext changes, i.e., if the client or status properties tracked by `updateSdk***` props change
+  // - split names or attributes change (shouldComponentUpdate condition)
+  shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>) {
+    return !shallowEqual(this.props.names, nextProps.names) ||
+      !shallowEqual(this.props.attributes, nextProps.attributes);
+  }
 
   render() {
     const { names, children, attributes } = this.props;
 
     return (
       <SplitContext.Consumer>
-        {({ client, isReady, isTimedout, lastUpdate }: ISplitContextValues) => {
+        {(splitContext: ISplitContextValues) => {
+          const { client, isReady, isReadyFromCache, isDestroyed } = splitContext;
           let treatments;
-          if (!isReady || !client) {
+          const isOperational = !isDestroyed && (isReady || isReadyFromCache);
+          if (client && isOperational) {
+            treatments = client.getTreatmentsWithConfig(names, attributes);
+          } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
-          } else {
-            treatments = client.getTreatmentsWithConfig(names, attributes);
           }
+          // SplitTreatments only accepts a function as a child, not an React (JSX) Element
           return children({
-            treatments, isReady, isTimedout, lastUpdate,
+            ...splitContext, treatments,
           });
         }}
       </SplitContext.Consumer>
