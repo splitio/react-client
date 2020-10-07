@@ -6,5 +6,5 @@
  * @return A Split Manager instance, or null if used outside the scope of SplitFactory
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
-declare const useManager: () => import("@splitsoftware/splitio/types/splitio").IManager | null;
+declare const useManager: () => SplitIO.IManager | null;
 export default useManager;
