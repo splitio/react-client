@@ -1,6 +1,6 @@
-1.3.0 (September XX, 2020)
- - Updated some NPM dependencies, including @splitsoftware/splitio to version 10.14.1 that was optimized in favor of size reduction of UMD, ESM and CommonJS builds.
- - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the splits that will be downloaded. Read more about this configuration in our JS SDK docs.
+1.2.1 (Oct 7, 2020)
+ - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the splits to be synced. Learn more in our javascript-client changelog or documentation.
+ - Updated some NPM dependencies mostly for vulnerability fixes.
 
 1.2.0 (July 23, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
