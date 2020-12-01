@@ -1,6 +1,3 @@
-// The string below is a marker and will be replaced by the real version number. DO NOT CHANGE
-export const VERSION: string = 'react-' + 'REACT_SDK_VERSION_NUMBER';
-
 // Treatments
 export const ON: SplitIO.Treatment = 'on';
 
