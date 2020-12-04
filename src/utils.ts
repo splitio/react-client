@@ -120,23 +120,6 @@ export function checkHooks(message: string): boolean {
 
 // Input validation utils that will be replaced eventually
 
-/**
- * Removes duplicate items on an array of strings.
- */
-export function uniq(arr: string[]): string[] {
-  const seen: Record<string, boolean> = {};
-  return arr.filter((item) => {
-    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
-  });
-}
-
-/**
- * Checks if a given value is a string.
- */
-export function isString(val: unknown): val is string {
-  return typeof val === 'string' || val instanceof String;
-}
-
 export function validateSplits(maybeSplits: unknown, listName = 'split names'): false | string[] {
   if (Array.isArray(maybeSplits) && maybeSplits.length > 0) {
     const validatedArray: string[] = [];
@@ -156,7 +139,7 @@ export function validateSplits(maybeSplits: unknown, listName = 'split names'): 
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
-export function validateSplit(maybeSplit: unknown, item = 'split name'): false | string {
+function validateSplit(maybeSplit: unknown, item = 'split name'): false | string {
   // tslint:disable-next-line: triple-equals
   if (maybeSplit == undefined) {
     console.log(`[ERROR] you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
@@ -176,4 +159,21 @@ export function validateSplit(maybeSplit: unknown, item = 'split name'): false |
   }
 
   return false;
+}
+
+/**
+ * Removes duplicate items on an array of strings.
+ */
+function uniq(arr: string[]): string[] {
+  const seen: Record<string, boolean> = {};
+  return arr.filter((item) => {
+    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
+  });
+}
+
+/**
+ * Checks if a given value is a string.
+ */
+function isString(val: unknown): val is string {
+  return typeof val === 'string' || val instanceof String;
 }
