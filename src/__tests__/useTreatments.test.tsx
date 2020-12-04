@@ -96,7 +96,7 @@ describe('useTreatments', () => {
 
   /**
    * Input validation. Passing invalid split names or attributes while the Sdk
-   * is not ready doesn't emit errors, and log meaningful messages instead.
+   * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
     const logSpy = jest.spyOn(console, 'log');

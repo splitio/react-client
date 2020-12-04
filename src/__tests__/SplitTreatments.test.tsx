@@ -221,7 +221,7 @@ describe('SplitTreatments', () => {
 
   /**
    * Input validation. Passing invalid split names or attributes while the Sdk
-   * is not ready doesn't emit errors, and log meaningful messages instead.
+   * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
     const splitNames = ['split1', 'split2'];
