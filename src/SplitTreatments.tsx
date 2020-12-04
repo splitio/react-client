@@ -40,7 +40,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
           }
-          // SplitTreatments only accepts a function as a child, not an React (JSX) Element
+          // SplitTreatments only accepts a function as a child, not a React Element (JSX)
           return children({
             ...splitContext, treatments,
           });

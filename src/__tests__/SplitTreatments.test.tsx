@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -217,6 +217,50 @@ describe('SplitTreatments', () => {
       });
     });
 
+  });
+
+  /**
+   * Input validation. Passing invalid split names or attributes while the Sdk
+   * is not ready doesn't emit errors, and log meaningful messages instead.
+   */
+  it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
+    const splitNames = ['split1', 'split2'];
+    const logSpy = jest.spyOn(console, 'log');
+    mount(
+      <SplitFactory config={sdkBrowser} >{
+        ({ factory }) => {
+          return (
+            <>
+              {/* @ts-ignore */}
+              <SplitTreatments split_names={splitNames} >
+                {({ treatments }: ISplitTreatmentsChildProps) => {
+                  expect(treatments).toEqual({});
+                  return null;
+                }}
+              </SplitTreatments>
+              {/* @ts-ignore */}
+              <SplitTreatments names={splitNames[0]} >
+                {({ treatments }: ISplitTreatmentsChildProps) => {
+                  expect(treatments).toEqual({});
+                  return null;
+                }}
+              </SplitTreatments>
+              {/* @ts-ignore */}
+              <SplitTreatments names={[true]} attributes={'invalid'} >
+                {({ treatments }: ISplitTreatmentsChildProps) => {
+                  expect(treatments).toEqual({});
+                  return null;
+                }}
+              </SplitTreatments>
+            </>
+          );
+        }
+      }
+      </SplitFactory>);
+    expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
+    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
+
+    done();
   });
 
 });

@@ -24,7 +24,7 @@ import useTreatments from '../useTreatments';
 
 describe('useTreatments', () => {
 
-  const splitNames = [ 'split1' ];
+  const splitNames = ['split1'];
   const attributes = { att1: 'att1' };
 
   test('returns the Treatments from the client at Split context updated by SplitFactory.', () => {
@@ -92,6 +92,31 @@ describe('useTreatments', () => {
     );
     expect(getControlTreatmentsWithConfig).toBeCalledWith(splitNames);
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(treatments);
+  });
+
+  /**
+   * Input validation. Passing invalid split names or attributes while the Sdk
+   * is not ready doesn't emit errors, and log meaningful messages instead.
+   */
+  test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
+    const logSpy = jest.spyOn(console, 'log');
+
+    mount(
+      React.createElement(
+        () => {
+          // @ts-ignore
+          let treatments = useTreatments('split1');
+          expect(treatments).toEqual({});
+          // @ts-ignore
+          treatments = useTreatments([true]);
+          expect(treatments).toEqual({});
+          return null;
+        }),
+    );
+    expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
+    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
+
+    done();
   });
 
 });
