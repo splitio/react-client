@@ -3,7 +3,7 @@ export declare const ON: SplitIO.Treatment;
 export declare const OFF: SplitIO.Treatment;
 export declare const CONTROL: SplitIO.Treatment;
 export declare const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig;
-export declare const getControlTreatmentsWithConfig: (splitNames: string[]) => SplitIO.TreatmentsWithConfig;
+export declare const getControlTreatmentsWithConfig: (splitNames: unknown) => SplitIO.TreatmentsWithConfig;
 export declare const WARN_SF_CONFIG_AND_FACTORY: string;
 export declare const ERROR_SF_NO_CONFIG_AND_FACTORY: string;
 export declare const ERROR_SC_NO_FACTORY: string;
