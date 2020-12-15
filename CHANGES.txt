@@ -1,6 +1,7 @@
-1.2.2 (December XXX, 2020)
+1.2.2 (December 15, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.15.2.
  - Updated internal validation to avoid errors when passing an invalid list of split names to `SplitTreatments` component and `useTreatments` hook.
+ - Updated node-fetch and init dev dependencies for vulnerability fixes
 
 1.2.1 (Oct 7, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the splits to be synced. Learn more in our javascript-client changelog or documentation.
