@@ -1,3 +1,5 @@
+import { validateSplits } from './utils';
+
 // The string below is a marker and will be replaced by the real version number. DO NOT CHANGE
 export const VERSION: string = 'react-' + 'REACT_SDK_VERSION_NUMBER';
 
@@ -13,8 +15,15 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   config: null,
 };
 
-export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.TreatmentsWithConfig => {
-  return splitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+export const getControlTreatmentsWithConfig = (splitNames: unknown): SplitIO.TreatmentsWithConfig => {
+  // validate split Names
+  const validatedSplitNames = validateSplits(splitNames);
+
+  // return empty object if the returned value is false
+  if (!validatedSplitNames) return {};
+
+  // return control treatments for each validated split name
+  return validatedSplitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});
