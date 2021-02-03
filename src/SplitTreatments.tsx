@@ -1,5 +1,4 @@
 import React from 'react';
-import shallowEqual from 'shallowequal';
 import SplitContext from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
@@ -16,14 +15,6 @@ import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
 class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   logWarning?: boolean;
-
-  // The component updates if:
-  // - SplitContext changes, i.e., if the client or status properties tracked by `updateSdk***` props change
-  // - split names or attributes change (shouldComponentUpdate condition)
-  shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>) {
-    return !shallowEqual(this.props.names, nextProps.names) ||
-      !shallowEqual(this.props.attributes, nextProps.attributes);
-  }
 
   render() {
     const { names, children, attributes } = this.props;

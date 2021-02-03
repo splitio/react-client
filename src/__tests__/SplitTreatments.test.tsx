@@ -93,10 +93,10 @@ describe('SplitTreatments', () => {
   });
 
   /**
-   * Tests for shouldComponentUpdate
+   * These tests will change once `SplitTreatments` is updated to compare split names and attributes in order to avoid re-evaluating splits.
    */
 
-  it('does not rerender if names and attributes are the same object.', () => {
+  it('rerenders if names and attributes are the same object.', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
@@ -108,10 +108,11 @@ describe('SplitTreatments', () => {
         }}
       </SplitTreatments>);
     wrapper.setProps({ names, attributes });
-    expect(renderTimes).toBe(1);
+    expect(renderTimes).toBe(2);
   });
 
-  it('does not rerender if names and attributes are equals (shallow comparison).', () => {
+  // This test might change if sCU is updated to perform a deep comparison of split names and attributes.
+  it('rerenders if names and attributes are equals (shallow comparison).', () => {
     const names = ['split1', 'split2'];
     const attributes = { att1: 'att1' };
     let renderTimes = 0;
@@ -123,7 +124,7 @@ describe('SplitTreatments', () => {
         }}
       </SplitTreatments>);
     wrapper.setProps({ names: [...names], attributes: { ...attributes } });
-    expect(renderTimes).toBe(1);
+    expect(renderTimes).toBe(2);
   });
 
   it('rerenders if names are not equals (shallow array comparison).', () => {

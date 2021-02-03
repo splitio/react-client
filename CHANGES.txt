@@ -1,3 +1,6 @@
+1.2.3 (February XX, 2021)
+ - Bugfixing - Removed `shouldComponentUpdate` method of `SplitTreatments` component, to avoid stopping render propagation.
+
 1.2.2 (December 15, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.15.2.
  - Updated internal validation to avoid errors when passing an invalid list of split names to `SplitTreatments` component and `useTreatments` hook.
