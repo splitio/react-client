@@ -24,9 +24,11 @@ function evaluateSplits(client: SplitIO.IClient, lastUpdate: number, names: Spli
  */
 class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
-  logWarning?: boolean;
+  private logWarning?: boolean;
 
-  evaluateSplits = memoizeOne(evaluateSplits, argsAreEqual);
+  // Attaching a memoized `client.getTreatmentsWithConfig` function to the component instance, to avoid duplicated impressions because
+  // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of split `names` and `attributes`.
+  private evaluateSplits = memoizeOne(evaluateSplits, argsAreEqual);
 
   render() {
     const { names, children, attributes } = this.props;

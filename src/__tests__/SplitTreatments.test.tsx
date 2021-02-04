@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -150,7 +150,7 @@ describe('SplitTreatments optimization', () => {
 
   function Component({ names, attributes }: any) {
     return (
-      <SplitFactory factory={outerFactory} >
+      <SplitFactory factory={outerFactory} updateOnSdkUpdate={true} >
         <SplitTreatments names={names} attributes={attributes} >
           {() => {
             renderTimes++;
@@ -161,56 +161,62 @@ describe('SplitTreatments optimization', () => {
     );
   }
 
+  const names = ['split1', 'split2'];
+  const attributes = { att1: 'att1' };
+
+  let wrapper: ReactWrapper;
+
   beforeEach(() => {
     renderTimes = 0;
     (outerFactory.client().getTreatmentsWithConfig as jest.Mock).mockClear();
+    wrapper = mount(<Component names={names} attributes={attributes} />);
+  })
+
+  afterEach(() => {
+    wrapper.unmount(); // unmount to remove event listener from factory
   })
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are the same object.', () => {
-    const names = ['split1', 'split2'];
-    const attributes = { att1: 'att1' };
-
-    const wrapper = mount(<Component names={names} attributes={attributes} />);
-
     wrapper.setProps({ names, attributes });
+
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are equals (shallow comparison).', () => {
-    const names = ['split1', 'split2'];
-    const attributes = { att1: 'att1' };
-
-    const wrapper = mount(<Component names={names} attributes={attributes} />);
-
     wrapper.setProps({ names: [...names], attributes: { ...attributes } });
+
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluates splits if names are not equals (shallow array comparison).', () => {
-    const names = ['split1', 'split2'];
-    const attributes = { att1: 'att1' };
-
-    const wrapper = mount(<Component names={names} attributes={attributes} />);
-
     wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes } });
+
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
   it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
-    const names = ['split1', 'split2'];
-    const attributes = { att1: 'att1' };
-
-    const wrapper = mount(<Component names={names} attributes={attributes} />);
-
     wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' } });
+
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  test('rerenders and re-evaluate splits when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
+  it('rerenders and re-evaluates splits if lastUpdate timestamp is not equal (SDK_UPDATE event).', () => {
+    // re-renders and re-evaluates
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
+
+    // re-rendering after destroy, doesn't re-evaluate even if names and attributes are different because the sdk is not operational
+    (outerFactory as any).client().destroy();
+    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes, att2: 'att2' } }); // manually update the component, because there isn't an event listener for destroy
+
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+  });
+
+  it('rerenders and re-evaluate splits when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];
