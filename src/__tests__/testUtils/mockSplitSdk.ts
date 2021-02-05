@@ -95,6 +95,11 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
     __internalListenersCount__,
     // Factory context exposed to get client readiness status (READY, READY_FROM_CACHE, HAS_TIMEDOUT, DESTROYED)
     __context: context,
+    // Restore the mock client to its initial NO-READY status.
+    // Useful when you want to reuse the same mock between tests after emitting events or destroying the instance.
+    __restore() {
+      __isReady__ = __isReadyFromCache__ = __hasTimedout__ = __isDestroyed__ = undefined;
+    }
   });
 }
 
