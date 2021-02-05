@@ -16,7 +16,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
+    "build:cjs": "rimraf lib/* && tsc -d true --declarationDir types",
     "build:esm": "rimraf es/* && tsc -m es2015 -t es6 --outDir es",
     "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
@@ -61,6 +61,8 @@
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
     "@babel/runtime": "^7.10.2",
+    "@types/google.analytics": "0.0.40",
+    "@types/node": "^13.9.1",
     "events": "3.1.0",
     "object-assign": "^4.1.1",
     "unfetch": "^4.1.0",

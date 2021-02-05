@@ -5,7 +5,7 @@ cp -r ./node_modules/@splitsoftware/splitio/es  ./es/splitio
 cp -r ./node_modules/@splitsoftware/splitio/lib  ./lib/splitio
 
 # replace javascript-client imports to use local copy
-replace '@splitsoftware/splitio' './splitio' ./lib/index.js ./es/index.js ./lib/utils.js ./es/utils.js
+replace '@splitsoftware/splitio' './splitio' ./lib/index.js ./es/index.js ./lib/utils.js ./es/utils.js ./types/index.d.ts
 replace '../../../package.json' '../../../../package.json' ./lib/splitio/utils/settings/index.js ./es/splitio/utils/settings/index.js
 
 # replace javascript-client package.json to use browser modules

@@ -1,8 +1,7 @@
 .DS_Store
-.vscode
-node_modules
-lib
-es
-types
-lib-umd
-coverage
+/.vscode
+/node_modules
+/lib
+/es
+/lib-umd
+/coverage
