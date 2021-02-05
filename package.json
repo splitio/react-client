@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.3-canary.0",
+  "version": "1.2.3-canary.1",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
     "build:esm": "rimraf es/* && tsc -m es2015 -t es6 --outDir es",
     "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
-    "postbuild": "./version_replace.sh",
+    "postbuild": "./patch_modules.sh",
     "check": "npm run check:lint && npm run check:types",
     "check:lint": "tslint -p tsconfig.json 'src/**/*.ts*'",
     "check:types": "tsc --noEmit",
@@ -30,7 +30,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "publish:rc": "npm publish --tag rc",
     "publish:stable": "npm publish",
-    "prepublishOnly": "npm run build:cjs && npm run build:esm && ./version_replace.sh"
+    "prepublishOnly": "npm run build:cjs && npm run build:esm && ./patch_modules.sh"
   },
   "repository": {
     "type": "git",
