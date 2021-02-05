@@ -1,29 +1,34 @@
 import React from 'react';
+import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
 import SplitContext from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
 
+function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
+  return newArgs[0] === lastArgs[0] && // client
+    newArgs[1] === lastArgs[1] && // lastUpdate
+    shallowEqual(newArgs[2], lastArgs[2]) && // names
+    shallowEqual(newArgs[3], lastArgs[3]); // attributes
+}
+
+function evaluateSplits(client: SplitIO.IClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes) {
+  return client.getTreatmentsWithConfig(names, attributes);
+}
+
 /**
  * SplitTreatments accepts a list of split names and optional attributes. It access the client at SplitContext to
  * call 'client.getTreatmentsWithConfig()' method, and passes the returned treatments to a child as a function.
- *
- * Since it is a PureComponent, it does a shallow comparison of props to determine if the component should update,
- * i.e., it uses reference identity for `names` and `attributes` props.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
-  logWarning?: boolean;
+  private logWarning?: boolean;
 
-  // The component updates if:
-  // - SplitContext changes, i.e., if the client or status properties tracked by `updateSdk***` props change
-  // - split names or attributes change (shouldComponentUpdate condition)
-  shouldComponentUpdate(nextProps: Readonly<ISplitTreatmentsProps>) {
-    return !shallowEqual(this.props.names, nextProps.names) ||
-      !shallowEqual(this.props.attributes, nextProps.attributes);
-  }
+  // Attaching a memoized `client.getTreatmentsWithConfig` function to the component instance, to avoid duplicated impressions because
+  // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of split `names` and `attributes`.
+  private evaluateSplits = memoizeOne(evaluateSplits, argsAreEqual);
 
   render() {
     const { names, children, attributes } = this.props;
@@ -31,16 +36,16 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
     return (
       <SplitContext.Consumer>
         {(splitContext: ISplitContextValues) => {
-          const { client, isReady, isReadyFromCache, isDestroyed } = splitContext;
+          const { client, isReady, isReadyFromCache, isDestroyed, lastUpdate } = splitContext;
           let treatments;
           const isOperational = !isDestroyed && (isReady || isReadyFromCache);
           if (client && isOperational) {
-            treatments = client.getTreatmentsWithConfig(names, attributes);
+            treatments = this.evaluateSplits(client, lastUpdate, names, attributes);
           } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
           }
-          // SplitTreatments only accepts a function as a child, not an React (JSX) Element
+          // SplitTreatments only accepts a function as a child, not a React Element (JSX)
           return children({
             ...splitContext, treatments,
           });
