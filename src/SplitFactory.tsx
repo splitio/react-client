@@ -2,7 +2,7 @@ import React from 'react';
 
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
-import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
+import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients } from './utils';
 
 /**
@@ -45,6 +45,10 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
     // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
     const factory = propFactory || (config ? getSplitFactory(config) : null);
     this.isFactoryExternal = propFactory ? true : false;
+    // Don't try this at home. Only override the version when we create our own factory.
+    if (config && factory) {
+      (factory.settings.version as any) = VERSION;
+    }
 
     const client = factory ? factory.client() : null;
 

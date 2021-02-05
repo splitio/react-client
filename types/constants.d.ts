@@ -1,3 +1,4 @@
+export declare const VERSION: string;
 export declare const ON: SplitIO.Treatment;
 export declare const OFF: SplitIO.Treatment;
 export declare const CONTROL: SplitIO.Treatment;
