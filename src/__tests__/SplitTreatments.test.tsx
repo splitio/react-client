@@ -10,7 +10,7 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import { ISplitTreatmentsChildProps } from '../types';
+import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
 import SplitTreatments from '../SplitTreatments';
 import SplitClient from '../SplitClient';
 import SplitFactory from '../SplitFactory';
@@ -148,28 +148,31 @@ describe('SplitTreatments optimization', () => {
   const outerFactory = SplitSdk(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
-  function Component({ names, attributes }: any) {
+  function Component({ names, attributes, splitKey }: Pick<ISplitTreatmentsProps, 'names' | 'attributes'> & Pick<ISplitClientProps, 'splitKey'>) {
     return (
-      <SplitFactory factory={outerFactory} updateOnSdkUpdate={true} >
-        <SplitTreatments names={names} attributes={attributes} >
-          {() => {
-            renderTimes++;
-            return null;
-          }}
-        </SplitTreatments>
+      <SplitFactory factory={outerFactory} >
+        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} >
+          <SplitTreatments names={names} attributes={attributes} >
+            {() => {
+              renderTimes++;
+              return null;
+            }}
+          </SplitTreatments>
+        </SplitClient>
       </SplitFactory>
     );
   }
 
   const names = ['split1', 'split2'];
   const attributes = { att1: 'att1' };
+  const splitKey = sdkBrowser.core.key;
 
   let wrapper: ReactWrapper;
 
   beforeEach(() => {
     renderTimes = 0;
     (outerFactory.client().getTreatmentsWithConfig as jest.Mock).mockClear();
-    wrapper = mount(<Component names={names} attributes={attributes} />);
+    wrapper = mount(<Component names={names} attributes={attributes} splitKey={splitKey} />);
   })
 
   afterEach(() => {
@@ -177,43 +180,56 @@ describe('SplitTreatments optimization', () => {
   })
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are the same object.', () => {
-    wrapper.setProps({ names, attributes });
+    wrapper.setProps({ names, attributes, splitKey });
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are equals (shallow comparison).', () => {
-    wrapper.setProps({ names: [...names], attributes: { ...attributes } });
+    wrapper.setProps({ names: [...names], attributes: { ...attributes }, splitKey });
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluates splits if names are not equals (shallow array comparison).', () => {
-    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes } });
+    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes }, splitKey });
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
   it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
-    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' } });
+    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' }, splitKey });
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  it('rerenders and re-evaluates splits if lastUpdate timestamp is not equal (SDK_UPDATE event).', () => {
+  it('rerenders and re-evaluates splits if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', () => {
     // re-renders and re-evaluates
     (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
 
     // re-rendering after destroy, doesn't re-evaluate even if names and attributes are different because the sdk is not operational
     (outerFactory as any).client().destroy();
-    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes, att2: 'att2' } }); // manually update the component, because there isn't an event listener for destroy
+    wrapper.setProps({ names, attributes, splitKey }); // manually update the component, because there isn't an event listener for destroy
 
     expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+
+    // Restore the client to be READY
+    (outerFactory as any).client().__restore();
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+  });
+
+  it('rerenders and re-evaluates splits if client changes.', () => {
+    wrapper.setProps({ names, attributes, splitKey: 'otherKey' });
+    (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY);
+
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluate splits when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
