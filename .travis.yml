@@ -10,7 +10,7 @@ git:
 
 script:
   - npm test
-  - npm run lint
+  - npm run check
   - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run build
 
 deploy:
