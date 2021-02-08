@@ -1,5 +1,9 @@
-1.2.3 (February XX, 2021)
- - Updated NPM dependencies and CommonJS and ES Modules builds to always use the browser variant of the Javascript SDK to avoid issues when using Node-based testing framework such as Jest.
+1.2.4 (February XX, 2021)
+ - Updated CommonJS and ES Modules builds to always use the browser variant of the Javascript SDK to avoid issues when using Node-based testing framework such as Jest.
+
+1.2.3 (February 8, 2021)
+ - Updated React peer dependency range to include React@17.x.x.
+ - Added `memoize-one` dependency for basic memoization utilities.
  - Bugfixing - Optimizing splits evaluation via memoization in order to remove `shouldComponentUpdate` method of `SplitTreatments` component and avoid stopping render propagation (issue #42).
 
 1.2.2 (December 15, 2020)

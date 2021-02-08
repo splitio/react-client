@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.3-canary.1",
+  "version": "1.2.4-canary.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -98,7 +98,7 @@
     "webpack-merge": "^4.2.2"
   },
   "peerDependencies": {
-    "react": "^16.3.0"
+    "react": "^16.3.0 || ^17.0.0"
   },
   "husky": {
     "hooks": {
