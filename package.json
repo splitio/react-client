@@ -91,7 +91,7 @@
     "webpack-merge": "^4.2.2"
   },
   "peerDependencies": {
-    "react": "^16.3.0"
+    "react": "^16.3.0 || ^17.0.0"
   },
   "husky": {
     "hooks": {
