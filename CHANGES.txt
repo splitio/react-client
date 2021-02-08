@@ -1,6 +1,6 @@
 1.2.3 (February 8, 2021)
- - Updated react peer dependency to v17.
- - Updated NPM dependencies to include `memoize-one` library.
+ - Updated React peer dependency range to include React@17.x.x.
+ - Added `memoize-one` dependency for basic memoization utilities.
  - Bugfixing - Optimizing splits evaluation via memoization in order to remove `shouldComponentUpdate` method of `SplitTreatments` component and avoid stopping render propagation (issue #42).
 
 1.2.2 (December 15, 2020)
