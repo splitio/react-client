@@ -1,5 +1,5 @@
 1.2.4 (February XX, 2021)
- - Updated CommonJS and ES Modules builds to always use the browser variant of the Javascript SDK to avoid issues when using Node-based testing framework such as Jest.
+ - Updated CommonJS and ES Modules builds to always resolve browser modules of the Javascript SDK and avoid issues when using Node-based testing framework such as Jest.
 
 1.2.3 (February 8, 2021)
  - Updated React peer dependency range to include React@17.x.x.

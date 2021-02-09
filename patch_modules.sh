@@ -9,10 +9,7 @@ replace '@splitsoftware/splitio' './splitio' ./lib/index.js ./es/index.js ./lib/
 replace '../../../package.json' '../../../../package.json' ./lib/splitio/utils/settings/index.js ./es/splitio/utils/settings/index.js
 
 # replace javascript-client package.json to use browser modules
-replace '"main": "./node.js"' '"main": "./browser/Full.js"' ./lib/splitio/producer/package.json ./es/splitio/producer/package.json
 replace '"main": "./node.js"' '"main": "./browser.js"' ./lib/splitio ./es/splitio -r --include="package.json"
-replace '"main": "node.js"' '"main": "./browser.js"' ./lib/splitio ./es/splitio -r --include="package.json"
-replace '"main": "./SegmentUpdateWorker.js"' '"main": "./MySegmentUpdateWorker.js"' ./lib/splitio ./es/splitio -r --include="package.json"
 
 if [ $? -eq 0 ]
 then
