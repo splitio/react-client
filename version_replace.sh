@@ -3,6 +3,10 @@
 # copy javascript-client builds locally
 cp -r ./node_modules/@splitsoftware/splitio/es  ./es/splitio
 cp -r ./node_modules/@splitsoftware/splitio/lib  ./lib/splitio
+cp -r ./node_modules/@splitsoftware/splitio/types  ./types/splitio
+
+# update splitio type definitions to only resolve the browser variant of SplitFactory type
+replace 'export function SplitFactory\(settings: SplitIO.INode'  '// export function SplitFactory(settings: SplitIO.INode' ./types/splitio/index.d.ts
 
 # replace javascript-client imports to use local copy
 replace '@splitsoftware/splitio' './splitio' ./lib/index.js ./es/index.js ./lib/utils.js ./es/utils.js ./types/index.d.ts
