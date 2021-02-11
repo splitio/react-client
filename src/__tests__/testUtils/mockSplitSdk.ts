@@ -1,5 +1,10 @@
 import { EventEmitter } from 'events';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
+import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
+import reactSdkPackageJson from '../../../package.json';
+
+export const jsSdkVersion = `javascript-${jsSdkPackageJson.version}`;
+export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
@@ -126,9 +131,9 @@ export function mockSdk() {
       manager,
       __names__: names,
       __clients__,
-      settings: {
-        version: 'mock-x.x.x',
-      },
+      settings: Object.assign({
+        version: jsSdkVersion,
+      }, config),
     };
 
     return factory;

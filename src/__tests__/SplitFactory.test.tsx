@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
+import { mockSdk, Event, assertNoListeners, jsSdkVersion, reactSdkVersion } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -30,6 +30,7 @@ describe('SplitFactory', () => {
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe(0);
+          expect((factory as SplitIO.ISDK).settings.version).toBe(reactSdkVersion);
           return null;
         }}
       </SplitFactory>);
@@ -51,6 +52,7 @@ describe('SplitFactory', () => {
             expect(isTimedout).toBe(false);
             expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
+            expect((factory as SplitIO.ISDK).settings.version).toBe(jsSdkVersion);
             return null;
           }}
         </SplitFactory>);

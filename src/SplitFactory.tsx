@@ -40,16 +40,22 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
       console.log(WARN_SF_CONFIG_AND_FACTORY);
     }
 
-    // Instantiate factory and main client.
-    // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
-    // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
-    const factory = propFactory || (config ? getSplitFactory(config) : null);
-    this.isFactoryExternal = propFactory ? true : false;
-    // Don't try this at home. Only override the version when we create our own factory.
-    if (config && factory) {
-      (factory.settings.version as any) = VERSION;
+    // Instantiate factory
+    let factory = null;
+    if (propFactory) {
+      factory = propFactory;
+    } else {
+      if (config) {
+        // Don't try this at home. Used to overwrite the settings version when we create our own factory.
+        (config as any).version = VERSION;
+        // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
+        // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
+        factory = getSplitFactory(config);
+      }
     }
+    this.isFactoryExternal = propFactory ? true : false;
 
+    // Instantiate main client.
     const client = factory ? factory.client() : null;
 
     this.state = {
