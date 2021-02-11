@@ -48,4 +48,4 @@ export const ERROR_UT_NO_USECONTEXT: string = ERROR_NO_USECONTEXT + ' Returning 
 
 export const ERROR_UTRACK_NO_USECONTEXT: string = ERROR_NO_USECONTEXT + ' Returning a no-op function from `useTrack` hook.';
 
-export const EXCEPTION_NO_CREATECONTEXT: string = 'Check your React version since React `createContext` function is not available. Split SDK requires version 16.3.0+ of React.';
+export const EXCEPTION_NO_REACT_OR_CREATECONTEXT: string = 'React library is not available or its version is not supported. Check that it is properly installed or imported. Split SDK requires version 16.3.0+ of React.';

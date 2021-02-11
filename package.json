@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.3",
+  "version": "1.2.4-canary.2",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -24,9 +24,9 @@
     "check": "npm run check:lint && npm run check:types",
     "check:lint": "tslint -p tsconfig.json 'src/**/*.ts*'",
     "check:types": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest src",
     "test:watch": "npm test -- --watch",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "jest src --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "publish:rc": "npm publish --tag rc",
     "publish:stable": "npm publish",
@@ -60,11 +60,17 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "^10.15.2",
+    "@babel/runtime": "^7.10.2",
+    "@types/google.analytics": "0.0.40",
+    "events": "3.1.0",
+    "object-assign": "^4.1.1",
+    "unfetch": "^4.1.0",
+    "utfx": "1.0.1",
     "memoize-one": "^5.1.1",
     "shallowequal": "^1.1.0"
   },
   "devDependencies": {
+    "@splitsoftware/splitio": "^10.15.3",
     "@types/enzyme": "^3.10.4",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/events": "^3.0.0",

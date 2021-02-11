@@ -12,4 +12,4 @@ export declare const ERROR_UC_NO_USECONTEXT: string;
 export declare const ERROR_UM_NO_USECONTEXT: string;
 export declare const ERROR_UT_NO_USECONTEXT: string;
 export declare const ERROR_UTRACK_NO_USECONTEXT: string;
-export declare const EXCEPTION_NO_CREATECONTEXT: string;
+export declare const EXCEPTION_NO_REACT_OR_CREATECONTEXT: string;
