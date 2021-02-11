@@ -41,7 +41,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
     }
 
     // Instantiate factory
-    let factory;
+    let factory = null;
     if (propFactory) {
       factory = propFactory;
     } else {
@@ -51,8 +51,6 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
         // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
         // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
         factory = getSplitFactory(config);
-      } else {
-        factory = null;
       }
     }
     this.isFactoryExternal = propFactory ? true : false;
