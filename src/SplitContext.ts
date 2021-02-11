@@ -1,9 +1,8 @@
 import React from 'react';
 import { ISplitContextValues } from './types';
-import { EXCEPTION_NO_CREATECONTEXT, EXCEPTION_NO_REACT } from './constants';
+import { EXCEPTION_NO_REACT_OR_CREATECONTEXT } from './constants';
 
-if (!React) throw new Error(EXCEPTION_NO_REACT);
-if (!React.createContext) throw new Error(EXCEPTION_NO_CREATECONTEXT);
+if (!React || !React.createContext) throw new Error(EXCEPTION_NO_REACT_OR_CREATECONTEXT);
 
 /**
  * Split Context is the React Context instance that represents our SplitIO global state.
