@@ -1,7 +1,8 @@
 import React from 'react';
 import { ISplitContextValues } from './types';
-import { EXCEPTION_NO_CREATECONTEXT } from './constants';
+import { EXCEPTION_NO_CREATECONTEXT, EXCEPTION_NO_REACT } from './constants';
 
+if (!React) throw new Error(EXCEPTION_NO_REACT);
 if (!React.createContext) throw new Error(EXCEPTION_NO_CREATECONTEXT);
 
 /**
