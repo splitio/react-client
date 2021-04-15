@@ -1,4 +1,4 @@
-1.2.5 (April 16, 2021)
+1.2.5 (April XXX, 2021)
  - Updated some NPM dependencies mostly for vulnerability fixes.
 
 1.2.4 (February 11, 2021)
