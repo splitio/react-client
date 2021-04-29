@@ -1,5 +1,6 @@
-1.2.5 (April XXX, 2021)
+1.2.5 (April 29, 2021)
  - Updated some NPM dependencies mostly for vulnerability fixes.
+ - Updated Split's SDK package for vulnerability fixes.
 
 1.2.4 (February 11, 2021)
  - Updated CommonJS and ES Modules builds to always resolve browser modules of the Javascript SDK and avoid issues when using Node-based testing framework such as Jest (issues #13, #34).
