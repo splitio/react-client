@@ -1,4 +1,4 @@
-1.2.5 (April 28, 2021)
+1.2.5 (April 29, 2021)
  - Updated some NPM dependencies mostly for vulnerability fixes.
  - Updated Split's SDK package for vulnerability fixes.
 
