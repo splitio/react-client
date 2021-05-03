@@ -1,3 +1,6 @@
+1.2.6 (XXX XX, 2021)
+ - Updated event listeners to avoid some misleading error logs.
+
 1.2.5 (April 29, 2021)
  - Updated some NPM dependencies mostly for vulnerability fixes.
  - Updated Split's SDK package for vulnerability fixes.
