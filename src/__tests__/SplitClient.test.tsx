@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, ReactWrapper } from 'enzyme';
 
 /** Mocks and test utils */
-import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
+import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -19,6 +19,8 @@ import { ERROR_SC_NO_FACTORY } from '../constants';
 describe('SplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
+    let clientToCheck;
+
     mount(
       <SplitFactory config={sdkBrowser} >
         <SplitClient splitKey='user1' >
@@ -29,10 +31,18 @@ describe('SplitClient', () => {
             expect(isTimedout).toBe(false);
             expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
+
+            clientToCheck = client;
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
+
+    // After component mount, listeners should be attached for all ONCE events when none of them has been emitted yet
+    expect(clientListenerCount(clientToCheck, Event.SDK_READY)).toBe(1);
+    expect(clientListenerCount(clientToCheck, Event.SDK_READY_FROM_CACHE)).toBe(1);
+    expect(clientListenerCount(clientToCheck, Event.SDK_READY_TIMED_OUT)).toBe(1);
   });
 
   test('passes ready props to the child if client is ready.', (done) => {
@@ -41,6 +51,8 @@ describe('SplitClient', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
+      let clientToCheck;
+
       mount(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey={sdkBrowser.core.key} >
@@ -52,10 +64,19 @@ describe('SplitClient', () => {
               expect(isTimedout).toBe(false);
               expect(isDestroyed).toBe(false);
               expect(lastUpdate).toBe(0);
+
+              clientToCheck = client;
               return null;
             }}
           </SplitClient>
-        </SplitFactory>);
+        </SplitFactory>
+      );
+
+      // After component mount, listeners should not be attached for those ONCE events that has been already emitted
+      expect(clientListenerCount(clientToCheck, Event.SDK_READY)).toBe(0);
+      expect(clientListenerCount(clientToCheck, Event.SDK_READY_FROM_CACHE)).toBe(0);
+      expect(clientListenerCount(clientToCheck, Event.SDK_READY_TIMED_OUT)).toBe(0); // this event was not emitted, but will not anyway, since SDK_READY has.
+
       done();
     });
   });

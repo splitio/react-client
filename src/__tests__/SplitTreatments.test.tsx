@@ -8,6 +8,7 @@ jest.mock('@splitsoftware/splitio', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 import { sdkBrowser } from './testUtils/sdkConfigs';
+const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
@@ -25,6 +26,8 @@ import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants'
 import { getIsReady } from '../utils';
 
 describe('SplitTreatments', () => {
+
+  afterEach(() => { logSpy.mockClear() });
 
   it('passes as treatments prop the value returned by the function "getControlTreatmentsWithConfig" if the SDK is not ready.', (done) => {
     const splitNames = ['split1', 'split2'];
@@ -78,7 +81,6 @@ describe('SplitTreatments', () => {
 
   it('logs error and passes control treatments ("getControlTreatmentsWithConfig") if rendered outside an SplitProvider component.', () => {
     const splitNames = ['split1', 'split2'];
-    const logSpy = jest.spyOn(console, 'log');
     let passedTreatments;
     mount(
       <SplitTreatments names={splitNames} >
@@ -98,7 +100,7 @@ describe('SplitTreatments', () => {
    */
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
     const splitNames = ['split1', 'split2'];
-    const logSpy = jest.spyOn(console, 'log');
+
     mount(
       <SplitFactory config={sdkBrowser} >{
         ({ factory }) => {
