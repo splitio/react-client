@@ -9,8 +9,8 @@ git:
   depth: false
 
 script:
-  - npm test
   - npm run check
+  - npm run test
   - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run build
 
 deploy:

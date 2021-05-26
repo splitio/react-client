@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.5",
+  "version": "1.2.6-canary.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -10,6 +10,7 @@
     "CONTRIBUTORS-GUIDE.md",
     "LICENSE",
     "CHANGES.txt",
+    "src",
     "lib",
     "es",
     "types"
@@ -17,7 +18,7 @@
   "sideEffects": false,
   "scripts": {
     "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
-    "build:esm": "rimraf es/* && tsc -m es2015 -t es6 --outDir es",
+    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
     "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "./version_replace.sh",
@@ -30,7 +31,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "publish:rc": "npm publish --tag rc",
     "publish:stable": "npm publish",
-    "prepublishOnly": "npm run build:cjs && npm run build:esm && ./version_replace.sh"
+    "prepublishOnly": "npm run check && npm run build"
   },
   "repository": {
     "type": "git",
@@ -70,7 +71,7 @@
     "shallowequal": "^1.1.0"
   },
   "devDependencies": {
-    "@splitsoftware/splitio": "^10.15.5",
+    "@splitsoftware/splitio": "^10.15.6",
     "@types/enzyme": "^3.10.4",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/events": "^3.0.0",
