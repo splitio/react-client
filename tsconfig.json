@@ -9,7 +9,7 @@
     "outDir": "./lib",                        /* Redirect output structure to the directory. */
     "resolveJsonModule": true,                /* Include modules imported with .json extension. */
 
-    // @TODO uncomment the following when migrating to JS-commons and Rollup, to avoid duplicated helpers code in UMD builds. Also remove redundant `--importHelpers` flag in build scripts.
+    // @TODO uncomment the following when migrating to JS-commons and Rollup, to avoid duplicated helpers code in UMD builds. Alongside this, remove `--importHelpers` flag in build scripts.
     // "importHelpers": true,                    /* Import emit helpers from 'tslib'. */
 
     /* Strict Type-Checking Options */
