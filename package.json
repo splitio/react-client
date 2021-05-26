@@ -17,8 +17,8 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
-    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
+    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types --importHelpers",
+    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es --importHelpers",
     "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "./version_replace.sh",
@@ -68,7 +68,8 @@
     "unfetch": "^4.1.0",
     "utfx": "1.0.1",
     "memoize-one": "^5.1.1",
-    "shallowequal": "^1.1.0"
+    "shallowequal": "^1.1.0",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@splitsoftware/splitio": "^10.15.6",
