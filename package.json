@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.2.6-canary.0",
+  "version": "1.2.6-canary.1",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -17,8 +17,8 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types --importHelpers",
-    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es --importHelpers",
+    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
+    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
     "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "./version_replace.sh",
@@ -66,13 +66,11 @@
     "events": "3.1.0",
     "object-assign": "^4.1.1",
     "unfetch": "^4.1.0",
-    "utfx": "1.0.1",
     "memoize-one": "^5.1.1",
-    "shallowequal": "^1.1.0",
-    "tslib": "^2.1.0"
+    "shallowequal": "^1.1.0"
   },
   "devDependencies": {
-    "@splitsoftware/splitio": "^10.15.6",
+    "@splitsoftware/splitio": "^10.15.7-canary.0",
     "@types/enzyme": "^3.10.4",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/events": "^3.0.0",
