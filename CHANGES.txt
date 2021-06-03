@@ -1,6 +1,6 @@
-1.2.6 (May 27, 2021)
- - Updated event listeners to avoid some misleading error logs.
- - Updated @splitsoftware/splitio dependency to version 10.15.6.
+1.2.6 (June 3, 2021)
+ - Updated internal event listeners to avoid some misleading error logs.
+ - Updated @splitsoftware/splitio dependency to version 10.15.7, which fixes some issues with localhost mode (issue #13).
  - Updated some NPM dependencies mostly for vulnerability fixes.
  - Updated ES modules build to target ES5.
 
