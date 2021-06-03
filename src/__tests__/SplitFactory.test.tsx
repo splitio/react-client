@@ -8,6 +8,7 @@ jest.mock('@splitsoftware/splitio', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 import { sdkBrowser } from './testUtils/sdkConfigs';
+const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
@@ -235,7 +236,6 @@ describe('SplitFactory', () => {
   });
 
   test('logs warning if both a config and factory are passed as props.', () => {
-    const logSpy = jest.spyOn(console, 'log');
     const outerFactory = SplitSdk(sdkBrowser);
 
     shallow(
@@ -247,6 +247,7 @@ describe('SplitFactory', () => {
       </SplitFactory>);
 
     expect(logSpy).toBeCalledWith(WARN_SF_CONFIG_AND_FACTORY);
+    logSpy.mockRestore();
   });
 
   test('logs error and passes null factory if rendered without a Split config and factory.', () => {

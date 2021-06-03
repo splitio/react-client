@@ -16,6 +16,7 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig } from '../constants';
+const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import SplitFactory from '../SplitFactory';
@@ -99,8 +100,6 @@ describe('useTreatments', () => {
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
-    const logSpy = jest.spyOn(console, 'log');
-
     mount(
       React.createElement(
         () => {

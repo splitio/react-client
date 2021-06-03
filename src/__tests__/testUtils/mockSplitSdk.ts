@@ -151,3 +151,7 @@ function assertNoListenersOnClient(client: any) {
   expect(client.__emitter__.listenerCount(Event.SDK_READY_TIMED_OUT)).toBe(client.__internalListenersCount__[Event.SDK_READY_TIMED_OUT]);
   expect(client.__emitter__.listenerCount(Event.SDK_UPDATE)).toBe(client.__internalListenersCount__[Event.SDK_UPDATE]);
 }
+
+export function clientListenerCount(client: any, event: string) {
+  return client.__emitter__.listenerCount(event) - client.__internalListenersCount__[event];
+}
