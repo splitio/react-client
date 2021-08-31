@@ -54,6 +54,9 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
     return 'getTreatmentsWithConfig';
   });
+  const getTreatmentWithConfig: jest.Mock = jest.fn(() => {
+    return 'getTreatmentWithConfig';
+  });
   const ready: jest.Mock = jest.fn(() => {
     return new Promise((res, rej) => {
       if (__isReady__) res();
@@ -90,6 +93,7 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
 
   return Object.assign(Object.create(__emitter__), {
     getTreatmentsWithConfig,
+    getTreatmentWithConfig,
     track,
     ready,
     destroy,
