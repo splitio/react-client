@@ -5,7 +5,7 @@
             - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
             - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
             - New control notification for environment scoped streaming reset.
- - Updated Webpack v4 to v5, to build a more optimized UMD bundle.
+ - Updated some dependencies to their latest versions, including Webpack 4 to 5, to build a more optimized UMD bundle.
 
 1.2.6 (June 3, 2021)
  - Updated internal event listeners to avoid some misleading error logs.
