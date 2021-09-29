@@ -19,6 +19,7 @@ module.exports = {
   },
 
   mode: 'production',
+  devtool: false, // Remove source mapping. 'eval' is used by default in Webpack 5
 
   module: {
     rules: [
@@ -29,6 +30,9 @@ module.exports = {
       },
     ],
   },
+
+  node: false, // Not include Node polyfills, https://webpack.js.org/configuration/node
+  target: ['web', 'es5'], // target 'es5', since 'es2015' is the default in Webpack 5
 
   externals: {
     react: 'React'

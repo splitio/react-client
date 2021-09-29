@@ -68,7 +68,7 @@ describe('useClient', () => {
       React.createElement(
         () => {
           client = useClient();
-          sharedClient = client = useClient('user2', 'user');
+          sharedClient = useClient('user2', 'user');
           return null;
         }),
     );
