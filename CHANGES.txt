@@ -1,4 +1,4 @@
-1.3.0 (September 28, 2021)
+1.3.0 (September 29, 2021)
  - Updated @splitsoftware/splitio dependency to version 10.16.0, which includes:
       - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
       - Updated streaming logic to use the newest version of our streaming service, including:

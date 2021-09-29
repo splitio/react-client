@@ -1,8 +1,8 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event, assertNoListeners, jsSdkVersion, reactSdkVersion } from './testUtils/mockSplitSdk';
+import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -21,7 +21,7 @@ import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../c
 describe('SplitFactory', () => {
 
   test('passes no-ready props to the child if initialized with a config.', () => {
-    shallow(
+    mount(
       <SplitFactory config={sdkBrowser} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
           expect(factory).toBeInstanceOf(Object);
@@ -31,7 +31,7 @@ describe('SplitFactory', () => {
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe(0);
-          expect((factory as SplitIO.ISDK).settings.version).toBe(reactSdkVersion);
+          expect((factory as SplitIO.ISDK).settings.version).toContain('react-');
           return null;
         }}
       </SplitFactory>);
@@ -43,7 +43,7 @@ describe('SplitFactory', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
-      shallow(
+      mount(
         <SplitFactory factory={outerFactory} >
           {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
             expect(factory).toBe(outerFactory);
@@ -53,7 +53,7 @@ describe('SplitFactory', () => {
             expect(isTimedout).toBe(false);
             expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
-            expect((factory as SplitIO.ISDK).settings.version).toBe(jsSdkVersion);
+            expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
             return null;
           }}
         </SplitFactory>);
@@ -238,7 +238,7 @@ describe('SplitFactory', () => {
   test('logs warning if both a config and factory are passed as props.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
 
-    shallow(
+    mount(
       <SplitFactory config={sdkBrowser} factory={outerFactory} >
         {({ factory }) => {
           expect(factory).toBe(outerFactory);
