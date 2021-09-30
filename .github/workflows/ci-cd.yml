@@ -6,8 +6,7 @@ on:
       - development
   push:
     branches:
-      - master
-      - developement
+      - '*'
 
 jobs:
   build:
@@ -36,7 +35,7 @@ jobs:
         run: BUILD_BRANCH=${{ github.event.pull_request.head.ref }} BUILD_COMMIT=${{ github.sha }} npm run build
 
       - name: Deploy S3 Development
-        if: github.event_name == 'push' && github.event.pull_request.head.ref == 'development'
+        if: github.event_name == 'push' && github.event.pull_request.head.ref == 'AUT-1161'
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
