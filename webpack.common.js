@@ -7,7 +7,7 @@ module.exports = {
   },
 
   output: {
-    path: path.resolve(__dirname, 'lib-umd'),
+    path: path.resolve(__dirname, 'umd'),
     filename: '[name].js',
     library: 'splitio',
     libraryTarget: 'umd',

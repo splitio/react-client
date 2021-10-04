@@ -18,7 +18,7 @@ replace '"main": "./node.js"' '"main": "./browser.js"' ./lib/splitio ./es/spliti
 VERSION=$(node -e "(function () { console.log(require('./package.json').version) })()")
 
 replace 'REACT_SDK_VERSION_NUMBER' $VERSION ./lib/constants.js ./es/constants.js
-replace 'REACT_SDK_VERSION_NUMBER' $VERSION ./lib-umd -r
+replace 'REACT_SDK_VERSION_NUMBER' $VERSION ./umd -r
 
 if [ $? -eq 0 ]
 then
