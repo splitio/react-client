@@ -19,7 +19,7 @@
   "scripts": {
     "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
     "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
-    "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
+    "build:umd": "rimraf umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "./version_replace.sh",
     "check": "npm run check:lint && npm run check:types",

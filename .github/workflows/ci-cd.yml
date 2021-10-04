@@ -44,7 +44,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PUBLIC_ASSETS_STAGE_USER }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLIC_ASSETS_STAGE_KEY }}
           AWS_REGION: 'us-east-1'
-          SOURCE_DIR: './lib-umd'
+          SOURCE_DIR: './umd'
           DEST_DIR: sdk
 
       - name: Deploy S3 Master
@@ -57,5 +57,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PUBLIC_ASSETS_PROD_USER }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLIC_ASSETS_PROD_KEY }}
           AWS_REGION: 'us-east-1'
-          SOURCE_DIR: './lib-umd'
+          SOURCE_DIR: './umd'
           DEST_DIR: sdk
