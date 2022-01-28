@@ -10,7 +10,7 @@ import SplitFactory from './SplitFactory';
  * @param config Config object used to instantiate a Split factory
  * @param factory Split factory instance to use instead of creating a new one with the config object.
  */
-export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.ISDK) {
+export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.IBrowserSDK) {
 
   return function withSplitFactoryHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>,

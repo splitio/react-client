@@ -11,12 +11,14 @@ import { getSplitSharedClient, checkHooks } from './utils';
  * @return A Split Client instance, or null if used outside the scope of SplitFactory
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-const useClient = (key?: SplitIO.SplitKey, trafficType?: string): SplitIO.IClient | null => {
+const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): SplitIO.IBrowserClient | null => {
   if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return null;
   const { factory, client } = React.useContext(SplitContext);
   if (key) {
     return factory ? getSplitSharedClient(factory, key, trafficType) : null;
   }
+  if (attributes)
+    client?.setAttributes(attributes);
   return client;
 };
 
