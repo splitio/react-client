@@ -1,6 +1,5 @@
 import React from 'react';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
  * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
@@ -28,8 +27,8 @@ export declare class SplitComponent extends React.Component<IUpdateProps & {
         hasTimedout: boolean;
         isTimedout: boolean;
         isDestroyed: boolean;
-        client: SplitIO.IBrowserClient | null;
-        factory: SplitIO.IBrowserSDK | null;
+        client: import("@splitsoftware/splitio/types/splitio").IBrowserClient | null;
+        factory: import("@splitsoftware/splitio/types/splitio").IBrowserSDK | null;
     } | null;
     readonly state: Readonly<ISplitContextValues>;
     constructor(props: ISplitClientProps & {

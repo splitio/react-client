@@ -3,7 +3,6 @@ import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitSharedClient } from './utils';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
@@ -25,7 +24,11 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // It could be avoided by removing the client and its status from the component state.
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
-    const { client, factory } = props;
+    const { client, factory, attributes } = props;
+    if (attributes)
+      client?.setAttributes(attributes);
+    else
+      client?.clearAttributes();
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
@@ -115,9 +118,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   }
 
   render() {
-    const { children, client, attributes } = this.props;
-    if (attributes)
-      client?.setAttributes(attributes);
+    const { children } = this.props;
     return (
       <SplitContext.Provider value={this.state} >{
         typeof children === 'function' ?
@@ -144,7 +145,7 @@ function SplitClient(props: ISplitClientProps) {
       (splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
         // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
+        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType, props.attributes) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );

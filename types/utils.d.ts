@@ -7,7 +7,7 @@ export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
 }
 export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients>;
 export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
-export declare function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext;
+export declare function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext;
 export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
 /**
  * ClientWithContext interface.
