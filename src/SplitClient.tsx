@@ -25,6 +25,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
+    // @TODO check if apply over client or over stage.client
     if (attributes)
       client?.setAttributes(attributes);
     else
