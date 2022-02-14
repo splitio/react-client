@@ -1,7 +1,6 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
-// @ts-ignore
-import { SplitFactory as originalSplitFactory } from '../../cjs/splitio/index';
+import { mount, shallow } from 'enzyme'; // @ts-ignore. No declaration file
+import { SplitFactory as originalSplitFactory } from '../../lib/splitio/index';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';

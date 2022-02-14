@@ -2,7 +2,7 @@
   "name": "@splitsoftware/splitio-react",
   "version": "1.3.0",
   "description": "A React library to easily integrate and use Split JS SDK",
-  "main": "cjs/index.js",
+  "main": "lib/index.js",
   "module": "es/index.js",
   "types": "types/index.d.ts",
   "files": [
@@ -11,13 +11,13 @@
     "LICENSE",
     "CHANGES.txt",
     "src",
-    "cjs",
+    "lib",
     "es",
     "types"
   ],
   "sideEffects": false,
   "scripts": {
-    "build:cjs": "rimraf cjs/* types/* && tsc -d true --declarationDir types",
+    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
     "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
     "build:umd": "rimraf umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",

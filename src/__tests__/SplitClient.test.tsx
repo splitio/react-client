@@ -1,7 +1,6 @@
 import React from 'react';
-import { mount, ReactWrapper } from 'enzyme';
-// @ts-ignore
-import { SplitFactory as originalSplitFactory } from '../../cjs/splitio/index';
+import { mount, ReactWrapper } from 'enzyme'; // @ts-ignore. No declaration file
+import { SplitFactory as originalSplitFactory } from '../../lib/splitio/index';
 
 /** Mocks and test utils */
 import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
