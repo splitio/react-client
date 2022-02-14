@@ -23,7 +23,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
-  return (__factories.get(config) as IFactoryWithClients);
+  return __factories.get(config) as IFactoryWithClients;
 }
 
 // idempotent operation
