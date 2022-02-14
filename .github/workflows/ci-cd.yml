@@ -29,7 +29,7 @@ jobs:
         run: npm run check
 
       - name: npm Test
-        run: npm run test
+        run: npm run build:cjs && npm run test # tests require building CJS modules to use JS SDK in localhost mode
 
       - name: npm Build
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build

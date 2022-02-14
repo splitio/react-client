@@ -6,7 +6,7 @@
     "jsx": "react",                           /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
     "declaration": false,                     /* Generates corresponding '.d.ts' file. */
     "sourceMap": false,                       /* Generates corresponding '.map' file. */
-    "outDir": "./lib",                        /* Redirect output structure to the directory. */
+    "outDir": "./cjs",                        /* Redirect output structure to the directory. */
     "resolveJsonModule": true,                /* Include modules imported with .json extension. */
 
     // @TODO uncomment the following when migrating to JS-commons and Rollup, to avoid duplicated helpers code in builds.

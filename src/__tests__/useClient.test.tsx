@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 
 // @ts-ignore
-import { SplitFactory as originalSplitFactory } from '../../lib/splitio/index';
+import { SplitFactory as originalSplitFactory } from '../../cjs/splitio/index';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
