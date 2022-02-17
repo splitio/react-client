@@ -73,12 +73,18 @@ describe('SplitClient', () => {
     expect(wrapper.prop('updateOnSdkReadyFromCache')).toBe(updateOnSdkReadyFromCache);
   });
 
-  test('passes attributes to Splitclient', () => {
+  test('passes attributes to Splitclient', (done) => {
 
     let renderTimes = 0;
 
-    const attributesFactory = { at1: 'at1' };
-    const attributesClient = { at2: 'at2' };
+    // Auxiliar hoc to wrap factory component and set attributes to test
+    function withComponentHoc(){
+      return function withHOC<OuterProps>(
+        WrappedComponent: React.ComponentType<OuterProps>
+        ) {
+        return (props: OuterProps) => {return (<WrappedComponent {...props}/>)}
+      }
+    }
 
     const factory = originalSplitFactory({
       core: {
@@ -102,47 +108,102 @@ describe('SplitClient', () => {
       clearAttributes: jest.spyOn(client, 'clearAttributes'),
     }
 
-    function Component({ attributesFactory, attributesClient }: { attributesFactory: any, attributesClient: any }) {
-      const Component = withSplitFactory(undefined, factory, attributesFactory)(
-      withSplitClient('user1', 'user', attributesClient)(
-        () => {
-          renderTimes++;
-          switch (renderTimes) {
-            case 1:
-              expect(mainClientSpy.setAttributes).lastCalledWith(attributesFactory);
-              expect(clientSpy.setAttributes).lastCalledWith(attributesClient);
-              expect(mainClient?.getAttributes()).toStrictEqual(attributesFactory);
-              expect(client?.getAttributes()).toStrictEqual(attributesClient);
-              break;
-            case 2:
-              expect(mainClientSpy.clearAttributes).toBeCalledTimes(1);
-              expect(clientSpy.setAttributes).lastCalledWith(attributesClient);
-              expect(mainClient?.getAttributes()).toStrictEqual({});
-              expect(client?.getAttributes()).toStrictEqual({at2: 'at2', at3:'at3'});
-              break;
-            case 3:
-              expect(mainClientSpy.setAttributes).lastCalledWith({at4: 'at4'});
-              expect(clientSpy.clearAttributes).toBeCalledTimes(1);
-              expect(mainClient?.getAttributes()).toStrictEqual({at4: 'at4'});
-              expect(client?.getAttributes()).toStrictEqual({});
-              break;
-            case 4:
-              expect(mainClientSpy.clearAttributes).toBeCalledTimes(2);
-              expect(clientSpy.clearAttributes).toBeCalledTimes(2);
-              expect(mainClient?.getAttributes()).toStrictEqual({});
-              expect(client?.getAttributes()).toStrictEqual({});
-
-            }
-          return null;
-        }))
-        return Component}
+    const Component = withComponentHoc()<{attrFactory: SplitIO.Attributes, attrClient: SplitIO.Attributes, splitKey: any}>(
+      ({attrFactory, attrClient, splitKey}) => {
+        const FactoryComponent = withSplitFactory(undefined, factory, attrFactory)<{attrClient: SplitIO.Attributes, splitKey: any}>(
+          ({attrClient, splitKey}) => {
+            const ClientComponent = withSplitClient(splitKey, 'user', attrClient)(
+            () => {
+              renderTimes++;
+              switch (renderTimes) {
+                case 1:
+                  if (splitKey) {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(1);
+                    expect(mainClientSpy.setAttributes).lastCalledWith({ at1: 'at1' });
+                    expect(mainClient?.getAttributes()).toStrictEqual({ at1: 'at1' });
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(1);
+                    expect(clientSpy.setAttributes).lastCalledWith({ at2: 'at2' });
+                    expect(client?.getAttributes()).toStrictEqual({ at2: 'at2' });
+                  } else {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(2);
+                    expect(mainClientSpy.setAttributes).lastCalledWith({ at2: 'at2' });
+                    expect(mainClient?.getAttributes()).toStrictEqual({ at2: 'at2' });
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+                    expect(clientSpy.setAttributes).toBeCalledTimes(0);
+                  }
+                  break;
+                case 2:
+                  if (splitKey) {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(2);
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(2);
+                    expect(clientSpy.setAttributes).lastCalledWith({at3: 'at3'});
+                    expect(mainClient?.getAttributes()).toStrictEqual({});
+                    expect(client?.getAttributes()).toStrictEqual({at3: 'at3'});
+                  } else {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(4);
+                    expect(mainClient?.setAttributes).lastCalledWith({ at3: 'at3' });
+                    expect(mainClient?.getAttributes()).toStrictEqual({ at3: 'at3' });
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+                    expect(clientSpy.setAttributes).toBeCalledTimes(0);
+                  }
+                  break;
+                case 3:
+                  if (splitKey) {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(3);
+                    expect(mainClientSpy.setAttributes).lastCalledWith({at4: 'at4'});
+                    expect(mainClient?.getAttributes()).toStrictEqual({at4: 'at4'});
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(3);
+                    expect(client?.getAttributes()).toStrictEqual({});
+                  } else {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(6);
+                    expect(mainClientSpy.setAttributes).lastCalledWith({at4: 'at4'});
+                    expect(mainClient?.getAttributes()).toStrictEqual({});
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+                    expect(clientSpy.setAttributes).toBeCalledTimes(0);
+                  }
+                  break;
+                case 4:
+                  if (splitKey) {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(4);
+                    expect(mainClient?.getAttributes()).toStrictEqual({});
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(4);
+                    expect(client?.getAttributes()).toStrictEqual({});
+                  } else {
+                    expect(mainClientSpy.clearAttributes).toBeCalledTimes(8);
+                    expect(mainClient?.getAttributes()).toStrictEqual({});
+                    expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+                    expect(clientSpy.setAttributes).toBeCalledTimes(0);
+                    done();
+                  }
+                  break;
+              }
+              return null;
+            })
+            return <ClientComponent />;
+        });
+        return <FactoryComponent attrClient={attrClient} splitKey={splitKey}/>
+    });
 
     // @ts-ignore
-    const wrapper = mount(<Component />);
+    let wrapper = mount(<Component splitKey='user1' attrFactory={{ at1: 'at1' }} attrClient={{ at2: 'at2' }} />);
 
-    wrapper.setProps({ attributesFactory: undefined, attributesClient: {at3: 'at3'} });
-    wrapper.setProps({ attributesFactory: {at4: 'at4'}, attributesClient: undefined });
-    wrapper.setProps({ attributesFactory: undefined, attributesClient: undefined });
-  });
+    wrapper.setProps({ attrFactory: undefined, attrClient: {at3: 'at3'} });
+    wrapper.setProps({ attrFactory: {at4: 'at4'}, attrClient: undefined });
+    wrapper.setProps({ attrFactory: undefined, attrClient: undefined });
 
-});
+    wrapper.unmount()
+
+    mainClientSpy.setAttributes.mockClear();
+    mainClientSpy.clearAttributes.mockClear();
+    clientSpy.setAttributes.mockClear();
+    clientSpy.clearAttributes.mockClear();
+    renderTimes = 0;
+
+    wrapper = mount(<Component splitKey={undefined} attrFactory={{ at1: 'at1' }} attrClient={{ at2: 'at2' }} />);
+
+    wrapper.setProps({ attrFactory: undefined, attrClient: {at3: 'at3'} });
+    wrapper.setProps({ attrFactory: {at4: 'at4'}, attrClient: undefined });
+    wrapper.setProps({ attrFactory: undefined, attrClient: undefined });
+
+  })
+})

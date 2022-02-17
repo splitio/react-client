@@ -30,10 +30,6 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext {
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
-  if (attributes)
-    client?.setAttributes(attributes);
-  else
-    client?.clearAttributes();
   if ((factory as IFactoryWithClients).sharedClientInstances) {
     (factory as IFactoryWithClients).sharedClientInstances.add(client);
   }

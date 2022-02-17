@@ -15,12 +15,13 @@ const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: Sp
   if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return null;
   const { factory, client } = React.useContext(SplitContext);
   if (key) {
-    return factory ? getSplitSharedClient(factory, key, trafficType, attributes) : null;
+    const sharedClient = factory ? getSplitSharedClient(factory, key, trafficType, attributes) : null;
+    sharedClient?.clearAttributes();
+    if (attributes) sharedClient?.setAttributes(attributes);
+    return sharedClient;
   }
-  if (attributes)
-    client?.setAttributes(attributes);
-  else
-    client?.clearAttributes();
+  client?.clearAttributes();
+  if (attributes) client?.setAttributes(attributes);
   return client;
 };
 

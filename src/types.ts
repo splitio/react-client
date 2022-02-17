@@ -117,14 +117,14 @@ export interface ISplitFactoryProps extends IUpdateProps {
   factory?: SplitIO.IBrowserSDK;
 
   /**
+   * An object of type Attributes used to evaluate the splits.
+   */
+  attributes?: SplitIO.Attributes;
+
+  /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitFactoryChildProps) => JSX.Element | null) | JSX.Element | null;
-
-  /**
-   * An object of type Attributes used to evaluate the splits.
-   */
-   attributes?: SplitIO.Attributes;
 }
 
 /**
@@ -152,14 +152,14 @@ export interface ISplitClientProps extends IUpdateProps {
   trafficType?: string;
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
-   */
-  children: ((props: ISplitClientChildProps) => JSX.Element | null) | JSX.Element | null;
-
-  /**
    * An object of type Attributes used to evaluate the splits.
    */
   attributes?: SplitIO.Attributes;
+
+  /**
+   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   */
+  children: ((props: ISplitClientChildProps) => JSX.Element | null) | JSX.Element | null;
 }
 
 /**
