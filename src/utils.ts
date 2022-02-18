@@ -137,6 +137,14 @@ export function validateSplits(maybeSplits: unknown, listName = 'split names'): 
   return false;
 }
 
+/**
+ * Manage client attributes binding
+ */
+export function initAttributes(client?: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
+  client?.clearAttributes();
+  if (attributes) client?.setAttributes(attributes);
+}
+
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
 function validateSplit(maybeSplit: unknown, item = 'split name'): false | string {

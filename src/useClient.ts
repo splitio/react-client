@@ -1,7 +1,7 @@
 import React from 'react';
 import SplitContext from './SplitContext';
 import { ERROR_UC_NO_USECONTEXT } from './constants';
-import { getSplitSharedClient, checkHooks } from './utils';
+import { getSplitSharedClient, checkHooks, initAttributes } from './utils';
 
 /**
  * 'useClient' is a custom hook that returns a client from the Split context.
@@ -16,12 +16,10 @@ const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: Sp
   const { factory, client } = React.useContext(SplitContext);
   if (key) {
     const sharedClient = factory ? getSplitSharedClient(factory, key, trafficType, attributes) : null;
-    sharedClient?.clearAttributes();
-    if (attributes) sharedClient?.setAttributes(attributes);
+    initAttributes(sharedClient, attributes);
     return sharedClient;
   }
-  client?.clearAttributes();
-  if (attributes) client?.setAttributes(attributes);
+  initAttributes(client, attributes);
   return client;
 };
 

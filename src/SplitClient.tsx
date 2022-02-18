@@ -2,7 +2,7 @@ import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
-import { getStatus, getSplitSharedClient } from './utils';
+import { getStatus, getSplitSharedClient, initAttributes } from './utils';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
@@ -25,8 +25,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
-    client?.clearAttributes();
-    if (attributes) client?.setAttributes(attributes);
+    initAttributes(client, attributes);
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
