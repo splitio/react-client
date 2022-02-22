@@ -9,10 +9,11 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
   return newArgs[0] === lastArgs[0] && // client
     newArgs[1] === lastArgs[1] && // lastUpdate
     shallowEqual(newArgs[2], lastArgs[2]) && // names
-    shallowEqual(newArgs[3], lastArgs[3]); // attributes
+    shallowEqual(newArgs[3], lastArgs[3]) && // attributes
+    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
 }
 
-function evaluateSplits(client: SplitIO.IClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes) {
+function evaluateSplits(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, clientAttributes?: SplitIO.Attributes) {
   return client.getTreatmentsWithConfig(names, attributes);
 }
 
@@ -40,7 +41,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
           let treatments;
           const isOperational = !isDestroyed && (isReady || isReadyFromCache);
           if (client && isOperational) {
-            treatments = this.evaluateSplits(client, lastUpdate, names, attributes);
+            treatments = this.evaluateSplits(client, lastUpdate, names, attributes, client.getAttributes());
           } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }

@@ -15,6 +15,7 @@ import SplitFactory from '../SplitFactory';
 import SplitClient from '../SplitClient';
 import SplitContext, { ISplitContextValues } from '../SplitContext';
 import { ERROR_SC_NO_FACTORY } from '../constants';
+import { testAttributesBinding } from './testUtils/utils';
 
 describe('SplitClient', () => {
 
@@ -390,6 +391,24 @@ describe('SplitClient', () => {
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
       </SplitFactory>);
+  });
+
+  test('attributes binding test with utility', (done) => {
+
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch: any, factory: SplitIO.IBrowserSDK }) {
+      return (
+        <SplitFactory factory={factory} attributes={attributesFactory} >
+          <SplitClient splitKey={splitKey} attributes={attributesClient} trafficType='user'>
+            {() => {
+              return testSwitch(done, splitKey);
+            }}
+          </SplitClient>
+        </SplitFactory>
+      );
+    }
+
+    testAttributesBinding(Component);
+
   });
 
 });

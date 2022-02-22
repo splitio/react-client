@@ -13,6 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import withSplitFactory from '../withSplitFactory';
 import withSplitClient from '../withSplitClient';
 import SplitClient from '../SplitClient';
+import { testAttributesBinding } from './testUtils/utils';
 
 describe('SplitClient', () => {
 
@@ -70,6 +71,25 @@ describe('SplitClient', () => {
     expect(wrapper.prop('updateOnSdkTimedout')).toBe(updateOnSdkTimedout);
     expect(wrapper.prop('updateOnSdkReady')).toBe(updateOnSdkReady);
     expect(wrapper.prop('updateOnSdkReadyFromCache')).toBe(updateOnSdkReadyFromCache);
+  });
+
+  test('attributes binding test with utility', (done) => {
+
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch: any, factory: SplitIO.IBrowserSDK }) {
+      const FactoryComponent = withSplitFactory(undefined, factory, attributesFactory)<{ attributesClient: SplitIO.Attributes, splitKey: any }>(
+        ({ attributesClient, splitKey }) => {
+          const ClientComponent = withSplitClient(splitKey, 'user', attributesClient)(
+            () => {
+              testSwitch(done, splitKey);
+              return null;
+            })
+          return <ClientComponent />;
+        })
+      return <FactoryComponent attributesClient={attributesClient} splitKey={splitKey} />
+    };
+
+    testAttributesBinding(Component);
+
   });
 
 });

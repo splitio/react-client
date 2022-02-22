@@ -1,18 +1,18 @@
 /**
  * FactoryWithClientInstances interface.
  */
-export interface IFactoryWithClients extends SplitIO.ISDK {
+export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
     sharedClientInstances: Set<IClientWithContext>;
     config: SplitIO.IBrowserSettings;
 }
 export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients>;
 export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
-export declare function getSplitSharedClient(factory: SplitIO.ISDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext;
+export declare function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext;
 export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
 /**
  * ClientWithContext interface.
  */
-interface IClientWithContext extends SplitIO.IClient {
+interface IClientWithContext extends SplitIO.IBrowserClient {
     __context: {
         constants: {
             READY: 'is_ready';
@@ -30,11 +30,11 @@ export interface IClientStatus {
     isTimedout: boolean;
     isDestroyed: boolean;
 }
-export declare function getIsReady(client: SplitIO.IClient): boolean;
-export declare function getIsReadyFromCache(client: SplitIO.IClient): boolean;
-export declare function getHasTimedout(client: SplitIO.IClient): boolean;
-export declare function getIsDestroyed(client: SplitIO.IClient): boolean;
-export declare function getStatus(client: SplitIO.IClient | null): IClientStatus;
+export declare function getIsReady(client: SplitIO.IBrowserClient): boolean;
+export declare function getIsReadyFromCache(client: SplitIO.IBrowserClient): boolean;
+export declare function getHasTimedout(client: SplitIO.IBrowserClient): boolean;
+export declare function getIsDestroyed(client: SplitIO.IBrowserClient): boolean;
+export declare function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus;
 /**
  * Checks if React.useContext is available, and logs given message if not
  *
@@ -43,4 +43,8 @@ export declare function getStatus(client: SplitIO.IClient | null): IClientStatus
  */
 export declare function checkHooks(message: string): boolean;
 export declare function validateSplits(maybeSplits: unknown, listName?: string): false | string[];
+/**
+ * Manage client attributes binding
+ */
+export declare function initAttributes(client: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes): void;
 export {};
