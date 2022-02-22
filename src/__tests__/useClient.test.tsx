@@ -1,6 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme'; // @ts-ignore. No declaration file
-import { SplitFactory as originalSplitFactory } from '../../lib/splitio/index';
+import { mount, shallow } from 'enzyme';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
@@ -80,13 +79,13 @@ describe('useClient', () => {
 
   test('attributes binding test with utility', (done) => {
 
-    let Component = function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey:any, testSwitch:any, factory:SplitIO.IBrowserSDK }) {
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch: any, factory: SplitIO.IBrowserSDK }) {
       return (
         <SplitFactory factory={factory} attributes={attributesFactory} >{
           React.createElement(() => {
             useClient(splitKey, 'user', attributesClient);
-              testSwitch(done, splitKey);
-              return null;
+            testSwitch(done, splitKey);
+            return null;
           })}
         </SplitFactory>
       );

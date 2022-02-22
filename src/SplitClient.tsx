@@ -25,7 +25,8 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
-    initAttributes(client, attributes);
+    // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
+    if (client) initAttributes(client, attributes);
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||

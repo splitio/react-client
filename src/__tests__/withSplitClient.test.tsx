@@ -1,6 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme'; // @ts-ignore. No declaration file
-import { SplitFactory as originalSplitFactory } from '../../lib/splitio/index';
+import { mount, shallow } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -76,28 +75,18 @@ describe('SplitClient', () => {
 
   test('attributes binding test with utility', (done) => {
 
-    // Auxiliar hoc to wrap factory component and set attributes to test
-    function withComponentHoc(){
-      return function withHOC<OuterProps>(
-        WrappedComponent: React.ComponentType<OuterProps>
-        ) {
-        return (props: OuterProps) => {return (<WrappedComponent {...props}/>)}
-      }
-    }
-
-    let Component = withComponentHoc()<{attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch:any, factory:SplitIO.IBrowserSDK }>(
-      ({attributesFactory, attributesClient, splitKey, testSwitch, factory}) => {
-        const FactoryComponent = withSplitFactory(undefined, factory, attributesFactory)<{attributesClient: SplitIO.Attributes, splitKey: any}>(
-          ({attributesClient, splitKey}) => {
-            const ClientComponent = withSplitClient(splitKey, 'user', attributesClient)(
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch: any, factory: SplitIO.IBrowserSDK }) {
+      const FactoryComponent = withSplitFactory(undefined, factory, attributesFactory)<{ attributesClient: SplitIO.Attributes, splitKey: any }>(
+        ({ attributesClient, splitKey }) => {
+          const ClientComponent = withSplitClient(splitKey, 'user', attributesClient)(
             () => {
               testSwitch(done, splitKey);
               return null;
             })
-            return <ClientComponent />;
+          return <ClientComponent />;
         })
-        return <FactoryComponent attributesClient={attributesClient} splitKey={splitKey}/>
-      });
+      return <FactoryComponent attributesClient={attributesClient} splitKey={splitKey} />
+    };
 
     testAttributesBinding(Component);
 
