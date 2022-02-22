@@ -24,6 +24,7 @@ jest.mock('../constants', () => {
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
 import { getIsReady } from '../utils';
+import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
 
 describe('SplitTreatments', () => {
 
@@ -147,13 +148,18 @@ describe('SplitTreatments optimization', () => {
 
   let renderTimes = 0;
 
-  const outerFactory = SplitSdk(sdkBrowser);
+  let outerFactory = SplitSdk(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
-  function Component({ names, attributes, splitKey }: Pick<ISplitTreatmentsProps, 'names' | 'attributes'> & Pick<ISplitClientProps, 'splitKey'>) {
+  function Component({ names, attributes, splitKey, clientAttributes }: {
+    names: ISplitTreatmentsProps['names']
+    attributes: ISplitTreatmentsProps['attributes']
+    splitKey: ISplitClientProps['splitKey']
+    clientAttributes?: ISplitClientProps['attributes']
+  }) {
     return (
       <SplitFactory factory={outerFactory} >
-        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} >
+        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
           <SplitTreatments names={names} attributes={attributes} >
             {() => {
               renderTimes++;
@@ -298,6 +304,27 @@ describe('SplitTreatments optimization', () => {
       });
     });
 
+  });
+
+  it('rerenders and re-evaluates splits if client attributes changes.', (done) => {
+    const originalFactory = outerFactory;
+    outerFactory = newSplitFactoryLocalhostInstance();
+
+    const client = outerFactory.client('emma2');
+    const clientSpy = {
+      getTreatmentsWithConfig: jest.spyOn(client, 'getTreatmentsWithConfig')
+    }
+
+    client.on(client.Event.SDK_READY, () => {
+      wrapper = mount(<Component names={names} attributes={attributes} splitKey={'emma2'} />);
+
+      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val1' } });
+
+      expect(renderTimes).toBe(3);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(2);
+      outerFactory = originalFactory;
+      client.destroy().then(done)
+    })
   });
 
 });

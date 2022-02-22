@@ -46,5 +46,5 @@ export declare function validateSplits(maybeSplits: unknown, listName?: string):
 /**
  * Manage client attributes binding
  */
-export declare function initAttributes(client?: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes): void;
+export declare function initAttributes(client: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes): void;
 export {};

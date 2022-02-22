@@ -3,10 +3,8 @@ import { mount } from 'enzyme';
 // @ts-ignore. No declaration file
 import { SplitFactory as originalSplitFactory } from '../../../lib/splitio/index';
 
-export function testAttributesBinding(Component: React.FunctionComponent<any> | React.ComponentClass<any>) {
-
-  let renderTimes = 0
-  const factory = originalSplitFactory({
+export function newSplitFactoryLocalhostInstance() {
+  return originalSplitFactory({
     core: {
       authorizationKey: 'localhost',
       key: 'emma'
@@ -15,6 +13,12 @@ export function testAttributesBinding(Component: React.FunctionComponent<any> | 
       test_split: 'on'
     }
   })
+}
+
+export function testAttributesBinding(Component: React.FunctionComponent<any> | React.ComponentClass<any>) {
+
+  let renderTimes = 0
+  const factory = newSplitFactoryLocalhostInstance()
 
   const mainClient = factory?.client();
   const mainClientSpy = {

@@ -97,7 +97,7 @@ export interface IUpdateProps {
  */
 // @TODO remove next type (breaking-change)
 // tslint:disable-next-line: no-empty-interface
-export interface ISplitFactoryChildProps extends ISplitContextValues {}
+export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
@@ -132,7 +132,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
  */
 // @TODO remove next type (breaking-change)
 // tslint:disable-next-line: no-empty-interface
-export interface ISplitClientChildProps extends ISplitContextValues {}
+export interface ISplitClientChildProps extends ISplitContextValues { }
 
 /**
  * SplitClient Props interface. These are the props accepted by SplitClient component,
