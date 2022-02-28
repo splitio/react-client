@@ -54,6 +54,15 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
     return 'getTreatmentsWithConfig';
   });
+  const setAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
+  const clearAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
+  const getAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
   const ready: jest.Mock = jest.fn(() => {
     return new Promise((res, rej) => {
       if (__isReady__) res();
@@ -94,6 +103,9 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
     ready,
     destroy,
     Event,
+    setAttributes,
+    clearAttributes,
+    getAttributes,
     // EventEmitter exposed to trigger events manually
     __emitter__,
     // Count of internal listeners set by the client mock, used to assert how many external listeners were attached

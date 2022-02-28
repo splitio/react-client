@@ -2,13 +2,13 @@ import React from 'react';
 import SplitContext from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
-import { getStatus, getSplitSharedClient } from './utils';
+import { getStatus, getSplitSharedClient, initAttributes } from './utils';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
  * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
  */
-export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, ISplitContextValues> {
+export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes }, ISplitContextValues> {
 
   static defaultProps = {
     updateOnSdkUpdate: false,
@@ -23,8 +23,10 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
   // It could be avoided by removing the client and its status from the component state.
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
-  static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }, state: ISplitContextValues) {
-    const { client, factory } = props;
+  static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
+    const { client, factory, attributes } = props;
+    // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
+    if (client) initAttributes(client, attributes);
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
@@ -43,7 +45,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
 
   readonly state: Readonly<ISplitContextValues>;
 
-  constructor(props: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
+  constructor(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
     super(props);
     const { factory, client } = props;
 
@@ -62,7 +64,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
 
   // Attach listeners for SDK events, to update state if client status change.
   // The listeners take into account the value of `updateOnSdk***` props.
-  subscribeToEvents(client: SplitIO.IClient | null) {
+  subscribeToEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
       const status = getStatus(client);
       if (!status.isReady) client.once(client.Event.SDK_READY, this.setReady);
@@ -72,7 +74,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     }
   }
 
-  unsubscribeFromEvents(client: SplitIO.IClient | null) {
+  unsubscribeFromEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
       client.removeListener(client.Event.SDK_READY, this.setReady);
       client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
@@ -101,7 +103,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     this.subscribeToEvents(this.props.client);
   }
 
-  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.ISDK | null, client: SplitIO.IClient | null }) {
+  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
     if (this.props.client !== prevProps.client) {
       this.unsubscribeFromEvents(prevProps.client);
       this.subscribeToEvents(this.props.client);
@@ -115,7 +117,6 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
 
   render() {
     const { children } = this.props;
-
     return (
       <SplitContext.Provider value={this.state} >{
         typeof children === 'function' ?
@@ -142,9 +143,9 @@ function SplitClient(props: ISplitClientProps) {
       (splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
         // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
+        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType, props.attributes) : null;
         return (
-          <SplitComponent {...props} factory={factory} client={client} />
+          <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );
       }
     }</SplitContext.Consumer>

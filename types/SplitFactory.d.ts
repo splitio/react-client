@@ -11,13 +11,13 @@ import { ISplitFactoryProps } from './types';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
  */
 declare class SplitFactory extends React.Component<ISplitFactoryProps, {
-    factory: SplitIO.ISDK | null;
-    client: SplitIO.IClient | null;
+    factory: SplitIO.IBrowserSDK | null;
+    client: SplitIO.IBrowserClient | null;
 }> {
     static defaultProps: ISplitFactoryProps;
     readonly state: Readonly<{
-        factory: SplitIO.ISDK | null;
-        client: SplitIO.IClient | null;
+        factory: SplitIO.IBrowserSDK | null;
+        client: SplitIO.IBrowserClient | null;
     }>;
     readonly isFactoryExternal: boolean;
     constructor(props: ISplitFactoryProps);

@@ -46,13 +46,13 @@ export interface ISplitContextValues extends ISplitStatus {
   /**
    * Split factory instance
    */
-  factory: SplitIO.ISDK | null;
+  factory: SplitIO.IBrowserSDK | null;
 
   /**
    * Split client instance
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
-  client: SplitIO.IClient | null;
+  client: SplitIO.IBrowserClient | null;
 }
 
 /**
@@ -97,7 +97,7 @@ export interface IUpdateProps {
  */
 // @TODO remove next type (breaking-change)
 // tslint:disable-next-line: no-empty-interface
-export interface ISplitFactoryChildProps extends ISplitContextValues {}
+export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
@@ -114,7 +114,12 @@ export interface ISplitFactoryProps extends IUpdateProps {
   /**
    * Split factory instance to use instead of creating a new one with the config object.
    */
-  factory?: SplitIO.ISDK;
+  factory?: SplitIO.IBrowserSDK;
+
+  /**
+   * An object of type Attributes used to evaluate the splits.
+   */
+  attributes?: SplitIO.Attributes;
 
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
@@ -127,7 +132,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
  */
 // @TODO remove next type (breaking-change)
 // tslint:disable-next-line: no-empty-interface
-export interface ISplitClientChildProps extends ISplitContextValues {}
+export interface ISplitClientChildProps extends ISplitContextValues { }
 
 /**
  * SplitClient Props interface. These are the props accepted by SplitClient component,
@@ -145,6 +150,11 @@ export interface ISplitClientProps extends IUpdateProps {
    * If no provided here or at the config object, it will be required on the client.track() calls.
    */
   trafficType?: string;
+
+  /**
+   * An object of type Attributes used to evaluate the splits.
+   */
+  attributes?: SplitIO.Attributes;
 
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.

@@ -3,5 +3,5 @@
 /node_modules
 /lib
 /es
-/lib-umd
+/umd
 /coverage
