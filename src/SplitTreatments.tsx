@@ -41,7 +41,9 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
           let treatments;
           const isOperational = !isDestroyed && (isReady || isReadyFromCache);
           if (client && isOperational) {
-            treatments = this.evaluateSplits(client, lastUpdate, names, attributes, client.getAttributes());
+            // Cloning `client.getAttributes` result for memoization, because it returns the same object reference unless `client.clearAttributes` is called
+            // @TODO same issue with `names` and `attributes` props if user mutates the provided objects
+            treatments = this.evaluateSplits(client, lastUpdate, names, attributes, { ...client.getAttributes() });
           } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }

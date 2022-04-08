@@ -3,6 +3,14 @@ import { mount } from 'enzyme';
 // @ts-ignore. No declaration file
 import { SplitFactory as originalSplitFactory } from '../../../lib/splitio/index';
 
+export interface TestComponentProps {
+  attributesFactory: SplitIO.Attributes,
+  attributesClient: SplitIO.Attributes,
+  splitKey: SplitIO.SplitKey,
+  testSwitch: (done: jest.DoneCallback, splitKey?: SplitIO.SplitKey) => void,
+  factory: SplitIO.IBrowserSDK
+};
+
 export function newSplitFactoryLocalhostInstance() {
   return originalSplitFactory({
     core: {
@@ -15,18 +23,18 @@ export function newSplitFactoryLocalhostInstance() {
   })
 }
 
-export function testAttributesBinding(Component: React.FunctionComponent<any> | React.ComponentClass<any>) {
+export function testAttributesBinding(Component: React.FunctionComponent<TestComponentProps> | React.ComponentClass<TestComponentProps>) {
 
   let renderTimes = 0
   const factory = newSplitFactoryLocalhostInstance()
 
-  const mainClient = factory?.client();
+  const mainClient = factory.client();
   const mainClientSpy = {
     setAttributes: jest.spyOn(mainClient, 'setAttributes'),
     clearAttributes: jest.spyOn(mainClient, 'clearAttributes')
   }
 
-  const client = factory?.client('user1', 'user');
+  const client = factory.client('user1', 'user');
   const clientSpy = {
     setAttributes: jest.spyOn(client, 'setAttributes'),
     clearAttributes: jest.spyOn(client, 'clearAttributes'),
@@ -38,60 +46,44 @@ export function testAttributesBinding(Component: React.FunctionComponent<any> | 
     switch (renderTimes) {
       case 1:
         if (splitKey) {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes);
           expect(mainClientSpy.setAttributes).lastCalledWith({ at1: 'at1' });
-          expect(mainClient?.getAttributes()).toStrictEqual({ at1: 'at1' });
-          expect(clientSpy.clearAttributes).toBeCalledTimes(renderTimes);
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1' });
           expect(clientSpy.setAttributes).lastCalledWith({ at2: 'at2' });
-          expect(client?.getAttributes()).toStrictEqual({ at2: 'at2' });
+          expect(client.getAttributes()).toStrictEqual({ at2: 'at2' });
         } else {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes * 2);
-          expect(mainClientSpy.setAttributes).lastCalledWith({ at2: 'at2' });
-          expect(mainClient?.getAttributes()).toStrictEqual({ at2: 'at2' });
-          expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+          expect(mainClientSpy.setAttributes.mock.calls).toEqual([[{ at1: 'at1' }], [{ at2: 'at2' }]]);
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at2: 'at2' });
           expect(clientSpy.setAttributes).toBeCalledTimes(0);
         }
         break;
       case 2:
         if (splitKey) {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes);
-          expect(mainClient?.getAttributes()).toStrictEqual({});
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1' });
           expect(clientSpy.setAttributes).lastCalledWith({ at3: 'at3' });
-          expect(clientSpy.clearAttributes).toBeCalledTimes(renderTimes);
-          expect(client?.getAttributes()).toStrictEqual({ at3: 'at3' });
+          expect(client.getAttributes()).toStrictEqual({ at2: 'at2', at3: 'at3' });
         } else {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes * 2);
-          expect(mainClient?.setAttributes).lastCalledWith({ at3: 'at3' });
-          expect(mainClient?.getAttributes()).toStrictEqual({ at3: 'at3' });
-          expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+          expect(mainClientSpy.setAttributes).lastCalledWith({ at3: 'at3' });
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at2: 'at2', at3: 'at3' });
           expect(clientSpy.setAttributes).toBeCalledTimes(0);
         }
         break;
       case 3:
         if (splitKey) {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes);
           expect(mainClientSpy.setAttributes).lastCalledWith({ at4: 'at4' });
-          expect(mainClient?.getAttributes()).toStrictEqual({ at4: 'at4' });
-          expect(clientSpy.clearAttributes).toBeCalledTimes(renderTimes);
-          expect(client?.getAttributes()).toStrictEqual({});
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at4: 'at4' });
+          expect(client.getAttributes()).toStrictEqual({ at2: 'at2', at3: 'at3' });
         } else {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes * 2);
           expect(mainClientSpy.setAttributes).lastCalledWith({ at4: 'at4' });
-          expect(mainClient?.getAttributes()).toStrictEqual({});
-          expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at2: 'at2', at3: 'at3', at4: 'at4' });
           expect(clientSpy.setAttributes).toBeCalledTimes(0);
         }
         break;
       case 4:
         if (splitKey) {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes);
-          expect(mainClient?.getAttributes()).toStrictEqual({});
-          expect(clientSpy.clearAttributes).toBeCalledTimes(renderTimes);
-          expect(client?.getAttributes()).toStrictEqual({});
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at4: 'at4' });
+          expect(client.getAttributes()).toStrictEqual({ at2: 'at2', at3: 'at3' });
         } else {
-          expect(mainClientSpy.clearAttributes).toBeCalledTimes(renderTimes * 2);
-          expect(mainClient?.getAttributes()).toStrictEqual({});
-          expect(clientSpy.clearAttributes).toBeCalledTimes(0);
+          expect(mainClient.getAttributes()).toStrictEqual({ at1: 'at1', at2: 'at2', at3: 'at3', at4: 'at4' });
           expect(clientSpy.setAttributes).toBeCalledTimes(0);
           mainClient.destroy().then(done);
         }
@@ -107,17 +99,19 @@ export function testAttributesBinding(Component: React.FunctionComponent<any> | 
 
   wrapper.unmount()
 
+  // clear clients attributes and spies for 2nd round of tests
   mainClientSpy.setAttributes.mockClear();
-
   mainClientSpy.clearAttributes.mockClear();
+  mainClient.clearAttributes();
   clientSpy.setAttributes.mockClear();
   clientSpy.clearAttributes.mockClear();
+  client.clearAttributes();
   renderTimes = 0;
 
+  // @ts-ignore. With splitKey undefined, mainClient and client refer to the same client instance.
   wrapper = mount(<Component splitKey={undefined} attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
 
   wrapper.setProps({ attributesFactory: undefined, attributesClient: { at3: 'at3' } });
   wrapper.setProps({ attributesFactory: { at4: 'at4' }, attributesClient: undefined });
   wrapper.setProps({ attributesFactory: undefined, attributesClient: undefined });
-
 }
