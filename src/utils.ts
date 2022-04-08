@@ -18,7 +18,7 @@ export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = n
 export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
   if (!__factories.has(config)) {
     // SplitSDK is not an idempotent operation
-    const newFactory = SplitSdk(config) as unknown as IFactoryWithClients;
+    const newFactory = SplitSdk(config) as IFactoryWithClients;
     newFactory.sharedClientInstances = new Set();
     newFactory.config = config;
     __factories.set(config, newFactory);

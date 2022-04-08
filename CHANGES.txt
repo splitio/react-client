@@ -1,8 +1,10 @@
-1.3.1 (March 3, 2021)
- - Updated @splitsoftware/splitio dependency to version 10.17.3, which includes:
-      - Added support for client attributes binding
-      - Updated localhost keys to scope everything in it's set prefix as namespace.
-      - Updated dependencies for vulnerability fixes
+1.4.0 (April 11, 2021)
+ - Updated @splitsoftware/splitio dependency to version 10.18.0, which includes:
+      - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
+      - Added `scheduler.impressionsQueueSize` property to SDK configuration to limit the amount of impressions tracked in memory. Read more in our docs.
+      - Added support to SDK clients on browser to optionally bind attributes to the client, keeping these loaded within the SDK along with the user ID, for easier usage when requesting flag.
+      - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility (issue https://github.com/splitio/javascript-client/issues/638).
+      - Updated dependencies for vulnerability fixes, general polishing, and bug fixes.
 
 1.3.0 (September 29, 2021)
  - Updated @splitsoftware/splitio dependency to version 10.16.0, which includes:
