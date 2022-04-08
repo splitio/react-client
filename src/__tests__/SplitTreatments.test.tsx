@@ -209,10 +209,17 @@ describe('SplitTreatments optimization', () => {
   });
 
   it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
-    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' }, splitKey });
+    const attributesRef = { ...attributes, att2: 'att2' };
+    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+
+    // @TODO should `SplitTreatments` call `getTreatmentsWithConfig` if the user mutates the `attributes` prop?
+    // attributesRef.att2 = 'att2_val2';
+    // wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
+    // expect(renderTimes).toBe(3);
+    // expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(3);
   });
 
   it('rerenders and re-evaluates splits if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', () => {
