@@ -13,7 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import withSplitFactory from '../withSplitFactory';
 import withSplitClient from '../withSplitClient';
 import SplitClient from '../SplitClient';
-import { testAttributesBinding } from './testUtils/utils';
+import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('SplitClient', () => {
 
@@ -75,7 +75,7 @@ describe('SplitClient', () => {
 
   test('attributes binding test with utility', (done) => {
 
-    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: { attributesFactory: SplitIO.Attributes, attributesClient: SplitIO.Attributes, splitKey: any, testSwitch: any, factory: SplitIO.IBrowserSDK }) {
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       const FactoryComponent = withSplitFactory(undefined, factory, attributesFactory)<{ attributesClient: SplitIO.Attributes, splitKey: any }>(
         ({ attributesClient, splitKey }) => {
           const ClientComponent = withSplitClient(splitKey, 'user', attributesClient)(
