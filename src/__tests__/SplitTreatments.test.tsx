@@ -215,11 +215,11 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
-    // @TODO should `SplitTreatments` call `getTreatmentsWithConfig` if the user mutates the `attributes` prop?
-    // attributesRef.att2 = 'att2_val2';
-    // wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
-    // expect(renderTimes).toBe(3);
-    // expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(3);
+    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate splits
+    attributesRef.att2 = 'att2_val2';
+    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
   it('rerenders and re-evaluates splits if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', () => {
