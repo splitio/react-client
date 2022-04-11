@@ -54,14 +54,12 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
  * ClientWithContext interface.
  */
 interface IClientWithContext extends SplitIO.IBrowserClient {
-  __context: {
-    constants: {
-      READY: 'is_ready',
-      READY_FROM_CACHE: 'is_ready_from_cache',
-      HAS_TIMEDOUT: 'has_timedout',
-      DESTROYED: 'is_destroyed',
-    },
-    get: (name: string, flagCheck: boolean) => boolean | undefined,
+  __getStatus(): {
+    isReady: boolean;
+    isReadyFromCache: boolean;
+    isOperational: boolean;
+    hasTimedout: boolean;
+    isDestroyed: boolean;
   };
 }
 
@@ -73,31 +71,16 @@ export interface IClientStatus {
   isDestroyed: boolean;
 }
 
-export function getIsReady(client: SplitIO.IBrowserClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY, true) ? true : false;
-}
-
-export function getIsReadyFromCache(client: SplitIO.IBrowserClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY_FROM_CACHE, true) ? true : false;
-}
-
-export function getHasTimedout(client: SplitIO.IBrowserClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
-}
-
-export function getIsDestroyed(client: SplitIO.IBrowserClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
-}
-
 export function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus {
-  const isReady = client ? getIsReady(client) : false;
-  const hasTimedout = client ? getHasTimedout(client) : false;
+  const status = client && (client as IClientWithContext).__getStatus();
+  const isReady = status ? status.isReady : false;
+  const hasTimedout = status ? status.hasTimedout : false;
   return {
     isReady,
-    isReadyFromCache: client ? getIsReadyFromCache(client) : false,
+    isReadyFromCache: status ? status.isReadyFromCache : false,
     isTimedout: hasTimedout && !isReady,
     hasTimedout,
-    isDestroyed: client ? getIsDestroyed(client) : false,
+    isDestroyed: status ? status.isDestroyed : false,
   };
 }
 

@@ -23,7 +23,7 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
-import { getIsReady } from '../utils';
+import { getStatus } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
 
 describe('SplitTreatments', () => {
@@ -60,7 +60,7 @@ describe('SplitTreatments', () => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect(getIsReady(outerFactory.client())).toBe(isReady);
+            expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >
