@@ -5,8 +5,9 @@ import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
  * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
  */
 export declare class SplitComponent extends React.Component<IUpdateProps & {
-    factory: SplitIO.ISDK | null;
-    client: SplitIO.IClient | null;
+    factory: SplitIO.IBrowserSDK | null;
+    client: SplitIO.IBrowserClient | null;
+    attributes?: SplitIO.Attributes;
 }, ISplitContextValues> {
     static defaultProps: {
         updateOnSdkUpdate: boolean;
@@ -18,32 +19,32 @@ export declare class SplitComponent extends React.Component<IUpdateProps & {
         client: null;
     };
     static getDerivedStateFromProps(props: ISplitClientProps & {
-        factory: SplitIO.ISDK | null;
-        client: SplitIO.IClient | null;
+        factory: SplitIO.IBrowserSDK | null;
+        client: SplitIO.IBrowserClient | null;
     }, state: ISplitContextValues): {
         isReady: boolean;
         isReadyFromCache: boolean;
         hasTimedout: boolean;
         isTimedout: boolean;
         isDestroyed: boolean;
-        client: import("@splitsoftware/splitio/types/splitio").IClient | null;
-        factory: import("@splitsoftware/splitio/types/splitio").ISDK | null;
+        client: import("@splitsoftware/splitio/types/splitio").IBrowserClient | null;
+        factory: import("@splitsoftware/splitio/types/splitio").IBrowserSDK | null;
     } | null;
     readonly state: Readonly<ISplitContextValues>;
     constructor(props: ISplitClientProps & {
-        factory: SplitIO.ISDK | null;
-        client: SplitIO.IClient | null;
+        factory: SplitIO.IBrowserSDK | null;
+        client: SplitIO.IBrowserClient | null;
     });
-    subscribeToEvents(client: SplitIO.IClient | null): void;
-    unsubscribeFromEvents(client: SplitIO.IClient | null): void;
+    subscribeToEvents(client: SplitIO.IBrowserClient | null): void;
+    unsubscribeFromEvents(client: SplitIO.IBrowserClient | null): void;
     setReady: () => void;
     setReadyFromCache: () => void;
     setTimedout: () => void;
     setUpdate: () => void;
     componentDidMount(): void;
     componentDidUpdate(prevProps: ISplitClientProps & {
-        factory: SplitIO.ISDK | null;
-        client: SplitIO.IClient | null;
+        factory: SplitIO.IBrowserSDK | null;
+        client: SplitIO.IBrowserClient | null;
     }): void;
     componentWillUnmount(): void;
     render(): JSX.Element;

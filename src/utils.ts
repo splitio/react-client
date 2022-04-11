@@ -6,7 +6,7 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
 /**
  * FactoryWithClientInstances interface.
  */
-export interface IFactoryWithClients extends SplitIO.ISDK {
+export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
   sharedClientInstances: Set<IClientWithContext>;
   config: SplitIO.IBrowserSettings;
 }
@@ -23,11 +23,11 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
-  return (__factories.get(config) as IFactoryWithClients);
+  return __factories.get(config) as IFactoryWithClients;
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.ISDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext {
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
   if ((factory as IFactoryWithClients).sharedClientInstances) {
@@ -53,15 +53,13 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
 /**
  * ClientWithContext interface.
  */
-interface IClientWithContext extends SplitIO.IClient {
-  __context: {
-    constants: {
-      READY: 'is_ready',
-      READY_FROM_CACHE: 'is_ready_from_cache',
-      HAS_TIMEDOUT: 'has_timedout',
-      DESTROYED: 'is_destroyed',
-    },
-    get: (name: string, flagCheck: boolean) => boolean | undefined,
+interface IClientWithContext extends SplitIO.IBrowserClient {
+  __getStatus(): {
+    isReady: boolean;
+    isReadyFromCache: boolean;
+    isOperational: boolean;
+    hasTimedout: boolean;
+    isDestroyed: boolean;
   };
 }
 
@@ -73,31 +71,16 @@ export interface IClientStatus {
   isDestroyed: boolean;
 }
 
-export function getIsReady(client: SplitIO.IClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY, true) ? true : false;
-}
-
-export function getIsReadyFromCache(client: SplitIO.IClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.READY_FROM_CACHE, true) ? true : false;
-}
-
-export function getHasTimedout(client: SplitIO.IClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
-}
-
-export function getIsDestroyed(client: SplitIO.IClient): boolean {
-  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
-}
-
-export function getStatus(client: SplitIO.IClient | null): IClientStatus {
-  const isReady = client ? getIsReady(client) : false;
-  const hasTimedout = client ? getHasTimedout(client) : false;
+export function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus {
+  const status = client && (client as IClientWithContext).__getStatus();
+  const isReady = status ? status.isReady : false;
+  const hasTimedout = status ? status.hasTimedout : false;
   return {
     isReady,
-    isReadyFromCache: client ? getIsReadyFromCache(client) : false,
+    isReadyFromCache: status ? status.isReadyFromCache : false,
     isTimedout: hasTimedout && !isReady,
     hasTimedout,
-    isDestroyed: client ? getIsDestroyed(client) : false,
+    isDestroyed: status ? status.isDestroyed : false,
   };
 }
 
@@ -135,6 +118,13 @@ export function validateSplits(maybeSplits: unknown, listName = 'split names'): 
 
   console.log(`[ERROR] ${listName} must be a non-empty array.`);
   return false;
+}
+
+/**
+ * Manage client attributes binding
+ */
+export function initAttributes(client: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
+  if (attributes) client.setAttributes(attributes);
 }
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;

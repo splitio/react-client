@@ -54,35 +54,30 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
   const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
     return 'getTreatmentsWithConfig';
   });
+  const setAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
+  const clearAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
+  const getAttributes: jest.Mock = jest.fn(() => {
+    return true;
+  });
   const ready: jest.Mock = jest.fn(() => {
-    return new Promise((res, rej) => {
+    return new Promise<void>((res, rej) => {
       if (__isReady__) res();
       else { __internalListenersCount__[Event.SDK_READY]++; __emitter__.on(Event.SDK_READY, res); }
       if (__hasTimedout__) rej();
       else { __internalListenersCount__[Event.SDK_READY_TIMED_OUT]++; __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
     });
   });
-  const context = {
-    constants: {
-      READY: 'is_ready',
-      READY_FROM_CACHE: 'is_ready_from_cache',
-      HAS_TIMEDOUT: 'has_timedout',
-      DESTROYED: 'is_destroyed',
-    },
-    get(name: string, flagCheck: boolean = false): boolean | undefined {
-      if (flagCheck !== true) throw new Error('Don\'t use promise result on SDK context');
-      switch (name) {
-        case this.constants.READY:
-          return __isReady__;
-        case this.constants.READY_FROM_CACHE:
-          return __isReadyFromCache__;
-        case this.constants.HAS_TIMEDOUT:
-          return __hasTimedout__;
-        case this.constants.DESTROYED:
-          return __isDestroyed__;
-      }
-    },
-  };
+  const __getStatus = () => ({
+    isReady: __isReady__ || false,
+    isReadyFromCache: __isReadyFromCache__ || false,
+    hasTimedout: __hasTimedout__ || false,
+    isDestroyed: __isDestroyed__ || false,
+    isOperational: ((__isReady__ || __isReadyFromCache__) && !__isDestroyed__) || false,
+  });
   const destroy: jest.Mock = jest.fn(() => {
     __isDestroyed__ = true;
     return Promise.resolve();
@@ -94,12 +89,15 @@ function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
     ready,
     destroy,
     Event,
+    setAttributes,
+    clearAttributes,
+    getAttributes,
     // EventEmitter exposed to trigger events manually
     __emitter__,
     // Count of internal listeners set by the client mock, used to assert how many external listeners were attached
     __internalListenersCount__,
-    // Factory context exposed to get client readiness status (READY, READY_FROM_CACHE, HAS_TIMEDOUT, DESTROYED)
-    __context: context,
+    // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
+    __getStatus,
     // Restore the mock client to its initial NO-READY status.
     // Useful when you want to reuse the same mock between tests after emitting events or destroying the instance.
     __restore() {

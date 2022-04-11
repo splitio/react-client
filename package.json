@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -17,9 +17,9 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:cjs": "rimraf lib/* types/* && tsc -d true --declarationDir types",
-    "build:esm": "rimraf es/* && tsc -m es2015 --outDir es",
-    "build:umd": "rimraf lib-umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
+    "build:cjs": "rimraf lib/* types/* && tsc -m commonjs --outDir lib -d true --declarationDir types",
+    "build:esm": "rimraf es/* && tsc",
+    "build:umd": "rimraf umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "./version_replace.sh",
     "check": "npm run check:lint && npm run check:types",
@@ -61,16 +61,15 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@babel/runtime": "^7.10.2",
+    "@splitsoftware/splitio-commons": "1.3.0",
     "@types/google.analytics": "0.0.40",
-    "events": "3.1.0",
-    "object-assign": "^4.1.1",
-    "unfetch": "^4.1.0",
+    "@types/ioredis": "^4.28.0",
     "memoize-one": "^5.1.1",
-    "shallowequal": "^1.1.0"
+    "shallowequal": "^1.1.0",
+    "unfetch": "^4.2.0"
   },
   "devDependencies": {
-    "@splitsoftware/splitio": "^10.16.0",
+    "@splitsoftware/splitio": "10.18.0",
     "@types/enzyme": "^3.10.4",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/events": "^3.0.0",
@@ -91,7 +90,7 @@
     "ts-jest": "^27.0.5",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
-    "typescript": "^4.0.2",
+    "typescript": "4.4.4",
     "webpack": "^5.53.0",
     "webpack-cli": "^4.8.0",
     "webpack-merge": "^5.8.0"

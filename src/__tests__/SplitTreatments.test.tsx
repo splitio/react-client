@@ -23,7 +23,8 @@ jest.mock('../constants', () => {
   };
 });
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
-import { getIsReady } from '../utils';
+import { getStatus } from '../utils';
+import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
 
 describe('SplitTreatments', () => {
 
@@ -59,7 +60,7 @@ describe('SplitTreatments', () => {
       mount(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
-            expect(getIsReady(outerFactory.client())).toBe(isReady);
+            expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
             expect(isReady).toBe(true);
             return (
               <SplitTreatments names={splitNames} >
@@ -147,13 +148,18 @@ describe('SplitTreatments optimization', () => {
 
   let renderTimes = 0;
 
-  const outerFactory = SplitSdk(sdkBrowser);
+  let outerFactory = SplitSdk(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
-  function Component({ names, attributes, splitKey }: Pick<ISplitTreatmentsProps, 'names' | 'attributes'> & Pick<ISplitClientProps, 'splitKey'>) {
+  function Component({ names, attributes, splitKey, clientAttributes }: {
+    names: ISplitTreatmentsProps['names']
+    attributes: ISplitTreatmentsProps['attributes']
+    splitKey: ISplitClientProps['splitKey']
+    clientAttributes?: ISplitClientProps['attributes']
+  }) {
     return (
       <SplitFactory factory={outerFactory} >
-        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} >
+        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
           <SplitTreatments names={names} attributes={attributes} >
             {() => {
               renderTimes++;
@@ -203,9 +209,16 @@ describe('SplitTreatments optimization', () => {
   });
 
   it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
-    wrapper.setProps({ names: [...names], attributes: { ...attributes, att2: 'att2' }, splitKey });
+    const attributesRef = { ...attributes, att2: 'att2' };
+    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
 
     expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+
+    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate splits
+    attributesRef.att2 = 'att2_val2';
+    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
+    expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
@@ -298,6 +311,36 @@ describe('SplitTreatments optimization', () => {
       });
     });
 
+  });
+
+  it('rerenders and re-evaluates splits if client attributes changes.', (done) => {
+    const originalFactory = outerFactory;
+    outerFactory = newSplitFactoryLocalhostInstance();
+
+    const client = outerFactory.client('emma2');
+    const clientSpy = {
+      getTreatmentsWithConfig: jest.spyOn(client, 'getTreatmentsWithConfig')
+    }
+
+    client.on(client.Event.SDK_READY, () => {
+      wrapper = mount(<Component names={names} attributes={attributes} splitKey={'emma2'} />);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(1);
+
+      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val1' } });
+      expect(renderTimes).toBe(3);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(2);
+
+      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val2' } });
+      expect(renderTimes).toBe(4);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3);
+
+      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val2' } });
+      expect(renderTimes).toBe(5);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3); // not called again. clientAttributes object is shallow equal
+
+      outerFactory = originalFactory;
+      client.destroy().then(done)
+    })
   });
 
 });

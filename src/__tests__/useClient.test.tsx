@@ -13,6 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import SplitFactory from '../SplitFactory';
 import SplitClient from '../SplitClient';
 import useClient from '../useClient';
+import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('useClient', () => {
 
@@ -74,6 +75,24 @@ describe('useClient', () => {
     );
     expect(client).toBe(null);
     expect(sharedClient).toBe(null);
+  });
+
+  test('attributes binding test with utility', (done) => {
+
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
+      return (
+        <SplitFactory factory={factory} attributes={attributesFactory} >{
+          React.createElement(() => {
+            useClient(splitKey, 'user', attributesClient);
+            testSwitch(done, splitKey);
+            return null;
+          })}
+        </SplitFactory>
+      );
+    }
+
+    testAttributesBinding(Component);
+
   });
 
 });
