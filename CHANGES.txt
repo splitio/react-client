@@ -1,4 +1,8 @@
-1.4.0 (April 11, 2021)
+1.4.1 (May 11, 2022)
+ - Updated React peer dependency range to include React@18.x.x.
+ - Updated @splitsoftware/splitio dependency to version 10.18.2, which includes some vulnerability fixes.
+
+1.4.0 (April 11, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.18.0, which includes:
       - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
       - Added `scheduler.impressionsQueueSize` property to SDK configuration to limit the amount of impressions tracked in memory. Read more in our docs.
