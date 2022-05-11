@@ -1,4 +1,4 @@
-1.4.1 (May 9, 2022)
+1.4.1 (May 11, 2022)
  - Updated React peer dependency range to include React@18.x.x.
  - Updated @splitsoftware/splitio dependency to version 10.18.2, which includes some vulnerability fixes.
 
