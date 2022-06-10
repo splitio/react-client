@@ -1,6 +1,10 @@
 1.4.2 (June XXX, 2022)
  - Bugfixing - Fixed issue with useTreatments hooks, to return control treatments without evaluating splits when the SDK client is not ready or is destroyed, to avoid not ready impressions and warning log.
- - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
+ - Updated @splitsoftware/splitio dependency to version 10.19.1, which includes:
+      - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
+      - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
+      - Updated eventsource dependecy range to ^1.1.2 to avoid dependency resolution to a vulnerable version of this package as much as possible when combined with other dependencies.
+      - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
 
 1.4.1 (May 11, 2022)
  - Updated React peer dependency range to include React@18.x.x.
