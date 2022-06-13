@@ -1,6 +1,6 @@
 import useClient from './useClient';
 import { getControlTreatmentsWithConfig, ERROR_UT_NO_USECONTEXT } from './constants';
-import { checkHooks } from './utils';
+import { checkHooks, IClientWithContext } from './utils';
 
 /**
  * 'useTreatments' is a custom hook that returns a list of treatments.
@@ -12,7 +12,7 @@ import { checkHooks } from './utils';
  */
 const useTreatments = (splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
   const client = checkHooks(ERROR_UT_NO_USECONTEXT) ? useClient(key) : null;
-  return client ?
+  return client && (client as IClientWithContext).__getStatus().isOperational ?
     client.getTreatmentsWithConfig(splitNames, attributes) :
     getControlTreatmentsWithConfig(splitNames);
 };
