@@ -53,7 +53,7 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
 /**
  * ClientWithContext interface.
  */
-interface IClientWithContext extends SplitIO.IBrowserClient {
+export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;

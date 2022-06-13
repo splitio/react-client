@@ -12,7 +12,7 @@ export declare function destroySplitFactory(factory: IFactoryWithClients): Promi
 /**
  * ClientWithContext interface.
  */
-interface IClientWithContext extends SplitIO.IBrowserClient {
+export interface IClientWithContext extends SplitIO.IBrowserClient {
     __getStatus(): {
         isReady: boolean;
         isReadyFromCache: boolean;
@@ -41,4 +41,3 @@ export declare function validateSplits(maybeSplits: unknown, listName?: string):
  * Manage client attributes binding
  */
 export declare function initAttributes(client: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes): void;
-export {};
