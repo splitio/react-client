@@ -110,6 +110,7 @@ interface ISettings {
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
+    enabled: boolean
   }
   /**
    * User consent status if using in browser. Undefined if using in NodeJS.
@@ -234,6 +235,11 @@ interface ISharedSettings {
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
+    /**
+     * Enables synchronization of rollout plan or segment updates while the SDK instance is running. Does not affect initialization fetches.
+     * @property {boolean} enabled
+     */
+    enabled?: boolean
   }
 }
 /**
