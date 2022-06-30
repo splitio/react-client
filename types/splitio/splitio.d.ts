@@ -110,6 +110,7 @@ interface ISettings {
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
+    enabled: boolean
   }
   /**
    * User consent status if using in browser. Undefined if using in NodeJS.
@@ -234,6 +235,11 @@ interface ISharedSettings {
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
+    /**
+     * Enables synchronization of rollout plan or segment updates while the SDK instance is running. Does not affect initialization fetches.
+     * @property {boolean} enabled
+     */
+    enabled?: boolean
   }
 }
 /**
@@ -1545,9 +1551,9 @@ declare namespace SplitIO {
      * Get the data of a split in SplitView format.
      * @function split
      * @param {string} splitName The name of the split we wan't to get info of.
-     * @returns {SplitView} The SplitIO.SplitView of the given split.
+     * @returns {SplitView | null} The SplitIO.SplitView of the given split or null if the split is not found.
      */
-    split(splitName: string): SplitView;
+    split(splitName: string): SplitView | null;
   }
   /**
    * Representation of a manager instance with asynchronous storage of the SDK.
