@@ -1,11 +1,12 @@
 1.7.1 (July 25, 2022)
- - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Updated @splitsoftware/splitio-commons dependency to include new features and updates.
 
 1.7.0 (July 25, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.21.1, which includes:
       - Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
       - Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
       - Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
+      - Updated some dependencies for vulnerability fixes.
 
 1.6.0 (June 30, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.20.0, which includes:
