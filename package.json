@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -29,6 +29,7 @@
     "test:watch": "npm test -- --watch",
     "test:coverage": "jest src --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
+    "all": "npm run check && npm run build && npm run test",
     "publish:rc": "npm publish --tag rc",
     "publish:stable": "npm publish",
     "prepublishOnly": "npm run check && npm run build"
@@ -61,7 +62,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.6.1",
+    "@splitsoftware/splitio-commons": "1.7.1",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "memoize-one": "^5.1.1",
@@ -69,7 +70,7 @@
     "unfetch": "^4.2.0"
   },
   "devDependencies": {
-    "@splitsoftware/splitio": "10.21.1",
+    "@splitsoftware/splitio": "10.22.0",
     "@types/enzyme": "^3.10.4",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/events": "^3.0.0",
