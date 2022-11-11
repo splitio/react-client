@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-// @ts-ignore. No declaration file
-import { SplitFactory as originalSplitFactory } from '../../../lib/splitio/index';
+import { SplitFactory as originalSplitFactory } from '@splitsoftware/splitio';
 
 export interface TestComponentProps {
   attributesFactory: SplitIO.Attributes,
