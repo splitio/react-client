@@ -23,11 +23,11 @@ jobs:
           fetch-depth: 0
 
       - name: Set up nodejs
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16.16.0'
           cache: 'npm'
-          
+
       - name: npm CI
         run: npm ci
 
@@ -75,7 +75,7 @@ jobs:
 
       - name: SonarQube Scan (Push)
         if: github.event_name == 'push'
-        uses: SonarSource/sonarcloud-github-action@v1.6
+        uses: SonarSource/sonarcloud-github-action@v1.8
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         with:
@@ -90,7 +90,7 @@ jobs:
 
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request'
-        uses: SonarSource/sonarcloud-github-action@v1.6
+        uses: SonarSource/sonarcloud-github-action@v1.8
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         with:
