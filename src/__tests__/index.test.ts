@@ -13,7 +13,7 @@ import {
   useTreatments as exportedUseTreatments,
 } from '../index';
 import SplitContext from '../SplitContext';
-import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio';
+import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';
 import SplitFactory from '../SplitFactory';
 import SplitClient from '../SplitClient';
 import SplitTreatments from '../SplitTreatments';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 

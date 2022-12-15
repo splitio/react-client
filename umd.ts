@@ -1,5 +1,5 @@
 // Split SDK factory (Renamed to avoid name conflict with SplitFactory component)
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 
 // HOC functions
 import withSplitFactory from './src/withSplitFactory';
