@@ -1,4 +1,4 @@
-1.8.1 (December 14, 2022)
+1.8.1 (December 15, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.22.2 and other dependencies for vulnerability fixes.
 
 1.8.0 (October 5, 2022)
