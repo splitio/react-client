@@ -72,7 +72,6 @@ jobs:
           DEST_DIR: sdk
           ARGS: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
 
-
       - name: SonarQube Scan (Push)
         if: github.event_name == 'push'
         uses: SonarSource/sonarcloud-github-action@v1.8
