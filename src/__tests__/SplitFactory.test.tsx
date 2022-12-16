@@ -3,10 +3,10 @@ import { mount } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 const logSpy = jest.spyOn(console, 'log');
 

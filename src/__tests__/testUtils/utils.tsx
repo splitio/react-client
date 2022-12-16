@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { SplitFactory as originalSplitFactory } from '@splitsoftware/splitio';
+const { SplitFactory: originalSplitFactory } = jest.requireActual('@splitsoftware/splitio/client');
 
 export interface TestComponentProps {
   attributesFactory: SplitIO.Attributes,
