@@ -1,5 +1,6 @@
 1.8.1 (December 16, 2022)
- - Updated @splitsoftware/splitio dependency to version 10.22.3 which includes a memory leak fix for localhost mode (Related to issue https://github.com/splitio/javascript-commons/issues/181), among other dependencies for vulnerability fixes.
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Upgrade @splitsoftware/splitio dependency to version 10.22.3 which includes a memory leak fix for localhost mode (Related to issue https://github.com/splitio/javascript-commons/issues/181) among other improvements.
 
 1.8.0 (October 5, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.22.0, which includes:
