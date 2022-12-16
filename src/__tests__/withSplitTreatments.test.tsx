@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+import { mockSdk } from './testUtils/mockSplitSdk';
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
 import { sdkBrowser } from './testUtils/sdkConfigs';

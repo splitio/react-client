@@ -1,5 +1,5 @@
 // Split SDK factory (Renamed to avoid name conflict with SplitFactory component)
-export { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+export { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 
 // HOC functions
 export { default as withSplitFactory } from './withSplitFactory';

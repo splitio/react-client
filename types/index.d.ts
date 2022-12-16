@@ -1,4 +1,4 @@
-export { SplitFactory as SplitSdk } from './splitio';
+export { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 export { default as withSplitFactory } from './withSplitFactory';
 export { default as withSplitClient } from './withSplitClient';
 export { default as withSplitTreatments } from './withSplitTreatments';
