@@ -94,7 +94,7 @@ jobs:
       matrix:
         environment:
           - stage
-          - stage-eu
+          #- stage-eu
         include:
           - environment: stage
             account_id: "079419646996"
@@ -137,7 +137,7 @@ jobs:
       matrix:
         environment:
           - prod
-          - prod-eu
+          #- prod-eu
         include:
           - environment: prod
             account_id: "825951051969"
