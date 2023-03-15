@@ -8,7 +8,7 @@ export interface TestComponentProps {
   splitKey: SplitIO.SplitKey,
   testSwitch: (done: jest.DoneCallback, splitKey?: SplitIO.SplitKey) => void,
   factory: SplitIO.IBrowserSDK
-};
+}
 
 export function newSplitFactoryLocalhostInstance() {
   return originalSplitFactory({
@@ -107,7 +107,7 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
   client.clearAttributes();
   renderTimes = 0;
 
-  // @ts-ignore. With splitKey undefined, mainClient and client refer to the same client instance.
+  // @ts-expect-error. With splitKey undefined, mainClient and client refer to the same client instance.
   wrapper = mount(<Component splitKey={undefined} attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
 
   wrapper.setProps({ attributesFactory: undefined, attributesClient: { at3: 'at3' } });

@@ -41,7 +41,7 @@ describe('SplitFactory', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-    ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
+    (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
       mount(
         <SplitFactory factory={outerFactory} >

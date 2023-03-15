@@ -18,7 +18,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     children: null,
     factory: null,
     client: null,
-  };
+  }
 
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
   // It could be avoided by removing the client and its status from the component state.

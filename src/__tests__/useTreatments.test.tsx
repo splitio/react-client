@@ -33,7 +33,7 @@ describe('useTreatments', () => {
     const client: any = outerFactory.client();
     let treatments;
 
-    const wrapper = mount(
+    mount(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           treatments = useTreatments(splitNames, attributes);
@@ -122,10 +122,10 @@ describe('useTreatments', () => {
     mount(
       React.createElement(
         () => {
-          // @ts-ignore
+          // @ts-expect-error Test error handling
           let treatments = useTreatments('split1');
           expect(treatments).toEqual({});
-          // @ts-ignore
+          // @ts-expect-error Test error handling
           treatments = useTreatments([true]);
           expect(treatments).toEqual({});
           return null;

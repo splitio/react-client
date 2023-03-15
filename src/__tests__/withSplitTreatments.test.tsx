@@ -26,10 +26,10 @@ describe('withSplitTreatments', () => {
         const SubComponent = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
           withSplitTreatments(splitNames)(
             (props: ISplitTreatmentsChildProps & { outerProp1: string, outerProp2: number }) => {
-              const clientMock: any = (factory as SplitIO.ISDK).client('user1');
+              const clientMock = factory!.client('user1');
               expect(props.outerProp1).toBe('outerProp1');
               expect(props.outerProp2).toBe(2);
-              expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(0);
+              expect((clientMock.getTreatmentsWithConfig as jest.Mock).mock.calls.length).toBe(0);
               expect(props.treatments).toEqual(getControlTreatmentsWithConfig(splitNames));
               expect(props.isReady).toBe(false);
               expect(props.isReadyFromCache).toBe(false);

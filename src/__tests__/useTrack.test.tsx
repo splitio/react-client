@@ -34,7 +34,7 @@ describe('useTrack', () => {
           return null;
         })}</SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client() as any).track;
+    const track = outerFactory.client().track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -55,7 +55,7 @@ describe('useTrack', () => {
         </SplitClient>
       </SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client('user2') as any).track;
+    const track = outerFactory.client('user2').track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -74,7 +74,7 @@ describe('useTrack', () => {
         })}
       </SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client('user2', tt) as any).track;
+    const track = outerFactory.client('user2', tt).track as jest.Mock;
     expect(track).toBeCalledWith(eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });

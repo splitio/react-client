@@ -104,24 +104,24 @@ describe('SplitTreatments', () => {
 
     mount(
       <SplitFactory config={sdkBrowser} >{
-        ({ factory }) => {
+        () => {
           return (
             <>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments split_names={splitNames} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
                 }}
               </SplitTreatments>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments names={splitNames[0]} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
                 }}
               </SplitTreatments>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments names={[true]} attributes={'invalid'} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});

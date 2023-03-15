@@ -13,7 +13,7 @@ import { getSplitSharedClient, checkHooks, initAttributes } from './utils';
  */
 const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): SplitIO.IBrowserClient | null => {
   if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return null;
-  /* tslint:disable-next-line */
+  // eslint-disable-next-line prefer-const
   let { factory, client } = React.useContext(SplitContext);
   if (key && factory) {
     client = getSplitSharedClient(factory, key, trafficType, attributes);

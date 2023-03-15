@@ -29,7 +29,7 @@ describe('SplitFactory', () => {
   test('passes ready props to the child if initialized with a ready factory.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-    ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
+    (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
       const Component = withSplitFactory(undefined, outerFactory)(
         ({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {

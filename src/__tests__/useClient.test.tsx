@@ -86,8 +86,8 @@ describe('useClient', () => {
             useClient(splitKey, 'user', attributesClient);
             testSwitch(done, splitKey);
             return null;
-          })}
-        </SplitFactory>
+          })
+        }</SplitFactory>
       );
     }
 
