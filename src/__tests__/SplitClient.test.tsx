@@ -349,7 +349,7 @@ describe('SplitClient', () => {
             splitKey={this.state.splitKey}
             updateOnSdkTimedout={true}
             updateOnSdkUpdate={true} >
-            {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
+            {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout }: ISplitClientChildProps) => {
               const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
               switch (renderTimes) {
                 case 0:

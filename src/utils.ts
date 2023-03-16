@@ -40,7 +40,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext {
+export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, _attributes?: SplitIO.Attributes): IClientWithContext {
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
   if ((factory as IFactoryWithClients).sharedClientInstances) {

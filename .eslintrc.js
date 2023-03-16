@@ -23,7 +23,7 @@ module.exports = {
     'indent': ['error', 2, { 'SwitchCase': 1 }],
     'quotes': ['warn', 'single', 'avoid-escape'],
     'linebreak-style': ['error', 'unix'],
-    'camelcase': ['error', {'properties': 'never'}],
+    'camelcase': ['error', { 'properties': 'never' }],
     'no-use-before-define': ['error', 'nofunc'],
     'eol-last': ['error', 'always'],
     'keyword-spacing': 'error',
@@ -31,6 +31,9 @@ module.exports = {
     'react/display-name': 'warn',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
   },
   'overrides': [{
     'files': ['src/**/*.ts', 'src/**/*.tsx'],

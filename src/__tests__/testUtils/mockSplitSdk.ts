@@ -30,7 +30,7 @@ function buildInstanceId(key: any, trafficType: string | undefined) {
   return `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 }
 
-function mockClient(key: SplitIO.SplitKey, trafficType?: string) {
+function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   // Readiness
   let __isReady__: boolean | undefined;
   let __isReadyFromCache__: boolean | undefined;
