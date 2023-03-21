@@ -222,32 +222,34 @@ describe('SplitTreatments optimization', () => {
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  // FAILING, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
   it('rerenders and re-evaluates splits if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', (done) => {
-    // re-renders and re-evaluates
+    expect(renderTimes).toBe(1);
+
+    // State update and split evaluation
     (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
 
-    // re-rendering after destroy, doesn't re-evaluate even if names and attributes are different because the sdk is not operational
+    // State update after destroy doesn't re-evaluate because the sdk is not operational
     (outerFactory as any).client().destroy();
-    wrapper.setProps({ names, attributes, splitKey }); // manually update the component, because there isn't an event listener for destroy
+    wrapper.setProps({ names, attributes, splitKey });
 
-    // setTimeout(() => {
-    expect(renderTimes).toBe(2);
-    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    setTimeout(() => {
+      // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
+      expect(renderTimes).toBe(2);
+      expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
 
-    // Restore the client to be READY
-    (outerFactory as any).client().__restore();
-    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-    done();
-    // })
+      // Restore the client to be READY
+      (outerFactory as any).client().__restore();
+      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+      done();
+    })
   });
 
-  // FAILING, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
   it('rerenders and re-evaluates splits if client changes.', (done) => {
     wrapper.setProps({ names, attributes, splitKey: 'otherKey' });
     (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY);
 
     setTimeout(() => {
+      // Initial render + 2 renders (in 3 updates) -> automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
       expect(renderTimes).toBe(3);
       expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
       expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
@@ -255,7 +257,6 @@ describe('SplitTreatments optimization', () => {
     });
   });
 
-  // FAILING TIMEOUT
   it('rerenders and re-evaluate splits when Split context changes (in both SplitFactory and SplitClient components).', (done) => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
     const outerFactory = SplitSdk(sdkBrowser);

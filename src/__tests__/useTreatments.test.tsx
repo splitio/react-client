@@ -28,10 +28,10 @@ describe('useTreatments', () => {
   const splitNames = ['split1'];
   const attributes = { att1: 'att1' };
 
-  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
+  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client();
-    let treatments;
+    let treatments: SplitIO.TreatmentsWithConfig;
 
     mount(
       <SplitFactory factory={outerFactory} >{
@@ -43,18 +43,21 @@ describe('useTreatments', () => {
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY), it evaluates splits
     client.__emitter__.emit(Event.SDK_READY);
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+    setTimeout(() => {
+      expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+      expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+      done();
+    });
   });
 
-  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', () => {
+  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
-    let treatments;
+    let treatments: SplitIO.TreatmentsWithConfig;
 
     mount(
       <SplitFactory factory={outerFactory} >
@@ -69,12 +72,15 @@ describe('useTreatments', () => {
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY_FROM_CACHE), it evaluates splits
     client.__emitter__.emit(Event.SDK_READY_FROM_CACHE);
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+    setTimeout(() => {
+      expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+      expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+      done();
+    });
   });
 
   test('returns the Treatments from a new client given a splitKey, or control if the client is not operational.', async () => {

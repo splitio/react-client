@@ -8,7 +8,6 @@ import { getStatus, getSplitSharedClient, initAttributes } from './utils';
  * Common component used to handle the status and events of a Split client passed as prop.
  * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
  */
-// https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-typescript-definitions
 export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes, children: any }, ISplitContextValues> {
 
   static defaultProps = {
