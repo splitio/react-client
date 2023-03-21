@@ -3,10 +3,10 @@ import { mount, ReactWrapper } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 const logSpy = jest.spyOn(console, 'log');
 
@@ -104,24 +104,24 @@ describe('SplitTreatments', () => {
 
     mount(
       <SplitFactory config={sdkBrowser} >{
-        ({ factory }) => {
+        () => {
           return (
             <>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments split_names={splitNames} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
                 }}
               </SplitTreatments>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments names={splitNames[0]} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
                 }}
               </SplitTreatments>
-              {/* @ts-ignore */}
+              {/* @ts-expect-error Test error handling */}
               <SplitTreatments names={[true]} attributes={'invalid'} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
@@ -247,11 +247,11 @@ describe('SplitTreatments optimization', () => {
     wrapper.setProps({ names, attributes, splitKey: 'otherKey' });
     (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY);
 
-    setTimeout(()=>{
-    expect(renderTimes).toBe(3);
-    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
-    expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
-    done();
+    setTimeout(() => {
+      expect(renderTimes).toBe(3);
+      expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+      expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
+      done();
     });
   });
 

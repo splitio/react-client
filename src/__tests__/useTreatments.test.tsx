@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 jest.mock('../constants', () => {
   const actual = jest.requireActual('../constants');
@@ -15,7 +15,7 @@ jest.mock('../constants', () => {
     getControlTreatmentsWithConfig: jest.fn(actual.getControlTreatmentsWithConfig),
   };
 });
-import { getControlTreatmentsWithConfig } from '../constants';
+import { CONTROL_WITH_CONFIG, getControlTreatmentsWithConfig } from '../constants';
 const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
@@ -28,8 +28,9 @@ describe('useTreatments', () => {
   const splitNames = ['split1'];
   const attributes = { att1: 'att1' };
 
-  test('returns the Treatments from the client at Split context updated by SplitFactory.', () => {
+  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
+    const client: any = outerFactory.client();
     let treatments;
 
     mount(
@@ -39,13 +40,20 @@ describe('useTreatments', () => {
           return null;
         })}</SplitFactory>,
     );
-    const getTreatmentsWithConfig: jest.Mock = (outerFactory.client() as any).getTreatmentsWithConfig;
-    expect(getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-    expect(getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+
+    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
+    expect(client.getTreatmentsWithConfig).not.toBeCalled();
+    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+
+    // once operational (SDK_READY), it evaluates splits
+    client.__emitter__.emit(Event.SDK_READY);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from the client at Split context updated by SplitClient.', () => {
+  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
+    const client: any = outerFactory.client('user2');
     let treatments;
 
     mount(
@@ -58,14 +66,24 @@ describe('useTreatments', () => {
         </SplitClient>
       </SplitFactory>,
     );
-    const getTreatmentsWithConfig: jest.Mock = (outerFactory.client('user2') as any).getTreatmentsWithConfig;
-    expect(getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-    expect(getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+
+    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
+    expect(client.getTreatmentsWithConfig).not.toBeCalled();
+    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+
+    // once operational (SDK_READY_FROM_CACHE), it evaluates splits
+    client.__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from a new client given a splitKey.', () => {
+  test('returns the Treatments from a new client given a splitKey, or control if the client is not operational.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
+    const client: any = outerFactory.client('user2');
     let treatments;
+
+    client.__emitter__.emit(Event.SDK_READY);
+    await client.destroy();
 
     mount(
       <SplitFactory factory={outerFactory} >{
@@ -75,9 +93,10 @@ describe('useTreatments', () => {
         })}
       </SplitFactory>,
     );
-    const getTreatmentsWithConfig: jest.Mock = (outerFactory.client('user2') as any).getTreatmentsWithConfig;
-    expect(getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-    expect(getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+
+    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
+    expect(client.getTreatmentsWithConfig).not.toBeCalled();
+    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
   });
 
   // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
@@ -103,10 +122,10 @@ describe('useTreatments', () => {
     mount(
       React.createElement(
         () => {
-          // @ts-ignore
+          // @ts-expect-error Test error handling
           let treatments = useTreatments('split1');
           expect(treatments).toEqual({});
-          // @ts-ignore
+          // @ts-expect-error Test error handling
           treatments = useTreatments([true]);
           expect(treatments).toEqual({});
           return null;

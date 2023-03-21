@@ -3,10 +3,10 @@ import { mount, shallow } from 'enzyme';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -86,8 +86,8 @@ describe('useClient', () => {
             useClient(splitKey, 'user', attributesClient);
             testSwitch(done, splitKey);
             return null;
-          })}
-        </SplitFactory>
+          })
+        }</SplitFactory>
       );
     }
 

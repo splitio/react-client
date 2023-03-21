@@ -3,10 +3,10 @@ import { mount, shallow } from 'enzyme';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio', () => {
+jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio';
+import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -18,7 +18,7 @@ import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 describe('SplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
-    const Component = withSplitFactory(sdkBrowser)<{}>(
+    const Component = withSplitFactory(sdkBrowser)(
       withSplitClient('user1')(
         ({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }) => {
           expect(client).not.toBe(null);
@@ -31,9 +31,9 @@ describe('SplitClient', () => {
   test('passes ready props to the child if client is ready.', (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-    ((outerFactory.manager() as any).names as jest.Mock).mockReturnValue(['split1']);
+    (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
-      const Component = withSplitFactory(undefined, outerFactory)<{}>(
+      const Component = withSplitFactory(undefined, outerFactory)(
         withSplitClient('user1')(
           ({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }) => {
             expect(client).toBe(outerFactory.client('user1'));
@@ -86,7 +86,7 @@ describe('SplitClient', () => {
           return <ClientComponent />;
         })
       return <FactoryComponent attributesClient={attributesClient} splitKey={splitKey} />
-    };
+    }
 
     testAttributesBinding(Component);
 
