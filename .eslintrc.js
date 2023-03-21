@@ -29,7 +29,7 @@ module.exports = {
     'keyword-spacing': 'error',
     'no-trailing-spaces': 'error',
     'space-before-function-paren': ['error', {'named': 'never'}],
-    'react/display-name': 'warn',
+    'react/display-name': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
