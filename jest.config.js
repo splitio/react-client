@@ -3,6 +3,12 @@ module.exports = {
 
   testEnvironment: 'jsdom',
 
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.jest.json',
+    }
+  },
+
   // Test files are .js, .jsx, .ts and .tsx files inside of __tests__ folders and with a suffix of .test or .spec
   testMatch: ['**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)'],
 
