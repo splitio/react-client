@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, ReactWrapper } from 'enzyme';
+import { render, RenderResult } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -32,7 +32,7 @@ describe('SplitTreatments', () => {
 
   it('passes as treatments prop the value returned by the function "getControlTreatmentsWithConfig" if the SDK is not ready.', (done) => {
     const splitNames = ['split1', 'split2'];
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} >{
         ({ factory }) => {
           return (
@@ -57,7 +57,7 @@ describe('SplitTreatments', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     setTimeout(() => {
-      mount(
+      render(
         <SplitFactory factory={outerFactory} >{
           ({ factory, isReady }) => {
             expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
@@ -83,7 +83,7 @@ describe('SplitTreatments', () => {
   it('logs error and passes control treatments ("getControlTreatmentsWithConfig") if rendered outside an SplitProvider component.', () => {
     const splitNames = ['split1', 'split2'];
     let passedTreatments;
-    mount(
+    render(
       <SplitTreatments names={splitNames} >
         {({ treatments }: ISplitTreatmentsChildProps) => {
           passedTreatments = treatments;
@@ -102,7 +102,7 @@ describe('SplitTreatments', () => {
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
     const splitNames = ['split1', 'split2'];
 
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} >{
         () => {
           return (
@@ -175,12 +175,12 @@ describe('SplitTreatments optimization', () => {
   const attributes = { att1: 'att1' };
   const splitKey = sdkBrowser.core.key;
 
-  let wrapper: ReactWrapper;
+  let wrapper: RenderResult;
 
   beforeEach(() => {
     renderTimes = 0;
     (outerFactory.client().getTreatmentsWithConfig as jest.Mock).mockClear();
-    wrapper = mount(<Component names={names} attributes={attributes} splitKey={splitKey} />);
+    wrapper = render(<Component names={names} attributes={attributes} splitKey={splitKey} />);
   })
 
   afterEach(() => {
@@ -188,21 +188,21 @@ describe('SplitTreatments optimization', () => {
   })
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are the same object.', () => {
-    wrapper.setProps({ names, attributes, splitKey });
+    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are equals (shallow comparison).', () => {
-    wrapper.setProps({ names: [...names], attributes: { ...attributes }, splitKey });
+    wrapper.rerender(<Component names={[...names]} attributes={{ ...attributes }} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluates splits if names are not equals (shallow array comparison).', () => {
-    wrapper.setProps({ names: [...names, 'split3'], attributes: { ...attributes }, splitKey });
+    wrapper.rerender(<Component names={[...names, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
@@ -210,14 +210,14 @@ describe('SplitTreatments optimization', () => {
 
   it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
     const attributesRef = { ...attributes, att2: 'att2' };
-    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
+    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
     // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate splits
     attributesRef.att2 = 'att2_val2';
-    wrapper.setProps({ names: [...names], attributes: attributesRef, splitKey });
+    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
     expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
@@ -230,7 +230,7 @@ describe('SplitTreatments optimization', () => {
 
     // State update after destroy doesn't re-evaluate because the sdk is not operational
     (outerFactory as any).client().destroy();
-    wrapper.setProps({ names, attributes, splitKey });
+    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
 
     setTimeout(() => {
       // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
@@ -245,7 +245,7 @@ describe('SplitTreatments optimization', () => {
   });
 
   it('rerenders and re-evaluates splits if client changes.', (done) => {
-    wrapper.setProps({ names, attributes, splitKey: 'otherKey' });
+    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
     (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY);
 
     setTimeout(() => {
@@ -266,7 +266,7 @@ describe('SplitTreatments optimization', () => {
     let renderTimesComp2 = 0;
 
     // test context updates on SplitFactory
-    mount(
+    render(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         <SplitTreatments names={names} attributes={attributes} >
           {() => {
@@ -277,7 +277,7 @@ describe('SplitTreatments optimization', () => {
       </SplitFactory>);
 
     // test context updates on SplitClient
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' updateOnSdkReadyFromCache={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
           <SplitTreatments names={names} attributes={attributes} >
@@ -333,18 +333,17 @@ describe('SplitTreatments optimization', () => {
     }
 
     client.on(client.Event.SDK_READY, () => {
-      wrapper = mount(<Component names={names} attributes={attributes} splitKey={'emma2'} />);
+      wrapper = render(<Component names={names} attributes={attributes} splitKey={'emma2'} />);
       expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(1);
-
-      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val1' } });
+      wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'emma2'} clientAttributes={{ att2: 'att1_val1' }} />);
       expect(renderTimes).toBe(3);
       expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(2);
 
-      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val2' } });
+      wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'emma2'} clientAttributes={{ att2: 'att1_val2' }} />);
       expect(renderTimes).toBe(4);
       expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3);
 
-      wrapper.setProps({ names, attributes, clientAttributes: { att2: 'att1_val2' } });
+      wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'emma2'} clientAttributes={{ att2: 'att1_val2' }} />);
       expect(renderTimes).toBe(5);
       expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3); // not called again. clientAttributes object is shallow equal
 

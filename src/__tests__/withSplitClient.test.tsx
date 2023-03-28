@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -8,12 +8,13 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
+import * as SplitClient from '../SplitClient';
+const SplitClientSpy = jest.spyOn(SplitClient, 'default');
+import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 /** Test target */
 import withSplitFactory from '../withSplitFactory';
 import withSplitClient from '../withSplitClient';
-import SplitClient from '../SplitClient';
-import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('SplitClient', () => {
 
@@ -25,7 +26,7 @@ describe('SplitClient', () => {
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
         }));
-    mount(<Component />);
+    render(<Component />);
   });
 
   test('passes ready props to the child if client is ready.', (done) => {
@@ -40,7 +41,7 @@ describe('SplitClient', () => {
             expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
             return null;
           }));
-      mount(<Component />);
+      render(<Component />);
       done();
     });
   });
@@ -55,7 +56,7 @@ describe('SplitClient', () => {
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
         }));
-    mount(<Component outerProp1='outerProp1' outerProp2={2} />);
+    render(<Component outerProp1='outerProp1' outerProp2={2} />);
   });
 
   test('passes Status props to SplitClient.', () => {
@@ -65,12 +66,17 @@ describe('SplitClient', () => {
     const updateOnSdkReadyFromCache = false;
     const Component = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
       () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
-    const wrapper = shallow(<Component outerProp1='outerProp1' outerProp2={2} />);
-    expect(wrapper.type()).toBe(SplitClient);
-    expect(wrapper.prop('updateOnSdkUpdate')).toBe(updateOnSdkUpdate);
-    expect(wrapper.prop('updateOnSdkTimedout')).toBe(updateOnSdkTimedout);
-    expect(wrapper.prop('updateOnSdkReady')).toBe(updateOnSdkReady);
-    expect(wrapper.prop('updateOnSdkReadyFromCache')).toBe(updateOnSdkReadyFromCache);
+    render(<Component outerProp1='outerProp1' outerProp2={2} />);
+
+    expect(SplitClientSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        updateOnSdkUpdate,
+        updateOnSdkTimedout,
+        updateOnSdkReady,
+        updateOnSdkReadyFromCache,
+      }),
+      expect.anything()
+    );
   });
 
   test('attributes binding test with utility', (done) => {
