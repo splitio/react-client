@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
@@ -21,7 +21,7 @@ import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../c
 describe('SplitFactory', () => {
 
   test('passes no-ready props to the child if initialized with a config.', () => {
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
           expect(factory).toBeInstanceOf(Object);
@@ -43,7 +43,7 @@ describe('SplitFactory', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
-      mount(
+      render(
         <SplitFactory factory={outerFactory} >
           {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
             expect(factory).toBe(outerFactory);
@@ -66,7 +66,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = mount(
+    const wrapper = render(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -125,7 +125,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = mount(
+    const wrapper = render(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -175,7 +175,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -229,7 +229,7 @@ describe('SplitFactory', () => {
       );
     };
 
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} >
         <Component />
       </SplitFactory>);
@@ -238,7 +238,7 @@ describe('SplitFactory', () => {
   test('logs warning if both a config and factory are passed as props.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
 
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} factory={outerFactory} >
         {({ factory }) => {
           expect(factory).toBe(outerFactory);
@@ -252,7 +252,7 @@ describe('SplitFactory', () => {
 
   test('logs error and passes null factory if rendered without a Split config and factory.', () => {
     const errorSpy = jest.spyOn(console, 'error');
-    mount(
+    render(
       <SplitFactory>
         {({ factory }) => {
           expect(factory).toBe(null);
@@ -265,7 +265,7 @@ describe('SplitFactory', () => {
   test('cleans up on unmount.', () => {
     let destroyMainClientSpy;
     let destroySharedClientSpy;
-    const wrapper = mount(
+    const wrapper = render(
       <SplitFactory config={sdkBrowser} >
         {({ factory }) => {
           expect(__factories.size).toBe(1);
@@ -291,7 +291,7 @@ describe('SplitFactory', () => {
     let destroyMainClientSpy;
     let destroySharedClientSpy;
     const outerFactory = SplitSdk(sdkBrowser);
-    const wrapper = mount(
+    const wrapper = render(
       <SplitFactory factory={outerFactory}>
         {({ factory }) => {
           // if factory is provided as a prop, `factories` cache is not modified

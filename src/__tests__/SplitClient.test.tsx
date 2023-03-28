@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, ReactWrapper } from 'enzyme';
+import { render, RenderResult } from '@testing-library/react';
 
 /** Mocks and test utils */
 import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
@@ -22,7 +22,7 @@ describe('SplitClient', () => {
   test('passes no-ready props to the child if client is not ready.', () => {
     let clientToCheck;
 
-    mount(
+    render(
       <SplitFactory config={sdkBrowser} >
         <SplitClient splitKey='user1' >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
@@ -54,7 +54,7 @@ describe('SplitClient', () => {
     outerFactory.client().ready().then(() => {
       let clientToCheck;
 
-      mount(
+      render(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey={sdkBrowser.core.key} >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
@@ -92,7 +92,7 @@ describe('SplitClient', () => {
       let renderTimes = 0;
       let previousLastUpdate = -1;
 
-      const wrapper = mount(
+      const wrapper = render(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey='user2' updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -159,7 +159,7 @@ describe('SplitClient', () => {
       let renderTimes = 0;
       let previousLastUpdate = -1;
 
-      const wrapper = mount(
+      const wrapper = render(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey='user2' updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -217,7 +217,7 @@ describe('SplitClient', () => {
       let renderTimes = 0;
       let previousLastUpdate = -1;
 
-      mount(
+      render(
         <SplitFactory factory={outerFactory} >
           <SplitClient splitKey='user2' >
             {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -275,7 +275,7 @@ describe('SplitClient', () => {
       );
     };
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >
           <Component />
@@ -285,7 +285,7 @@ describe('SplitClient', () => {
 
   test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
     const errorSpy = jest.spyOn(console, 'error');
-    mount(
+    render(
       <SplitClient splitKey='user2' >
         {({ client }) => {
           expect(client).toBe(null);
@@ -299,7 +299,7 @@ describe('SplitClient', () => {
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0; // eslint-disable-next-line prefer-const
-    let wrapper: ReactWrapper;
+    let wrapper: RenderResult;
 
     class InnerComponent extends React.Component<any, { splitKey: string }> {
 
@@ -387,7 +387,7 @@ describe('SplitClient', () => {
       }
     }
 
-    wrapper = mount(
+    wrapper = render(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
       </SplitFactory>);

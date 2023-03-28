@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -33,7 +33,7 @@ describe('useTreatments', () => {
     const client: any = outerFactory.client();
     let treatments: SplitIO.TreatmentsWithConfig;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           treatments = useTreatments(splitNames, attributes);
@@ -59,7 +59,7 @@ describe('useTreatments', () => {
     const client: any = outerFactory.client('user2');
     let treatments: SplitIO.TreatmentsWithConfig;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >{
           React.createElement(() => {
@@ -91,7 +91,7 @@ describe('useTreatments', () => {
     client.__emitter__.emit(Event.SDK_READY);
     await client.destroy();
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           treatments = useTreatments(splitNames, attributes, 'user2');
@@ -109,7 +109,7 @@ describe('useTreatments', () => {
   test('returns Control Treatments if invoked outside Split context.', () => {
     let treatments;
 
-    mount(
+    render(
       React.createElement(
         () => {
           treatments = useTreatments(splitNames, attributes);
@@ -125,7 +125,7 @@ describe('useTreatments', () => {
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
-    mount(
+    render(
       React.createElement(
         () => {
           // @ts-expect-error Test error handling
