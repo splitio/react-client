@@ -83,6 +83,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     }
   }
 
+  // NOTE: assuming that SDK events are scatered enough in time, so that Date.now() result is unique per event and triggers an update
   setReady = () => {
     if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
   }

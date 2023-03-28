@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
@@ -37,31 +37,30 @@ describe('SplitFactory', () => {
       </SplitFactory>);
   });
 
-  test('passes ready props to the child if initialized with a ready factory.', (done) => {
+  test('passes ready props to the child if initialized with a ready factory.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
-    outerFactory.client().ready().then(() => {
-      render(
-        <SplitFactory factory={outerFactory} >
-          {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
-            expect(factory).toBe(outerFactory);
-            expect(isReady).toBe(true);
-            expect(isReadyFromCache).toBe(true);
-            expect(hasTimedout).toBe(false);
-            expect(isTimedout).toBe(false);
-            expect(isDestroyed).toBe(false);
-            expect(lastUpdate).toBe(0);
-            expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
-            return null;
-          }}
-        </SplitFactory>);
-      done();
-    });
+    await outerFactory.client().ready();
+
+    render(
+      <SplitFactory factory={outerFactory} >
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
+          expect(factory).toBe(outerFactory);
+          expect(isReady).toBe(true);
+          expect(isReadyFromCache).toBe(true);
+          expect(hasTimedout).toBe(false);
+          expect(isTimedout).toBe(false);
+          expect(isDestroyed).toBe(false);
+          expect(lastUpdate).toBe(0);
+          expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
+          return null;
+        }}
+      </SplitFactory>);
   });
 
-  test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', (done) => {
+  test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -90,7 +89,7 @@ describe('SplitFactory', () => {
               fail('Child must not be rerendered');
           }
           expect(factory).toBe(outerFactory);
-          expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+          expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
           expect(lastUpdate).toBeLessThanOrEqual(Date.now());
           renderTimes++;
           previousLastUpdate = lastUpdate;
@@ -98,29 +97,18 @@ describe('SplitFactory', () => {
         }}
       </SplitFactory>);
 
-    setTimeout(() => {
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
-      setTimeout(() => {
-        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
-        setTimeout(() => {
-          (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-          setTimeout(() => {
-            (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
-            setTimeout(() => {
-              expect(renderTimes).toBe(5);
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(renderTimes).toBe(5);
 
-              // check that outerFactory's clients have no event listeners
-              wrapper.unmount();
-              assertNoListeners(outerFactory);
-              done();
-            });
-          });
-        });
-      });
-    });
+    // check that outerFactory's clients have no event listeners
+    wrapper.unmount();
+    assertNoListeners(outerFactory);
   });
 
-  test('rerenders child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', (done) => {
+  test('rerenders child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -143,7 +131,7 @@ describe('SplitFactory', () => {
               fail('Child must not be rerendered');
           }
           expect(factory).toBe(outerFactory);
-          expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+          expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
           expect(lastUpdate).toBeLessThanOrEqual(Date.now());
           renderTimes++;
           previousLastUpdate = lastUpdate;
@@ -151,26 +139,17 @@ describe('SplitFactory', () => {
         }}
       </SplitFactory>);
 
-    setTimeout(() => {
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
-      setTimeout(() => {
-        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-        setTimeout(() => {
-          (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
-          setTimeout(() => {
-            expect(renderTimes).toBe(3);
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(renderTimes).toBe(3);
 
-            // check that outerFactory's clients have no event listeners
-            wrapper.unmount();
-            assertNoListeners(outerFactory);
-            done();
-          });
-        });
-      });
-    });
+    // check that outerFactory's clients have no event listeners
+    wrapper.unmount();
+    assertNoListeners(outerFactory);
   });
 
-  test('rerenders child only on SDK_READY and SDK_READY_FROM_CACHE event, as default behaviour.', (done) => {
+  test('rerenders child only on SDK_READY and SDK_READY_FROM_CACHE event, as default behaviour.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
@@ -198,20 +177,10 @@ describe('SplitFactory', () => {
         }}
       </SplitFactory>);
 
-    setTimeout(() => {
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
-      setTimeout(() => {
-        (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-        setTimeout(() => {
-          (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
-          setTimeout(() => {
-            expect(renderTimes).toBe(2);
-            done();
-          });
-        });
-      });
-    });
-
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(renderTimes).toBe(2);
   });
 
   test('renders a passed JSX.Element with a new SplitContext value.', (done) => {

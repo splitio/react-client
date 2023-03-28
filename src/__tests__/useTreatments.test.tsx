@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -28,7 +28,7 @@ describe('useTreatments', () => {
   const splitNames = ['split1'];
   const attributes = { att1: 'att1' };
 
-  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', (done) => {
+  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client();
     let treatments: SplitIO.TreatmentsWithConfig;
@@ -46,15 +46,13 @@ describe('useTreatments', () => {
     expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY), it evaluates splits
-    client.__emitter__.emit(Event.SDK_READY);
-    setTimeout(() => {
-      expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-      expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
-      done();
-    });
+    act(() => client.__emitter__.emit(Event.SDK_READY));
+
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', (done) => {
+  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
     let treatments: SplitIO.TreatmentsWithConfig;
@@ -75,12 +73,10 @@ describe('useTreatments', () => {
     expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY_FROM_CACHE), it evaluates splits
-    client.__emitter__.emit(Event.SDK_READY_FROM_CACHE);
-    setTimeout(() => {
-      expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
-      expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
-      done();
-    });
+    act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
   test('returns the Treatments from a new client given a splitKey, or control if the client is not operational.', async () => {
@@ -134,13 +130,13 @@ describe('useTreatments', () => {
           // @ts-expect-error Test error handling
           treatments = useTreatments([true]);
           expect(treatments).toEqual({});
+
+          done();
           return null;
         }),
     );
     expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
     expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
-
-    done();
   });
 
 });
