@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
@@ -42,7 +42,7 @@ describe('withSplitTreatments', () => {
             }));
         return <SubComponent outerProp1={outerProp1} outerProp2={outerProp2} />;
       });
-    mount(<Component outerProp1='outerProp1' outerProp2={2} />);
+    render(<Component outerProp1='outerProp1' outerProp2={2} />);
   });
 
 });

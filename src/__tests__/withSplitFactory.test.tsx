@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -8,11 +8,12 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
+import SplitFactory from '../SplitFactory';
+jest.mock('../SplitFactory');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
 import withSplitFactory from '../withSplitFactory';
-import SplitFactory from '../SplitFactory';
 
 describe('SplitFactory', () => {
 
@@ -23,7 +24,7 @@ describe('SplitFactory', () => {
         expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
         return null;
       });
-    mount(<Component />);
+    render(<Component />);
   });
 
   test('passes ready props to the child if initialized with a ready factory.', (done) => {
@@ -37,7 +38,7 @@ describe('SplitFactory', () => {
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
           return null;
         });
-      mount(<Component />);
+      render(<Component />);
       done();
     });
   });
@@ -51,7 +52,7 @@ describe('SplitFactory', () => {
         expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
         return null;
       });
-    mount(<Component outerProp1='outerProp1' outerProp2={2} />);
+    render(<Component outerProp1='outerProp1' outerProp2={2} />);
   });
 
   test('passes Status props to SplitFactory.', () => {
@@ -61,12 +62,18 @@ describe('SplitFactory', () => {
     const updateOnSdkReadyFromCache = false;
     const Component = withSplitFactory(sdkBrowser)<{ outerProp1: string, outerProp2: number }>(
       () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
-    const wrapper = shallow(<Component outerProp1='outerProp1' outerProp2={2} />);
-    expect(wrapper.type()).toBe(SplitFactory);
-    expect(wrapper.prop('updateOnSdkUpdate')).toBe(updateOnSdkUpdate);
-    expect(wrapper.prop('updateOnSdkTimedout')).toBe(updateOnSdkTimedout);
-    expect(wrapper.prop('updateOnSdkReady')).toBe(updateOnSdkReady);
-    expect(wrapper.prop('updateOnSdkReadyFromCache')).toBe(updateOnSdkReadyFromCache);
+
+    render(<Component outerProp1='outerProp1' outerProp2={2} />);
+
+    expect(SplitFactory).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        updateOnSdkUpdate,
+        updateOnSdkTimedout,
+        updateOnSdkReady,
+        updateOnSdkReadyFromCache
+      }),
+      expect.anything(),
+    );
   });
 
 });

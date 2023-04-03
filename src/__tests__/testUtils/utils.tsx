@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 const { SplitFactory: originalSplitFactory } = jest.requireActual('@splitsoftware/splitio/client');
 
 export interface TestComponentProps {
@@ -90,11 +90,11 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
     }
   }
 
-  let wrapper = mount(<Component splitKey='user1' attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
+  let wrapper = render(<Component splitKey='user1' attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
 
-  wrapper.setProps({ attributesFactory: undefined, attributesClient: { at3: 'at3' } });
-  wrapper.setProps({ attributesFactory: { at4: 'at4' }, attributesClient: undefined });
-  wrapper.setProps({ attributesFactory: undefined, attributesClient: undefined });
+  wrapper.rerender(<Component splitKey='user1' attributesFactory={undefined} attributesClient={{ at3: 'at3' }} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey='user1' attributesFactory={{ at4: 'at4' }} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey='user1' attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
 
   wrapper.unmount()
 
@@ -107,10 +107,10 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
   client.clearAttributes();
   renderTimes = 0;
 
-  // @ts-expect-error. With splitKey undefined, mainClient and client refer to the same client instance.
-  wrapper = mount(<Component splitKey={undefined} attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
+  // With splitKey undefined, mainClient and client refer to the same client instance.
+  wrapper = render(<Component splitKey={undefined} attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
 
-  wrapper.setProps({ attributesFactory: undefined, attributesClient: { at3: 'at3' } });
-  wrapper.setProps({ attributesFactory: { at4: 'at4' }, attributesClient: undefined });
-  wrapper.setProps({ attributesFactory: undefined, attributesClient: undefined });
+  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={undefined} attributesClient={{ at3: 'at3' }} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={{ at4: 'at4' }} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
 }

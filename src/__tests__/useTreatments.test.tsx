@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, act } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitSdk';
@@ -31,9 +31,9 @@ describe('useTreatments', () => {
   test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client();
-    let treatments;
+    let treatments: SplitIO.TreatmentsWithConfig;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           treatments = useTreatments(splitNames, attributes);
@@ -43,20 +43,21 @@ describe('useTreatments', () => {
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY), it evaluates splits
-    client.__emitter__.emit(Event.SDK_READY);
+    act(() => client.__emitter__.emit(Event.SDK_READY));
+
     expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', () => {
+  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
-    let treatments;
+    let treatments: SplitIO.TreatmentsWithConfig;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >{
           React.createElement(() => {
@@ -69,10 +70,11 @@ describe('useTreatments', () => {
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
     // once operational (SDK_READY_FROM_CACHE), it evaluates splits
-    client.__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+    act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+
     expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
@@ -85,7 +87,7 @@ describe('useTreatments', () => {
     client.__emitter__.emit(Event.SDK_READY);
     await client.destroy();
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           treatments = useTreatments(splitNames, attributes, 'user2');
@@ -103,7 +105,7 @@ describe('useTreatments', () => {
   test('returns Control Treatments if invoked outside Split context.', () => {
     let treatments;
 
-    mount(
+    render(
       React.createElement(
         () => {
           treatments = useTreatments(splitNames, attributes);
@@ -119,7 +121,7 @@ describe('useTreatments', () => {
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
-    mount(
+    render(
       React.createElement(
         () => {
           // @ts-expect-error Test error handling
@@ -128,13 +130,13 @@ describe('useTreatments', () => {
           // @ts-expect-error Test error handling
           treatments = useTreatments([true]);
           expect(treatments).toEqual({});
+
+          done();
           return null;
         }),
     );
     expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
     expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
-
-    done();
   });
 
 });
