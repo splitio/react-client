@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
@@ -20,7 +20,7 @@ describe('useClient', () => {
   test('returns the main client from the context updated by SplitFactory.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           client = useClient();
@@ -33,7 +33,7 @@ describe('useClient', () => {
   test('returns the client from the context updated by SplitClient.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >{
           React.createElement(() => {
@@ -49,7 +49,7 @@ describe('useClient', () => {
   test('returns a new client from the factory at Split context given a splitKey.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           (outerFactory.client as jest.Mock).mockClear();
@@ -65,7 +65,7 @@ describe('useClient', () => {
   test('returns null if invoked outside Split context.', () => {
     let client;
     let sharedClient;
-    shallow(
+    render(
       React.createElement(
         () => {
           client = useClient();
@@ -86,8 +86,8 @@ describe('useClient', () => {
             useClient(splitKey, 'user', attributesClient);
             testSwitch(done, splitKey);
             return null;
-          })}
-        </SplitFactory>
+          })
+        }</SplitFactory>
       );
     }
 

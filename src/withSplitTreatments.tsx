@@ -16,7 +16,7 @@ function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {
     WrappedComponent: React.ComponentType<OuterProps & ISplitTreatmentsChildProps>,
   ) {
 
-    return (props: OuterProps) => {
+    return function wrapper(props: OuterProps) {
       return (
         <SplitTreatments
           names={names}

@@ -13,7 +13,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[4], lastArgs[4]); // client attributes
 }
 
-function evaluateSplits(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, clientAttributes?: SplitIO.Attributes) {
+function evaluateSplits(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
   return client.getTreatmentsWithConfig(names, attributes);
 }
 

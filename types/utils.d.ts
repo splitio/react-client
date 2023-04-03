@@ -1,15 +1,4 @@
 /**
- * FactoryWithClientInstances interface.
- */
-export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
-    sharedClientInstances: Set<IClientWithContext>;
-    config: SplitIO.IBrowserSettings;
-}
-export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients>;
-export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
-export declare function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext;
-export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
-/**
  * ClientWithContext interface.
  */
 export interface IClientWithContext extends SplitIO.IBrowserClient {
@@ -21,6 +10,17 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
         isDestroyed: boolean;
     };
 }
+/**
+ * FactoryWithClientInstances interface.
+ */
+export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
+    sharedClientInstances: Set<IClientWithContext>;
+    config: SplitIO.IBrowserSettings;
+}
+export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients>;
+export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
+export declare function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, _attributes?: SplitIO.Attributes): IClientWithContext;
+export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
 export interface IClientStatus {
     isReady: boolean;
     isReadyFromCache: boolean;
