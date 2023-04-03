@@ -14,13 +14,13 @@ export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: Sp
 
   return function withSplitFactoryHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>,
-    updateOnSdkUpdate: boolean = false,
-    updateOnSdkTimedout: boolean = false,
-    updateOnSdkReady: boolean = true,
-    updateOnSdkReadyFromCache: boolean = true,
+    updateOnSdkUpdate = false,
+    updateOnSdkTimedout = false,
+    updateOnSdkReady = true,
+    updateOnSdkReadyFromCache = true,
   ) {
 
-    return (props: OuterProps) => {
+    return function wrapper(props: OuterProps) {
       return (
         <SplitFactory
           config={config}

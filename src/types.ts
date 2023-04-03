@@ -96,7 +96,7 @@ export interface IUpdateProps {
  * SplitFactory Child Props interface. These are the props that the child component receives from the 'SplitFactory' component.
  */
 // @TODO remove next type (breaking-change)
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
@@ -131,7 +131,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
  * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
  */
 // @TODO remove next type (breaking-change)
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ISplitClientChildProps extends ISplitContextValues { }
 
 /**

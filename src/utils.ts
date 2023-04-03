@@ -4,6 +4,19 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 
 /**
+ * ClientWithContext interface.
+ */
+export interface IClientWithContext extends SplitIO.IBrowserClient {
+  __getStatus(): {
+    isReady: boolean;
+    isReadyFromCache: boolean;
+    isOperational: boolean;
+    hasTimedout: boolean;
+    isDestroyed: boolean;
+  };
+}
+
+/**
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
@@ -27,7 +40,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): IClientWithContext {
+export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, _attributes?: SplitIO.Attributes): IClientWithContext {
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
   if ((factory as IFactoryWithClients).sharedClientInstances) {
@@ -49,19 +62,6 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
 
 // Utils used to access client status.
 // They might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
-
-/**
- * ClientWithContext interface.
- */
-export interface IClientWithContext extends SplitIO.IBrowserClient {
-  __getStatus(): {
-    isReady: boolean;
-    isReadyFromCache: boolean;
-    isOperational: boolean;
-    hasTimedout: boolean;
-    isDestroyed: boolean;
-  };
-}
 
 export interface IClientStatus {
   isReady: boolean;
@@ -130,7 +130,6 @@ export function initAttributes(client: SplitIO.IBrowserClient, attributes?: Spli
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
 function validateSplit(maybeSplit: unknown, item = 'split name'): false | string {
-  // tslint:disable-next-line: triple-equals
   if (maybeSplit == undefined) {
     console.log(`[ERROR] you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
   } else if (!isString(maybeSplit)) {

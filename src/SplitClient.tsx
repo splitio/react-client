@@ -8,7 +8,7 @@ import { getStatus, getSplitSharedClient, initAttributes } from './utils';
  * Common component used to handle the status and events of a Split client passed as prop.
  * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
  */
-export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes }, ISplitContextValues> {
+export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes, children: any }, ISplitContextValues> {
 
   static defaultProps = {
     updateOnSdkUpdate: false,
@@ -18,7 +18,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     children: null,
     factory: null,
     client: null,
-  };
+  }
 
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
   // It could be avoided by removing the client and its status from the component state.
@@ -83,6 +83,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     }
   }
 
+  // NOTE: assuming that SDK events are scatered enough in time, so that Date.now() result is unique per event and triggers an update
   setReady = () => {
     if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
   }

@@ -8,6 +8,7 @@ export declare class SplitComponent extends React.Component<IUpdateProps & {
     factory: SplitIO.IBrowserSDK | null;
     client: SplitIO.IBrowserClient | null;
     attributes?: SplitIO.Attributes;
+    children: any;
 }, ISplitContextValues> {
     static defaultProps: {
         updateOnSdkUpdate: boolean;

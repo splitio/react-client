@@ -94,14 +94,14 @@ jobs:
       matrix:
         environment:
           - stage
-          - stage-eu
+          #- stage-eu
         include:
           - environment: stage
             account_id: "079419646996"
             bucket: split-public-stage
-          - environment: stage-eu
-            account_id: "901851837056"
-            bucket: split-public-stage-eu-west-1
+          # - environment: stage-eu
+          #   account_id: "901851837056"
+          #   bucket: split-public-stage-eu-west-1
 
     steps:
       - name: Download assets
@@ -137,14 +137,14 @@ jobs:
       matrix:
         environment:
           - prod
-          - prod-eu
+          #- prod-eu
         include:
           - environment: prod
             account_id: "825951051969"
             bucket: split-public
-          - environment: prod-eu
-            account_id: "842946900133"
-            bucket: split-public-eu-west-1
+          # - environment: prod-eu
+          #   account_id: "842946900133"
+          #   bucket: split-public-eu-west-1
 
     steps:
       - name: Download assets

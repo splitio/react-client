@@ -14,13 +14,13 @@ function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string, attri
 
   return function withSplitClientHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitClientChildProps>,
-    updateOnSdkUpdate: boolean = false,
-    updateOnSdkTimedout: boolean = false,
-    updateOnSdkReady: boolean = true,
-    updateOnSdkReadyFromCache: boolean = true,
+    updateOnSdkUpdate = false,
+    updateOnSdkTimedout = false,
+    updateOnSdkReady = true,
+    updateOnSdkReadyFromCache = true,
   ) {
 
-    return (props: OuterProps) => {
+    return function wrapper(props: OuterProps) {
       return (
         <SplitClient
           splitKey={splitKey}

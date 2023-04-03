@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk } from './testUtils/mockSplitSdk';
@@ -26,7 +26,7 @@ describe('useTrack', () => {
     let bindedTrack;
     let trackResult;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           bindedTrack = useTrack();
@@ -34,7 +34,7 @@ describe('useTrack', () => {
           return null;
         })}</SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client() as any).track;
+    const track = outerFactory.client().track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -44,7 +44,7 @@ describe('useTrack', () => {
     let bindedTrack;
     let trackResult;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >{
           React.createElement(() => {
@@ -55,7 +55,7 @@ describe('useTrack', () => {
         </SplitClient>
       </SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client('user2') as any).track;
+    const track = outerFactory.client('user2').track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -65,7 +65,7 @@ describe('useTrack', () => {
     let bindedTrack;
     let trackResult;
 
-    mount(
+    render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
           bindedTrack = useTrack('user2', tt);
@@ -74,7 +74,7 @@ describe('useTrack', () => {
         })}
       </SplitFactory>,
     );
-    const track: jest.Mock = (outerFactory.client('user2', tt) as any).track;
+    const track = outerFactory.client('user2', tt).track as jest.Mock;
     expect(track).toBeCalledWith(eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -82,7 +82,7 @@ describe('useTrack', () => {
   // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
   test('returns a false function (`() => false`) if invoked outside Split context.', () => {
     let trackResult;
-    mount(
+    render(
       React.createElement(
         () => {
           const track = useTrack('user2', tt);
