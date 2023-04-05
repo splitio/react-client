@@ -1,15 +1,16 @@
-name: ci-cd
+name: ci
+
 on:
+  push:
+    branches:
+      - '**'
   pull_request:
     branches:
       - master
       - development
-  push:
-    branches:
-      - '*'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.run_number || github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
@@ -44,41 +45,39 @@ jobs:
       - name: npm build
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
 
+      - name: Set VERSION env
+        run: echo "VERSION=$(cat package.json | jq -r .version)" >> $GITHUB_ENV
+
       - name: SonarQube Scan (Push)
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master') }}
-        uses: SonarSource/sonarcloud-github-action@v1.8
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
+        uses: SonarSource/sonarcloud-github-action@v1.9
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectBaseDir: .
           args: >
             -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectName=${{ github.event.repository.name }}
-            -Dsonar.projectKey=${{ github.event.repository.name }}
-            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
-            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
-            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
+            -Dsonar.projectVersion=${{ env.VERSION }}
+            -Dsonar.branch.name=${{ github.ref_name }}
 
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request'
-        uses: SonarSource/sonarcloud-github-action@v1.8
+        uses: SonarSource/sonarcloud-github-action@v1.9
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectBaseDir: .
           args: >
             -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectName=${{ github.event.repository.name }}
-            -Dsonar.projectKey=${{ github.event.repository.name }}
-            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
-            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
-            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
+            -Dsonar.projectVersion=${{ env.VERSION }}
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
             -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
             -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
 
       - name: Store assets
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master') }}
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
         uses: actions/upload-artifact@v3
         with:
           name: assets
@@ -89,19 +88,15 @@ jobs:
     name: Upload assets
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     strategy:
       matrix:
         environment:
           - stage
-          #- stage-eu
         include:
           - environment: stage
             account_id: "079419646996"
             bucket: split-public-stage
-          # - environment: stage-eu
-          #   account_id: "901851837056"
-          #   bucket: split-public-stage-eu-west-1
 
     steps:
       - name: Download assets
@@ -132,19 +127,15 @@ jobs:
     name: Upload assets
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     strategy:
       matrix:
         environment:
           - prod
-          #- prod-eu
         include:
           - environment: prod
             account_id: "825951051969"
             bucket: split-public
-          # - environment: prod-eu
-          #   account_id: "842946900133"
-          #   bucket: split-public-eu-west-1
 
     steps:
       - name: Download assets
