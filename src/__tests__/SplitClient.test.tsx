@@ -11,9 +11,9 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitClientChildProps } from '../types';
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { SplitContext } from '../SplitContext';
 import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
@@ -229,7 +229,7 @@ describe('SplitClient', () => {
 
     const Component = () => {
       return (
-        <SplitContext.Consumer>{(value: ISplitContextValues) => {
+        <SplitContext.Consumer>{(value) => {
           expect(value.client).toBe(outerFactory.client('user2'));
           expect(value.isReady).toBe(false);
           expect(value.isTimedout).toBe(false);

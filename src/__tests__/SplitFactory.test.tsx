@@ -12,9 +12,9 @@ const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { SplitContext } from '../SplitContext';
 import { __factories } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../constants';
 
@@ -186,7 +186,7 @@ describe('SplitFactory', () => {
   test('renders a passed JSX.Element with a new SplitContext value.', (done) => {
     const Component = () => {
       return (
-        <SplitContext.Consumer>{(value: ISplitContextValues) => {
+        <SplitContext.Consumer>{(value) => {
           expect(value.factory).toBeInstanceOf(Object);
           expect(value.client).toBe(value.factory?.client());
           expect(value.isReady).toBe(false);

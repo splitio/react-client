@@ -9,9 +9,9 @@ jest.mock('@splitsoftware/splitio/client', () => {
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import withSplitFactory from '../withSplitFactory';
-import withSplitClient from '../withSplitClient';
-import withSplitTreatments from '../withSplitTreatments';
+import { withSplitFactory } from '../withSplitFactory';
+import { withSplitClient } from '../withSplitClient';
+import { withSplitTreatments } from '../withSplitTreatments';
 import { ISplitTreatmentsChildProps } from '../types';
 import { getControlTreatmentsWithConfig } from '../constants';
 

@@ -12,9 +12,9 @@ const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
-import SplitTreatments from '../SplitTreatments';
-import SplitClient from '../SplitClient';
-import SplitFactory from '../SplitFactory';
+import { SplitTreatments } from '../SplitTreatments';
+import { SplitClient } from '../SplitClient';
+import { SplitFactory } from '../SplitFactory';
 jest.mock('../constants', () => {
   const actual = jest.requireActual('../constants');
   return {

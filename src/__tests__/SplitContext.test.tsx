@@ -1,12 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { SplitContext } from '../SplitContext';
 
 /**
  * Test default SplitContext value
  */
 test('SplitContext.Consumer shows default value', () => {
-  render(<SplitContext.Consumer>{(value: ISplitContextValues) => {
+  render(<SplitContext.Consumer>{(value) => {
     expect(value.factory).toBe(null);
     expect(value.client).toBe(null);
     expect(value.isReady).toBe(false);

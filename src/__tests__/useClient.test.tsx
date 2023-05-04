@@ -10,9 +10,9 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import useClient from '../useClient';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { useClient } from '../useClient';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('useClient', () => {

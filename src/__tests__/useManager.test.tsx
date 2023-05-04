@@ -10,8 +10,8 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import SplitFactory from '../SplitFactory';
-import useManager from '../useManager';
+import { SplitFactory } from '../SplitFactory';
+import { useManager } from '../useManager';
 
 describe('useManager', () => {
 

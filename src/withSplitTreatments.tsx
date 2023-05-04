@@ -1,6 +1,6 @@
 import React from 'react';
 import { ISplitTreatmentsChildProps } from './types';
-import SplitTreatments from './SplitTreatments';
+import { SplitTreatments } from './SplitTreatments';
 
 /**
  * High-Order Component for SplitTreatments.
@@ -10,7 +10,7 @@ import SplitTreatments from './SplitTreatments';
  * @param names list of Split names
  * @param attributes An object of type Attributes used to evaluate the splits.
  */
-function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {
+export function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {
 
   return function withSplitTreatmentsHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitTreatmentsChildProps>,
@@ -32,5 +32,3 @@ function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {
     };
   };
 }
-
-export default withSplitTreatments;

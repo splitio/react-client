@@ -1,5 +1,5 @@
 import React from 'react';
-import SplitContext from './SplitContext';
+import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitSharedClient, initAttributes } from './utils';
@@ -138,7 +138,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-function SplitClient(props: ISplitClientProps) {
+export function SplitClient(props: ISplitClientProps) {
   return (
     <SplitContext.Consumer>{
       (splitContext: ISplitContextValues) => {
@@ -152,5 +152,3 @@ function SplitClient(props: ISplitClientProps) {
     }</SplitContext.Consumer>
   );
 }
-
-export default SplitClient;

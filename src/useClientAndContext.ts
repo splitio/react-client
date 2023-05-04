@@ -1,7 +1,8 @@
 import React from 'react';
-import SplitContext, { ISplitContextValues, INITIAL_CONTEXT } from './SplitContext';
+import { SplitContext, INITIAL_CONTEXT } from './SplitContext';
 import { ERROR_UC_NO_USECONTEXT } from './constants';
 import { getSplitSharedClient, checkHooks, initAttributes, IClientWithContext } from './utils';
+import { ISplitContextValues } from './types';
 
 /**
  * 'useClientAndContext' is a hook that returns an Split Context object with the client and its status corresponding to the provided key and trafficType.

@@ -19,9 +19,9 @@ import { CONTROL_WITH_CONFIG, getControlTreatmentsWithConfig } from '../constant
 const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import useTreatments from '../useTreatments';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { useTreatments } from '../useTreatments';
 
 describe('useTreatments', () => {
 

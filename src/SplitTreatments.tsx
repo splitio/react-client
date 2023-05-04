@@ -1,7 +1,7 @@
 import React from 'react';
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
-import SplitContext from './SplitContext';
+import { SplitContext } from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
 
@@ -23,7 +23,7 @@ function evaluateSplits(client: SplitIO.IBrowserClient, lastUpdate: number, name
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
+export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   private logWarning?: boolean;
 
@@ -62,5 +62,3 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
   }
 
 }
-
-export default SplitTreatments;

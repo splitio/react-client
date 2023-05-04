@@ -8,12 +8,12 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-import SplitFactory from '../SplitFactory';
+import { SplitFactory } from '../SplitFactory';
 jest.mock('../SplitFactory');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
-import withSplitFactory from '../withSplitFactory';
+import { withSplitFactory } from '../withSplitFactory';
 
 describe('SplitFactory', () => {
 

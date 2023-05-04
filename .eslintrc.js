@@ -52,7 +52,7 @@ module.exports = {
       'compat/compat': ['error', 'defaults, not ie < 11'],
       'no-throw-literal': 'error',
       'import/no-self-import': 'error',
-      // 'import/no-default-export': 'error', // Default exports are a common practice in React
+      'import/no-default-export': 'error',
     }
   }]
 }

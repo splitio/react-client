@@ -9,4 +9,3 @@ import { ISplitFactoryChildProps } from './types';
  * @param factory Split factory instance to use instead of creating a new one with the config object.
  */
 export declare function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.IBrowserSDK, attributes?: SplitIO.Attributes): <OuterProps>(WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>, updateOnSdkUpdate?: boolean, updateOnSdkTimedout?: boolean, updateOnSdkReady?: boolean, updateOnSdkReadyFromCache?: boolean) => (props: OuterProps) => JSX.Element;
-export default withSplitFactory;

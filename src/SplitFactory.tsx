@@ -15,7 +15,7 @@ import { getSplitFactory, destroySplitFactory, IFactoryWithClients } from './uti
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
  */
-class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
+export class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
 
   static defaultProps: ISplitFactoryProps = {
     updateOnSdkUpdate: false,
@@ -79,5 +79,3 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
     );
   }
 }
-
-export default SplitFactory;

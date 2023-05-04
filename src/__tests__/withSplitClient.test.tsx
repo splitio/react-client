@@ -9,12 +9,12 @@ jest.mock('@splitsoftware/splitio/client', () => {
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import * as SplitClient from '../SplitClient';
-const SplitClientSpy = jest.spyOn(SplitClient, 'default');
+const SplitClientSpy = jest.spyOn(SplitClient, 'SplitClient');
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 /** Test target */
-import withSplitFactory from '../withSplitFactory';
-import withSplitClient from '../withSplitClient';
+import { withSplitFactory } from '../withSplitFactory';
+import { withSplitClient } from '../withSplitClient';
 
 describe('SplitClient', () => {
 

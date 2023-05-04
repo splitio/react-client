@@ -8,8 +8,6 @@ import { useTreatmentsAndContext } from './useTreatmentsAndContext';
  * @return A TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if split names do not exist.
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-const useTreatments = (splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
+export function useTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig {
   return useTreatmentsAndContext(splitNames, attributes, key).treatments;
-};
-
-export default useTreatments;
+}
