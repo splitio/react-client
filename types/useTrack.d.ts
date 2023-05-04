@@ -1,5 +1,5 @@
 /**
- * 'useTrack' is a custom hook that returns the track method from a Split client.
+ * 'useTrack' is a hook that returns the track method from a Split client.
  * It uses the 'useContext' hook to access the client from the Split context.
  *
  * @return A track function binded to a Split client. If the client is not available, the result is a no-op function that returns false.

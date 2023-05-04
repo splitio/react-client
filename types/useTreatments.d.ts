@@ -1,5 +1,5 @@
 /**
- * 'useTreatments' is a custom hook that returns a list of treatments.
+ * 'useTreatments' is a hook that returns an object of feature flag evaluations (i.e., treatments).
  * It uses the 'useContext' hook to access the client from the Split context,
  * and invokes the 'getTreatmentsWithConfig' method.
  *

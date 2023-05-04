@@ -1,5 +1,5 @@
 /**
- * 'useClient' is a custom hook that returns a client from the Split context.
+ * 'useClient' is a hook that returns a client from the Split context.
  * It uses the 'useContext' hook to access the context, which is updated by
  * SplitFactory and SplitClient components in the hierarchy of components.
  *

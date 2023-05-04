@@ -1,10 +1,7 @@
-import React from 'react';
-import SplitContext from './SplitContext';
-import { ERROR_UC_NO_USECONTEXT } from './constants';
-import { getSplitSharedClient, checkHooks, initAttributes } from './utils';
+import { useClientAndContext } from './useClientAndContext';
 
 /**
- * 'useClient' is a custom hook that returns a client from the Split context.
+ * 'useClient' is a hook that returns a client from the Split context.
  * It uses the 'useContext' hook to access the context, which is updated by
  * SplitFactory and SplitClient components in the hierarchy of components.
  *
@@ -12,14 +9,7 @@ import { getSplitSharedClient, checkHooks, initAttributes } from './utils';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): SplitIO.IBrowserClient | null => {
-  if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return null;
-  // eslint-disable-next-line prefer-const
-  let { factory, client } = React.useContext(SplitContext);
-  if (key && factory) {
-    client = getSplitSharedClient(factory, key, trafficType, attributes);
-  }
-  if (client) initAttributes(client, attributes);
-  return client;
+  return useClientAndContext(key, trafficType, attributes).client;
 };
 
 export default useClient;

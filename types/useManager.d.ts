@@ -1,5 +1,5 @@
 /**
- * 'useManager' is a custom hook that returns the Manager instance from the Split factory.
+ * 'useManager' is a hook that returns the Manager instance from the Split factory.
  * It uses the 'useContext' hook to access the factory at Split context, which is updated by
  * the SplitFactory component.
  *

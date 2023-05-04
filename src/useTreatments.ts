@@ -1,9 +1,7 @@
-import useClient from './useClient';
-import { getControlTreatmentsWithConfig, ERROR_UT_NO_USECONTEXT } from './constants';
-import { checkHooks, IClientWithContext } from './utils';
+import { useTreatmentsAndContext } from './useTreatmentsAndContext';
 
 /**
- * 'useTreatments' is a custom hook that returns a list of treatments.
+ * 'useTreatments' is a hook that returns an object of feature flag evaluations (i.e., treatments).
  * It uses the 'useContext' hook to access the client from the Split context,
  * and invokes the 'getTreatmentsWithConfig' method.
  *
@@ -11,10 +9,7 @@ import { checkHooks, IClientWithContext } from './utils';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 const useTreatments = (splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
-  const client = checkHooks(ERROR_UT_NO_USECONTEXT) ? useClient(key) : null;
-  return client && (client as IClientWithContext).__getStatus().isOperational ?
-    client.getTreatmentsWithConfig(splitNames, attributes) :
-    getControlTreatmentsWithConfig(splitNames);
+  return useTreatmentsAndContext(splitNames, attributes, key).treatments;
 };
 
 export default useTreatments;
