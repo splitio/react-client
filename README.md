@@ -34,15 +34,15 @@ function MyReactComponent() {
   return (
     /* Use SplitFactory to instantiate the SDK and makes it available to nested components */
     <SplitFactory config={CONFIG} >
-      {/* Evaluate splits with SplitTreatments component */}
-      <SplitTreatments names={['SPLIT_NAME']} >
-        {({ treatments: { SPLIT_NAME }, isReady }) => {
+      {/* Evaluate feature flags with SplitTreatments component */}
+      <SplitTreatments names={['FEATURE_FLAG_NAME']} >
+        {({ treatments: { FEATURE_FLAG_NAME }, isReady }) => {
           // Check SDK readiness using isReady prop
           if (!isReady)
             return <div>Loading SDK ...</div>;
-          if (SPLIT_NAME.treatment === 'on') {
+          if (FEATURE_FLAG_NAME.treatment === 'on') {
             // return JSX for on treatment
-          } else if (SPLIT_NAME.treatment === 'off') {
+          } else if (FEATURE_FLAG_NAME.treatment === 'off') {
             // return JSX for off treatment
           } else {
             // return JSX for control treatment
