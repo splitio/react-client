@@ -103,13 +103,13 @@ export function checkHooks(message: string): boolean {
 
 // Input validation utils that will be replaced eventually
 
-export function validateSplits(maybeSplits: unknown, listName = 'split names'): false | string[] {
-  if (Array.isArray(maybeSplits) && maybeSplits.length > 0) {
+export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'split names'): false | string[] {
+  if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
     const validatedArray: string[] = [];
     // Remove invalid values
-    maybeSplits.forEach((maybeSplit) => {
-      const splitName = validateSplit(maybeSplit);
-      if (splitName) validatedArray.push(splitName);
+    maybeFeatureFlags.forEach((maybeFeatureFlag) => {
+      const featureFlagName = validateFeatureFlag(maybeFeatureFlag);
+      if (featureFlagName) validatedArray.push(featureFlagName);
     });
 
     // Strip off duplicated values if we have valid split names then return
@@ -129,19 +129,19 @@ export function initAttributes(client: SplitIO.IBrowserClient, attributes?: Spli
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
-function validateSplit(maybeSplit: unknown, item = 'split name'): false | string {
-  if (maybeSplit == undefined) {
+function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'split name'): false | string {
+  if (maybeFeatureFlag == undefined) {
     console.log(`[ERROR] you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
-  } else if (!isString(maybeSplit)) {
+  } else if (!isString(maybeFeatureFlag)) {
     console.log(`[ERROR] you passed an invalid ${item}, ${item} must be a non-empty string.`);
   } else {
-    if (TRIMMABLE_SPACES_REGEX.test(maybeSplit)) {
-      console.log(`[WARN] ${item} "${maybeSplit}" has extra whitespace, trimming.`);
-      maybeSplit = maybeSplit.trim();
+    if (TRIMMABLE_SPACES_REGEX.test(maybeFeatureFlag)) {
+      console.log(`[WARN] ${item} "${maybeFeatureFlag}" has extra whitespace, trimming.`);
+      maybeFeatureFlag = maybeFeatureFlag.trim();
     }
 
-    if ((maybeSplit as string).length > 0) {
-      return maybeSplit as string;
+    if ((maybeFeatureFlag as string).length > 0) {
+      return maybeFeatureFlag as string;
     } else {
       console.log(`[ERROR] you passed an empty ${item}, ${item} must be a non-empty string.`);
     }
