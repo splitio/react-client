@@ -16,14 +16,14 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
 };
 
 export const getControlTreatmentsWithConfig = (splitNames: unknown): SplitIO.TreatmentsWithConfig => {
-  // validate split Names
-  const validatedSplitNames = validateFeatureFlags(splitNames);
+  // validate featureFlags Names
+  const validatedFeatureFlagNames = validateFeatureFlags(splitNames);
 
   // return empty object if the returned value is false
-  if (!validatedSplitNames) return {};
+  if (!validatedFeatureFlagNames) return {};
 
   // return control treatments for each validated split name
-  return validatedSplitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});
