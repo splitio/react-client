@@ -97,7 +97,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
      */
     factory?: SplitIO.IBrowserSDK;
     /**
-     * An object of type Attributes used to evaluate the splits.
+     * An object of type Attributes used to evaluate the feature flags.
      */
     attributes?: SplitIO.Attributes;
     /**
@@ -153,7 +153,7 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
  */
 export interface ISplitTreatmentsProps {
     /**
-     * list of Split names
+     * list of feature flag names
      */
     names: string[];
     /**
