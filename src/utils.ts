@@ -112,7 +112,7 @@ export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'spl
       if (featureFlagName) validatedArray.push(featureFlagName);
     });
 
-    // Strip off duplicated values if we have valid split names then return
+    // Strip off duplicated values if we have valid feature flag names then return
     if (validatedArray.length) return uniq(validatedArray);
   }
 

@@ -7,7 +7,7 @@ import SplitTreatments from './SplitTreatments';
  * The wrapped component receives all the props of the container,
  * along with the passed props from SplitTreatments (see ISplitTreatmentsChildProps).
  *
- * @param names list of Split names
+ * @param names list of feature flag names
  * @param attributes An object of type Attributes used to evaluate the splits.
  */
 function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {

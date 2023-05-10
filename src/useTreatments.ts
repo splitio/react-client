@@ -10,11 +10,11 @@ import { checkHooks, IClientWithContext } from './utils';
  * @return A TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if split names do not exist.
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-const useTreatments = (splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
+const useTreatments = (featureFlagNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
   const client = checkHooks(ERROR_UT_NO_USECONTEXT) ? useClient(key) : null;
   return client && (client as IClientWithContext).__getStatus().isOperational ?
-    client.getTreatmentsWithConfig(splitNames, attributes) :
-    getControlTreatmentsWithConfig(splitNames);
+    client.getTreatmentsWithConfig(featureFlagNames, attributes) :
+    getControlTreatmentsWithConfig(featureFlagNames);
 };
 
 export default useTreatments;

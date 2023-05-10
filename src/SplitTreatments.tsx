@@ -18,7 +18,7 @@ function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number
 }
 
 /**
- * SplitTreatments accepts a list of split names and optional attributes. It access the client at SplitContext to
+ * SplitTreatments accepts a list of feature flag names and optional attributes. It access the client at SplitContext to
  * call 'client.getTreatmentsWithConfig()' method, and passes the returned treatments to a child as a function.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
@@ -28,7 +28,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
   private logWarning?: boolean;
 
   // Attaching a memoized `client.getTreatmentsWithConfig` function to the component instance, to avoid duplicated impressions because
-  // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of split `names` and `attributes`.
+  // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
   private evaluateFeatureFlags = memoizeOne(evaluateFeatureFlags, argsAreEqual);
 
   render() {
