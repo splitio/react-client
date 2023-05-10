@@ -13,7 +13,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[4], lastArgs[4]); // client attributes
 }
 
-function evaluateSplits(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
   return client.getTreatmentsWithConfig(names, attributes);
 }
 
@@ -29,7 +29,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   // Attaching a memoized `client.getTreatmentsWithConfig` function to the component instance, to avoid duplicated impressions because
   // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of split `names` and `attributes`.
-  private evaluateSplits = memoizeOne(evaluateSplits, argsAreEqual);
+  private evaluateFeatureFlags = memoizeOne(evaluateFeatureFlags, argsAreEqual);
 
   render() {
     const { names, children, attributes } = this.props;
@@ -43,7 +43,7 @@ class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
           if (client && isOperational) {
             // Cloning `client.getAttributes` result for memoization, because it returns the same reference unless `client.clearAttributes` is called.
             // Caveat: same issue happens with `names` and `attributes` props if the user follows the bad practice of mutating the object instead of providing a new one.
-            treatments = this.evaluateSplits(client, lastUpdate, names, attributes, { ...client.getAttributes() });
+            treatments = this.evaluateFeatureFlags(client, lastUpdate, names, attributes, { ...client.getAttributes() });
           } else {
             treatments = getControlTreatmentsWithConfig(names);
             if (!client) { this.logWarning = true; }
