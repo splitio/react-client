@@ -2,7 +2,7 @@ import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 export const sdkBrowser: SplitIO.IBrowserSettings = {
   core: {
-    authorizationKey: 'api-key',
+    authorizationKey: 'sdk-key',
     key: 'customer-key',
   },
 };
