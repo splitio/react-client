@@ -95,7 +95,7 @@ describe('SplitTreatments', () => {
   });
 
   /**
-   * Input validation. Passing invalid split names or attributes while the Sdk
+   * Input validation. Passing invalid feature flag names or attributes while the Sdk
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
@@ -214,7 +214,7 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
-    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate splits
+    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate feature flags
     attributesRef.att2 = 'att2_val2';
     wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
     expect(renderTimes).toBe(3);

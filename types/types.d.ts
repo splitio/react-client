@@ -125,7 +125,7 @@ export interface ISplitClientProps extends IUpdateProps {
      */
     trafficType?: string;
     /**
-     * An object of type Attributes used to evaluate the splits.
+     * An object of type Attributes used to evaluate the feature flags.
      */
     attributes?: SplitIO.Attributes;
     /**
@@ -138,8 +138,8 @@ export interface ISplitClientProps extends IUpdateProps {
  */
 export interface ISplitTreatmentsChildProps extends ISplitContextValues {
     /**
-     * An object with the treatments with configs for a bulk of splits, returned by client.getTreatmentsWithConfig().
-     * Each existing configuration is a stringified version of the JSON you defined on the Split web console. For example:
+     * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
+     * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
      *   {
      *     split1: { treatment: 'on', config: null }
      *     split2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
@@ -157,7 +157,7 @@ export interface ISplitTreatmentsProps {
      */
     names: string[];
     /**
-     * An object of type Attributes used to evaluate the splits.
+     * An object of type Attributes used to evaluate the feature flags.
      */
     attributes?: SplitIO.Attributes;
     /**

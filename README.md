@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react) [![Build Status](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml)
 
 ## Overview
-This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via a Split feature flag to manage your complete customer experience.
+This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flag to manage your complete customer experience.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/splitsoftware.svg?style=social&label=Follow&maxAge=1529000)](https://twitter.com/intent/follow?screen_name=splitsoftware)
 
@@ -25,7 +25,7 @@ import { SplitFactory, SplitTreatments } from '@splitsoftware/splitio-react';
 // Define your config object
 const CONFIG = {
   core: {
-    authorizationKey: 'YOUR_BROWSER_API_KEY',
+    authorizationKey: 'YOUR_BROWSER_SDK_KEY',
     key: 'CUSTOMER_ID'
   }
 };
