@@ -25,7 +25,7 @@ import { SplitFactory, SplitTreatments } from '@splitsoftware/splitio-react';
 // Define your config object
 const CONFIG = {
   core: {
-    authorizationKey: 'YOUR_CLIENT_SIDE_SDK_KEY',
+    authorizationKey: 'YOUR_SDK_KEY',
     key: 'CUSTOMER_ID'
   }
 };
