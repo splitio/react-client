@@ -25,7 +25,7 @@ import useTreatments from '../useTreatments';
 
 describe('useTreatments', () => {
 
-  const splitNames = ['split1'];
+  const featureFlagNames = ['split1'];
   const attributes = { att1: 'att1' };
 
   test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
@@ -36,7 +36,7 @@ describe('useTreatments', () => {
     render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
-          treatments = useTreatments(splitNames, attributes);
+          treatments = useTreatments(featureFlagNames, attributes);
           return null;
         })}</SplitFactory>,
     );
@@ -45,10 +45,10 @@ describe('useTreatments', () => {
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
     expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
-    // once operational (SDK_READY), it evaluates splits
+    // once operational (SDK_READY), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
@@ -61,7 +61,7 @@ describe('useTreatments', () => {
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >{
           React.createElement(() => {
-            treatments = useTreatments(splitNames, attributes);
+            treatments = useTreatments(featureFlagNames, attributes);
             return null;
           })}
         </SplitClient>
@@ -72,10 +72,10 @@ describe('useTreatments', () => {
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
     expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
-    // once operational (SDK_READY_FROM_CACHE), it evaluates splits
+    // once operational (SDK_READY_FROM_CACHE), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(splitNames, attributes);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
@@ -90,7 +90,7 @@ describe('useTreatments', () => {
     render(
       <SplitFactory factory={outerFactory} >{
         React.createElement(() => {
-          treatments = useTreatments(splitNames, attributes, 'user2');
+          treatments = useTreatments(featureFlagNames, attributes, 'user2');
           return null;
         })}
       </SplitFactory>,
@@ -108,16 +108,16 @@ describe('useTreatments', () => {
     render(
       React.createElement(
         () => {
-          treatments = useTreatments(splitNames, attributes);
+          treatments = useTreatments(featureFlagNames, attributes);
           return null;
         }),
     );
-    expect(getControlTreatmentsWithConfig).toBeCalledWith(splitNames);
+    expect(getControlTreatmentsWithConfig).toBeCalledWith(featureFlagNames);
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
   /**
-   * Input validation. Passing invalid split names or attributes while the Sdk
+   * Input validation. Passing invalid feature flag names or attributes while the Sdk
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {

@@ -36,7 +36,7 @@ export declare function getStatus(client: SplitIO.IBrowserClient | null): IClien
  * @returns boolean indicating if React.useContext is available
  */
 export declare function checkHooks(message: string): boolean;
-export declare function validateSplits(maybeSplits: unknown, listName?: string): false | string[];
+export declare function validateFeatureFlags(maybeFeatureFlags: unknown, listName?: string): false | string[];
 /**
  * Manage client attributes binding
  */

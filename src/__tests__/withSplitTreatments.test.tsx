@@ -20,17 +20,17 @@ describe('withSplitTreatments', () => {
   it(`passes Split props and outer props to the child.
       In this test, the value of "props.treatments" is obteined by the function "getControlTreatmentsWithConfig",
       and not "client.getTreatmentsWithConfig" since the client is not ready.`, (done) => {
-    const splitNames = ['split1', 'split2'];
+    const featureFlagNames = ['split1', 'split2'];
     const Component = withSplitFactory(sdkBrowser)<{ outerProp1: string, outerProp2: number }>(
       ({ outerProp1, outerProp2, factory }) => {
         const SubComponent = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
-          withSplitTreatments(splitNames)(
+          withSplitTreatments(featureFlagNames)(
             (props: ISplitTreatmentsChildProps & { outerProp1: string, outerProp2: number }) => {
               const clientMock = factory!.client('user1');
               expect(props.outerProp1).toBe('outerProp1');
               expect(props.outerProp2).toBe(2);
               expect((clientMock.getTreatmentsWithConfig as jest.Mock).mock.calls.length).toBe(0);
-              expect(props.treatments).toEqual(getControlTreatmentsWithConfig(splitNames));
+              expect(props.treatments).toEqual(getControlTreatmentsWithConfig(featureFlagNames));
               expect(props.isReady).toBe(false);
               expect(props.isReadyFromCache).toBe(false);
               expect(props.hasTimedout).toBe(false);
