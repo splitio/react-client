@@ -8,12 +8,12 @@ describe('getControlTreatmentsWithConfig', () => {
   });
 
   it('should return an empty object if an empty array is provided', () => {
-    const splitNames = ['split1', 'split2'];
-    const treatments: SplitIO.TreatmentsWithConfig = getControlTreatmentsWithConfig(splitNames);
-    splitNames.forEach((splitName) => {
-      expect(treatments[splitName]).toBe(CONTROL_WITH_CONFIG);
+    const featureFlagNames = ['split1', 'split2'];
+    const treatments: SplitIO.TreatmentsWithConfig = getControlTreatmentsWithConfig(featureFlagNames);
+    featureFlagNames.forEach((featureFlagName) => {
+      expect(treatments[featureFlagName]).toBe(CONTROL_WITH_CONFIG);
     });
-    expect(Object.keys(treatments).length).toBe(splitNames.length);
+    expect(Object.keys(treatments).length).toBe(featureFlagNames.length);
   });
 
 });

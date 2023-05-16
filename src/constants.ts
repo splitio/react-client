@@ -1,4 +1,4 @@
-import { validateSplits } from './utils';
+import { validateFeatureFlags } from './utils';
 
 // The string below is a marker and will be replaced by the real version number. DO NOT CHANGE
 export const VERSION: string = 'react-' + 'REACT_SDK_VERSION_NUMBER';
@@ -15,15 +15,15 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   config: null,
 };
 
-export const getControlTreatmentsWithConfig = (splitNames: unknown): SplitIO.TreatmentsWithConfig => {
-  // validate split Names
-  const validatedSplitNames = validateSplits(splitNames);
+export const getControlTreatmentsWithConfig = (featureFlagNames: unknown): SplitIO.TreatmentsWithConfig => {
+  // validate featureFlags Names
+  const validatedFeatureFlagNames = validateFeatureFlags(featureFlagNames);
 
   // return empty object if the returned value is false
-  if (!validatedSplitNames) return {};
+  if (!validatedFeatureFlagNames) return {};
 
-  // return control treatments for each validated split name
-  return validatedSplitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+  // return control treatments for each validated feature flag name
+  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});

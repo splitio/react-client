@@ -31,17 +31,17 @@ describe('SplitTreatments', () => {
   afterEach(() => { logSpy.mockClear() });
 
   it('passes as treatments prop the value returned by the function "getControlTreatmentsWithConfig" if the SDK is not ready.', (done) => {
-    const splitNames = ['split1', 'split2'];
+    const featureFlagNames = ['split1', 'split2'];
     render(
       <SplitFactory config={sdkBrowser} >{
         ({ factory }) => {
           return (
             <SplitClient splitKey='user1' >
-              <SplitTreatments names={splitNames} >
+              <SplitTreatments names={featureFlagNames} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   const clientMock: any = factory?.client('user1');
                   expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(0);
-                  expect(treatments).toEqual(getControlTreatmentsWithConfig(splitNames));
+                  expect(treatments).toEqual(getControlTreatmentsWithConfig(featureFlagNames));
                   done();
                   return null;
                 }}
@@ -53,7 +53,7 @@ describe('SplitTreatments', () => {
   });
 
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig" if the SDK is ready.', (done) => {
-    const splitNames = ['split1', 'split2'];
+    const featureFlagNames = ['split1', 'split2'];
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
@@ -63,12 +63,12 @@ describe('SplitTreatments', () => {
           expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
           expect(isReady).toBe(true);
           return (
-            <SplitTreatments names={splitNames} >
+            <SplitTreatments names={featureFlagNames} >
               {({ treatments, isReady: isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitTreatmentsChildProps) => {
                 const clientMock: any = factory?.client();
                 expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
                 expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
-                expect(splitNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
+                expect(featureFlagNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
                 expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
                 done();
                 return null;
@@ -80,26 +80,26 @@ describe('SplitTreatments', () => {
   });
 
   it('logs error and passes control treatments ("getControlTreatmentsWithConfig") if rendered outside an SplitProvider component.', () => {
-    const splitNames = ['split1', 'split2'];
+    const featureFlagNames = ['split1', 'split2'];
     let passedTreatments;
     render(
-      <SplitTreatments names={splitNames} >
+      <SplitTreatments names={featureFlagNames} >
         {({ treatments }: ISplitTreatmentsChildProps) => {
           passedTreatments = treatments;
           return null;
         }}
       </SplitTreatments>);
     expect(logSpy).toBeCalledWith(WARN_ST_NO_CLIENT);
-    expect(getControlTreatmentsWithConfig).toBeCalledWith(splitNames);
+    expect(getControlTreatmentsWithConfig).toBeCalledWith(featureFlagNames);
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(passedTreatments);
   });
 
   /**
-   * Input validation. Passing invalid split names or attributes while the Sdk
+   * Input validation. Passing invalid feature flag names or attributes while the Sdk
    * is not ready doesn't emit errors, and logs meaningful messages instead.
    */
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
-    const splitNames = ['split1', 'split2'];
+    const featureFlagNames = ['split1', 'split2'];
 
     render(
       <SplitFactory config={sdkBrowser} >{
@@ -107,14 +107,14 @@ describe('SplitTreatments', () => {
           return (
             <>
               {/* @ts-expect-error Test error handling */}
-              <SplitTreatments split_names={splitNames} >
+              <SplitTreatments split_names={featureFlagNames} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
                 }}
               </SplitTreatments>
               {/* @ts-expect-error Test error handling */}
-              <SplitTreatments names={splitNames[0]} >
+              <SplitTreatments names={featureFlagNames[0]} >
                 {({ treatments }: ISplitTreatmentsChildProps) => {
                   expect(treatments).toEqual({});
                   return null;
@@ -186,42 +186,42 @@ describe('SplitTreatments optimization', () => {
     wrapper.unmount(); // unmount to remove event listener from factory
   })
 
-  it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are the same object.', () => {
+  it('rerenders but does not re-evaluate feature flags if client, lastUpdate, names and attributes are the same object.', () => {
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
-  it('rerenders but does not re-evaluate splits if client, lastUpdate, names and attributes are equals (shallow comparison).', () => {
+  it('rerenders but does not re-evaluate feature flags if client, lastUpdate, names and attributes are equals (shallow comparison).', () => {
     wrapper.rerender(<Component names={[...names]} attributes={{ ...attributes }} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
-  it('rerenders and re-evaluates splits if names are not equals (shallow array comparison).', () => {
+  it('rerenders and re-evaluates feature flags if names are not equals (shallow array comparison).', () => {
     wrapper.rerender(<Component names={[...names, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  it('rerenders and re-evaluates splits if attributes are not equals (shallow object comparison).', () => {
+  it('rerenders and re-evaluates feature flags if attributes are not equals (shallow object comparison).', () => {
     const attributesRef = { ...attributes, att2: 'att2' };
     wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
-    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate splits
+    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate feature flags
     attributesRef.att2 = 'att2_val2';
     wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
     expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  it('rerenders and re-evaluates splits if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', (done) => {
+  it('rerenders and re-evaluates feature flags if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', (done) => {
     expect(renderTimes).toBe(1);
 
     // State update and split evaluation
@@ -243,7 +243,7 @@ describe('SplitTreatments optimization', () => {
     })
   });
 
-  it('rerenders and re-evaluates splits if client changes.', () => {
+  it('rerenders and re-evaluates feature flags if client changes.', () => {
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
     act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
 
@@ -253,7 +253,7 @@ describe('SplitTreatments optimization', () => {
     expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
-  it('rerenders and re-evaluate splits when Split context changes (in both SplitFactory and SplitClient components).', async () => {
+  it('rerenders and re-evaluate splfeature flagsits when Split context changes (in both SplitFactory and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];
@@ -327,7 +327,7 @@ describe('SplitTreatments optimization', () => {
     expect(outerFactory.client('user2').getTreatmentsWithConfig).toBeCalledTimes(4); // idem
   });
 
-  it('rerenders and re-evaluates splits if client attributes changes.', (done) => {
+  it('rerenders and re-evaluates feature flags if client attributes changes.', (done) => {
     const originalFactory = outerFactory;
     outerFactory = newSplitFactoryLocalhostInstance();
 
