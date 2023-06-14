@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, act } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks and test utils */
 import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
@@ -263,8 +263,7 @@ describe('SplitClient', () => {
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    let renderTimes = 0; // eslint-disable-next-line prefer-const
-    let wrapper: RenderResult;
+    let renderTimes = 0;
 
     class InnerComponent extends React.Component<any, { splitKey: string }> {
 
@@ -294,6 +293,7 @@ describe('SplitClient', () => {
                           expect(renderTimes).toBe(6);
 
                           // check that outerFactory's clients have no event listeners
+                          // eslint-disable-next-line no-use-before-define
                           wrapper.unmount();
                           assertNoListeners(outerFactory);
                           done();
@@ -352,7 +352,7 @@ describe('SplitClient', () => {
       }
     }
 
-    wrapper = render(
+    const wrapper = render(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
       </SplitFactory>);
