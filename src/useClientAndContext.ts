@@ -14,7 +14,7 @@ import { ISplitContextValues } from './types';
 export function useClientAndContext(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): ISplitContextValues {
   if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return INITIAL_CONTEXT;
 
-  const context = React.useContext(SplitContext); // eslint-disable-next-line prefer-const
+  const context = React.useContext(SplitContext);
   let { factory, client } = context;
   if (key && factory) {
     client = getSplitSharedClient(factory, key, trafficType, attributes);

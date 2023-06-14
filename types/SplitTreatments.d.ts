@@ -7,8 +7,8 @@ import { ISplitTreatmentsProps } from './types';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 export declare class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
-  private logWarning?;
-  private evaluateFeatureFlags;
-  render(): JSX.Element;
-  componentDidMount(): void;
+    private logWarning?;
+    private evaluateFeatureFlags;
+    render(): JSX.Element;
+    componentDidMount(): void;
 }
