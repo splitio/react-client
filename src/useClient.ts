@@ -1,4 +1,4 @@
-import { useClientAndContext } from './useClientAndContext';
+import { useSplitClient } from './useSplitClient';
 
 /**
  * 'useClient' is a hook that returns a client from the Split context.
@@ -9,7 +9,7 @@ import { useClientAndContext } from './useClientAndContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 const useClient = (key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): SplitIO.IBrowserClient | null => {
-  return useClientAndContext(key, trafficType, attributes).client;
+  return useSplitClient(key, trafficType, attributes).client;
 };
 
 export default useClient;

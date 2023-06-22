@@ -1,4 +1,4 @@
-import { useTreatmentsAndContext } from './useTreatmentsAndContext';
+import { useSplitTreatments } from './useSplitTreatments';
 
 /**
  * 'useTreatments' is a hook that returns an object of feature flag evaluations (i.e., treatments).
@@ -9,7 +9,7 @@ import { useTreatmentsAndContext } from './useTreatmentsAndContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 const useTreatments = (featureFlagNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig => {
-  return useTreatmentsAndContext(featureFlagNames, attributes, key).treatments;
+  return useSplitTreatments(featureFlagNames, attributes, key).treatments;
 };
 
 export default useTreatments;
