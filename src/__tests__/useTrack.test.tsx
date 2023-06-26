@@ -10,9 +10,9 @@ import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import useTrack from '../useTrack';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { useTrack } from '../useTrack';
 
 describe('useTrack', () => {
 
@@ -27,12 +27,13 @@ describe('useTrack', () => {
     let trackResult;
 
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           bindedTrack = useTrack();
           trackResult = bindedTrack(tt, eventType, value, properties);
           return null;
-        })}</SplitFactory>,
+        })}
+      </SplitFactory>,
     );
     const track = outerFactory.client().track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
@@ -46,14 +47,14 @@ describe('useTrack', () => {
 
     render(
       <SplitFactory factory={outerFactory} >
-        <SplitClient splitKey='user2' >{
-          React.createElement(() => {
+        <SplitClient splitKey='user2' >
+          {React.createElement(() => {
             bindedTrack = useTrack();
             trackResult = bindedTrack(tt, eventType, value, properties);
             return null;
           })}
         </SplitClient>
-      </SplitFactory>,
+      </SplitFactory>
     );
     const track = outerFactory.client('user2').track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
@@ -66,8 +67,8 @@ describe('useTrack', () => {
     let trackResult;
 
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           bindedTrack = useTrack('user2', tt);
           trackResult = bindedTrack(eventType, value, properties);
           return null;
@@ -83,12 +84,11 @@ describe('useTrack', () => {
   test('returns a false function (`() => false`) if invoked outside Split context.', () => {
     let trackResult;
     render(
-      React.createElement(
-        () => {
-          const track = useTrack('user2', tt);
-          trackResult = track(eventType, value, properties);
-          return null;
-        }),
+      React.createElement(() => {
+        const track = useTrack('user2', tt);
+        trackResult = track(eventType, value, properties);
+        return null;
+      }),
     );
     expect(trackResult).toBe(false);
   });

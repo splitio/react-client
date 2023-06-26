@@ -9,12 +9,12 @@ jest.mock('@splitsoftware/splitio/client', () => {
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import * as SplitClient from '../SplitClient';
-const SplitClientSpy = jest.spyOn(SplitClient, 'default');
+const SplitClientSpy = jest.spyOn(SplitClient, 'SplitClient');
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 /** Test target */
-import withSplitFactory from '../withSplitFactory';
-import withSplitClient from '../withSplitClient';
+import { withSplitFactory } from '../withSplitFactory';
+import { withSplitClient } from '../withSplitClient';
 
 describe('SplitClient', () => {
 
@@ -25,7 +25,9 @@ describe('SplitClient', () => {
           expect(client).not.toBe(null);
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
-        }));
+        }
+      )
+    );
     render(<Component />);
   });
 
@@ -40,7 +42,9 @@ describe('SplitClient', () => {
             expect(client).toBe(outerFactory.client('user1'));
             expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
             return null;
-          }));
+          }
+        )
+      );
       render(<Component />);
       done();
     });
@@ -55,7 +59,9 @@ describe('SplitClient', () => {
           expect(client).not.toBe(null);
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
           return null;
-        }));
+        }
+      )
+    );
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
   });
 
@@ -65,7 +71,8 @@ describe('SplitClient', () => {
     const updateOnSdkReady = true;
     const updateOnSdkReadyFromCache = false;
     const Component = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
-      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
+      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache
+    );
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 
     expect(SplitClientSpy).toHaveBeenLastCalledWith(
@@ -90,12 +97,12 @@ describe('SplitClient', () => {
               return null;
             })
           return <ClientComponent />;
-        })
+        }
+      )
       return <FactoryComponent attributesClient={attributesClient} splitKey={splitKey} />
     }
 
     testAttributesBinding(Component);
-
   });
 
 });

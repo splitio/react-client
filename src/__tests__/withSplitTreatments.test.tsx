@@ -9,9 +9,9 @@ jest.mock('@splitsoftware/splitio/client', () => {
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import withSplitFactory from '../withSplitFactory';
-import withSplitClient from '../withSplitClient';
-import withSplitTreatments from '../withSplitTreatments';
+import { withSplitFactory } from '../withSplitFactory';
+import { withSplitClient } from '../withSplitClient';
+import { withSplitTreatments } from '../withSplitTreatments';
 import { ISplitTreatmentsChildProps } from '../types';
 import { getControlTreatmentsWithConfig } from '../constants';
 
@@ -39,7 +39,9 @@ describe('withSplitTreatments', () => {
               expect(props.lastUpdate).toBe(0);
               done();
               return null;
-            }));
+            }
+          )
+        );
         return <SubComponent outerProp1={outerProp1} outerProp2={outerProp2} />;
       });
     render(<Component outerProp1='outerProp1' outerProp2={2} />);

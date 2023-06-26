@@ -10,7 +10,7 @@ import { ISplitFactoryProps } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
  */
-declare class SplitFactory extends React.Component<ISplitFactoryProps, {
+export declare class SplitFactory extends React.Component<ISplitFactoryProps, {
     factory: SplitIO.IBrowserSDK | null;
     client: SplitIO.IBrowserClient | null;
 }> {
@@ -24,4 +24,3 @@ declare class SplitFactory extends React.Component<ISplitFactoryProps, {
     componentWillUnmount(): void;
     render(): JSX.Element;
 }
-export default SplitFactory;
