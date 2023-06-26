@@ -21,11 +21,12 @@ describe('useClient', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           client = useClient();
           return null;
-        })}</SplitFactory>,
+        })}
+      </SplitFactory>
     );
     expect(client).toBe(outerFactory.client());
   });
@@ -35,13 +36,13 @@ describe('useClient', () => {
     let client;
     render(
       <SplitFactory factory={outerFactory} >
-        <SplitClient splitKey='user2' >{
-          React.createElement(() => {
+        <SplitClient splitKey='user2' >
+          {React.createElement(() => {
             client = useClient();
             return null;
           })}
         </SplitClient>
-      </SplitFactory>,
+      </SplitFactory>
     );
     expect(client).toBe(outerFactory.client('user2'));
   });
@@ -50,13 +51,13 @@ describe('useClient', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           (outerFactory.client as jest.Mock).mockClear();
           client = useClient('user2', 'user');
           return null;
         })}
-      </SplitFactory>,
+      </SplitFactory>
     );
     expect(outerFactory.client as jest.Mock).toBeCalledWith('user2', 'user');
     expect(outerFactory.client as jest.Mock).toHaveReturnedWith(client);
@@ -66,12 +67,11 @@ describe('useClient', () => {
     let client;
     let sharedClient;
     render(
-      React.createElement(
-        () => {
-          client = useClient();
-          sharedClient = useClient('user2', 'user');
-          return null;
-        }),
+      React.createElement(() => {
+        client = useClient();
+        sharedClient = useClient('user2', 'user');
+        return null;
+      })
     );
     expect(client).toBe(null);
     expect(sharedClient).toBe(null);
@@ -81,18 +81,17 @@ describe('useClient', () => {
 
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       return (
-        <SplitFactory factory={factory} attributes={attributesFactory} >{
-          React.createElement(() => {
+        <SplitFactory factory={factory} attributes={attributesFactory} >
+          {React.createElement(() => {
             useClient(splitKey, 'user', attributesClient);
             testSwitch(done, splitKey);
             return null;
-          })
-        }</SplitFactory>
+          })}
+        </SplitFactory>
       );
     }
 
     testAttributesBinding(Component);
-
   });
 
 });

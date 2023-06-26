@@ -39,7 +39,9 @@ describe('withSplitTreatments', () => {
               expect(props.lastUpdate).toBe(0);
               done();
               return null;
-            }));
+            }
+          )
+        );
         return <SubComponent outerProp1={outerProp1} outerProp2={outerProp2} />;
       });
     render(<Component outerProp1='outerProp1' outerProp2={2} />);

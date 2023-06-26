@@ -19,11 +19,12 @@ describe('useManager', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let manager;
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           manager = useManager();
           return null;
-        })}</SplitFactory>,
+        })}
+      </SplitFactory>
     );
     expect(manager).toBe(outerFactory.manager());
   });
@@ -31,11 +32,10 @@ describe('useManager', () => {
   test('returns null if invoked outside Split context.', () => {
     let manager;
     render(
-      React.createElement(
-        () => {
-          manager = useManager();
-          return null;
-        }),
+      React.createElement(() => {
+        manager = useManager();
+        return null;
+      })
     );
     expect(manager).toBe(null);
   });

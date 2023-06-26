@@ -34,7 +34,8 @@ describe('SplitFactory', () => {
           expect((factory as SplitIO.ISDK).settings.version).toContain('react-');
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('passes ready props to the child if initialized with a ready factory.', async () => {
@@ -57,7 +58,8 @@ describe('SplitFactory', () => {
           expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', async () => {
@@ -95,7 +97,8 @@ describe('SplitFactory', () => {
           previousLastUpdate = lastUpdate;
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
@@ -137,7 +140,8 @@ describe('SplitFactory', () => {
           previousLastUpdate = lastUpdate;
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
@@ -175,7 +179,8 @@ describe('SplitFactory', () => {
           previousLastUpdate = lastUpdate;
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
@@ -186,22 +191,25 @@ describe('SplitFactory', () => {
   test('renders a passed JSX.Element with a new SplitContext value.', (done) => {
     const Component = () => {
       return (
-        <SplitContext.Consumer>{(value) => {
-          expect(value.factory).toBeInstanceOf(Object);
-          expect(value.client).toBe(value.factory?.client());
-          expect(value.isReady).toBe(false);
-          expect(value.isTimedout).toBe(false);
-          expect(value.lastUpdate).toBe(0);
-          done();
-          return null;
-        }}</SplitContext.Consumer>
+        <SplitContext.Consumer>
+          {(value) => {
+            expect(value.factory).toBeInstanceOf(Object);
+            expect(value.client).toBe(value.factory?.client());
+            expect(value.isReady).toBe(false);
+            expect(value.isTimedout).toBe(false);
+            expect(value.lastUpdate).toBe(0);
+            done();
+            return null;
+          }}
+        </SplitContext.Consumer>
       );
     };
 
     render(
       <SplitFactory config={sdkBrowser} >
         <Component />
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('logs warning if both a config and factory are passed as props.', () => {
@@ -213,7 +221,8 @@ describe('SplitFactory', () => {
           expect(factory).toBe(outerFactory);
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     expect(logSpy).toBeCalledWith(WARN_SF_CONFIG_AND_FACTORY);
     logSpy.mockRestore();
@@ -227,7 +236,8 @@ describe('SplitFactory', () => {
           expect(factory).toBe(null);
           return null;
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
     expect(errorSpy).toBeCalledWith(ERROR_SF_NO_CONFIG_AND_FACTORY);
   });
 
@@ -240,15 +250,16 @@ describe('SplitFactory', () => {
           expect(__factories.size).toBe(1);
           destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
           return (
-            <SplitClient splitKey='other_key' >{
-              ({ client }) => {
+            <SplitClient splitKey='other_key' >
+              {({ client }) => {
                 destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
                 return null;
-              }
-            }</SplitClient>
+              }}
+            </SplitClient>
           );
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
     wrapper.unmount();
     // the factory created by the component is removed from `factories` cache and its clients are destroyed
     expect(__factories.size).toBe(0);
@@ -267,15 +278,16 @@ describe('SplitFactory', () => {
           expect(__factories.size).toBe(0);
           destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
           return (
-            <SplitClient splitKey='other_key' >{
-              ({ client }) => {
+            <SplitClient splitKey='other_key' >
+              {({ client }) => {
                 destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
                 return null;
-              }
-            }</SplitClient>
+              }}
+            </SplitClient>
           );
         }}
-      </SplitFactory>);
+      </SplitFactory>
+    );
     wrapper.unmount();
     expect(destroyMainClientSpy).not.toBeCalled();
     expect(destroySharedClientSpy).not.toBeCalled();

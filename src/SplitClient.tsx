@@ -119,11 +119,13 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   render() {
     const { children } = this.props;
     return (
-      <SplitContext.Provider value={this.state} >{
-        typeof children === 'function' ?
-          children({ ...this.state }) :
-          children
-      }</SplitContext.Provider>
+      <SplitContext.Provider value={this.state} >
+        {
+          typeof children === 'function' ?
+            children({ ...this.state }) :
+            children
+        }
+      </SplitContext.Provider>
     );
   }
 }
@@ -140,15 +142,15 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
  */
 export function SplitClient(props: ISplitClientProps) {
   return (
-    <SplitContext.Consumer>{
-      (splitContext: ISplitContextValues) => {
+    <SplitContext.Consumer>
+      {(splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
         // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
         const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType, props.attributes) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );
-      }
-    }</SplitContext.Consumer>
+      }}
+    </SplitContext.Consumer>
   );
 }
