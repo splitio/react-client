@@ -19,9 +19,9 @@ import { CONTROL_WITH_CONFIG, getControlTreatmentsWithConfig } from '../constant
 const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import useTreatments from '../useTreatments';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { useTreatments } from '../useTreatments';
 
 describe('useTreatments', () => {
 
@@ -34,11 +34,12 @@ describe('useTreatments', () => {
     let treatments: SplitIO.TreatmentsWithConfig;
 
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           treatments = useTreatments(featureFlagNames, attributes);
           return null;
-        })}</SplitFactory>,
+        })}
+      </SplitFactory>
     );
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
@@ -59,13 +60,13 @@ describe('useTreatments', () => {
 
     render(
       <SplitFactory factory={outerFactory} >
-        <SplitClient splitKey='user2' >{
-          React.createElement(() => {
+        <SplitClient splitKey='user2' >
+          {React.createElement(() => {
             treatments = useTreatments(featureFlagNames, attributes);
             return null;
           })}
         </SplitClient>
-      </SplitFactory>,
+      </SplitFactory>
     );
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
@@ -88,12 +89,12 @@ describe('useTreatments', () => {
     await client.destroy();
 
     render(
-      <SplitFactory factory={outerFactory} >{
-        React.createElement(() => {
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
           treatments = useTreatments(featureFlagNames, attributes, 'user2');
           return null;
         })}
-      </SplitFactory>,
+      </SplitFactory>
     );
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
@@ -106,11 +107,10 @@ describe('useTreatments', () => {
     let treatments;
 
     render(
-      React.createElement(
-        () => {
-          treatments = useTreatments(featureFlagNames, attributes);
-          return null;
-        }),
+      React.createElement(() => {
+        treatments = useTreatments(featureFlagNames, attributes);
+        return null;
+      })
     );
     expect(getControlTreatmentsWithConfig).toBeCalledWith(featureFlagNames);
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(treatments);
@@ -122,18 +122,17 @@ describe('useTreatments', () => {
    */
   test('Input validation: invalid "names" and "attributes" params in useTreatments.', (done) => {
     render(
-      React.createElement(
-        () => {
-          // @ts-expect-error Test error handling
-          let treatments = useTreatments('split1');
-          expect(treatments).toEqual({});
-          // @ts-expect-error Test error handling
-          treatments = useTreatments([true]);
-          expect(treatments).toEqual({});
+      React.createElement(() => {
+        // @ts-expect-error Test error handling
+        let treatments = useTreatments('split1');
+        expect(treatments).toEqual({});
+        // @ts-expect-error Test error handling
+        treatments = useTreatments([true]);
+        expect(treatments).toEqual({});
 
-          done();
-          return null;
-        }),
+        done();
+        return null;
+      })
     );
     expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
     expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');

@@ -8,5 +8,4 @@ import { ISplitTreatmentsChildProps } from './types';
  * @param names list of feature flag names
  * @param attributes An object of type Attributes used to evaluate the feature flags.
  */
-declare function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes): <OuterProps>(WrappedComponent: React.ComponentType<OuterProps & ISplitTreatmentsChildProps>) => (props: OuterProps) => JSX.Element;
-export default withSplitTreatments;
+export declare function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes): <OuterProps>(WrappedComponent: React.ComponentType<OuterProps & ISplitTreatmentsChildProps>) => (props: OuterProps) => JSX.Element;

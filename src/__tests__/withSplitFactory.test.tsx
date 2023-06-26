@@ -8,12 +8,12 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-import SplitFactory from '../SplitFactory';
+import { SplitFactory } from '../SplitFactory';
 jest.mock('../SplitFactory');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
-import withSplitFactory from '../withSplitFactory';
+import { withSplitFactory } from '../withSplitFactory';
 
 describe('SplitFactory', () => {
 
@@ -23,7 +23,8 @@ describe('SplitFactory', () => {
         expect(factory).toBeInstanceOf(Object);
         expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
         return null;
-      });
+      }
+    );
     render(<Component />);
   });
 
@@ -37,7 +38,8 @@ describe('SplitFactory', () => {
           expect(factory).toBe(outerFactory);
           expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
           return null;
-        });
+        }
+      );
       render(<Component />);
       done();
     });
@@ -51,7 +53,8 @@ describe('SplitFactory', () => {
         expect(factory).toBeInstanceOf(Object);
         expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([false, false, false, false, false, 0]);
         return null;
-      });
+      }
+    );
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
   });
 
@@ -61,7 +64,8 @@ describe('SplitFactory', () => {
     const updateOnSdkReady = true;
     const updateOnSdkReadyFromCache = false;
     const Component = withSplitFactory(sdkBrowser)<{ outerProp1: string, outerProp2: number }>(
-      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache);
+      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache
+    );
 
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 

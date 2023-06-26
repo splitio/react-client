@@ -11,9 +11,9 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitClientChildProps } from '../types';
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { SplitContext } from '../SplitContext';
 import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
@@ -121,7 +121,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_FROM_CACHE));
@@ -171,7 +172,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
@@ -216,7 +218,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
@@ -229,14 +232,16 @@ describe('SplitClient', () => {
 
     const Component = () => {
       return (
-        <SplitContext.Consumer>{(value: ISplitContextValues) => {
-          expect(value.client).toBe(outerFactory.client('user2'));
-          expect(value.isReady).toBe(false);
-          expect(value.isTimedout).toBe(false);
-          expect(value.lastUpdate).toBe(0);
-          done();
-          return null;
-        }}</SplitContext.Consumer>
+        <SplitContext.Consumer>
+          {(value) => {
+            expect(value.client).toBe(outerFactory.client('user2'));
+            expect(value.isReady).toBe(false);
+            expect(value.isTimedout).toBe(false);
+            expect(value.lastUpdate).toBe(0);
+            done();
+            return null;
+          }}
+        </SplitContext.Consumer>
       );
     };
 
@@ -245,7 +250,8 @@ describe('SplitClient', () => {
         <SplitClient splitKey='user2' >
           <Component />
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
@@ -256,7 +262,8 @@ describe('SplitClient', () => {
           expect(client).toBe(null);
           return null;
         }}
-      </SplitClient>);
+      </SplitClient>
+    );
     expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
   });
 
@@ -355,7 +362,8 @@ describe('SplitClient', () => {
     const wrapper = render(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('attributes binding test with utility', (done) => {

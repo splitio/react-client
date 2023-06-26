@@ -12,9 +12,9 @@ const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
 import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
-import SplitTreatments from '../SplitTreatments';
-import SplitClient from '../SplitClient';
-import SplitFactory from '../SplitFactory';
+import { SplitTreatments } from '../SplitTreatments';
+import { SplitClient } from '../SplitClient';
+import { SplitFactory } from '../SplitFactory';
 jest.mock('../constants', () => {
   const actual = jest.requireActual('../constants');
   return {
@@ -33,8 +33,8 @@ describe('SplitTreatments', () => {
   it('passes as treatments prop the value returned by the function "getControlTreatmentsWithConfig" if the SDK is not ready.', (done) => {
     const featureFlagNames = ['split1', 'split2'];
     render(
-      <SplitFactory config={sdkBrowser} >{
-        ({ factory }) => {
+      <SplitFactory config={sdkBrowser} >
+        {({ factory }) => {
           return (
             <SplitClient splitKey='user1' >
               <SplitTreatments names={featureFlagNames} >
@@ -46,10 +46,11 @@ describe('SplitTreatments', () => {
                   return null;
                 }}
               </SplitTreatments>
-            </SplitClient>);
-        }
-      }
-      </SplitFactory>);
+            </SplitClient>
+          );
+        }}
+      </SplitFactory>
+    );
   });
 
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig" if the SDK is ready.', (done) => {
@@ -58,8 +59,8 @@ describe('SplitTreatments', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
     render(
-      <SplitFactory factory={outerFactory} >{
-        ({ factory, isReady }) => {
+      <SplitFactory factory={outerFactory} >
+        {({ factory, isReady }) => {
           expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
           expect(isReady).toBe(true);
           return (
@@ -73,10 +74,11 @@ describe('SplitTreatments', () => {
                 done();
                 return null;
               }}
-            </SplitTreatments>);
-        }
-      }
-      </SplitFactory>);
+            </SplitTreatments>
+          );
+        }}
+      </SplitFactory>
+    );
   });
 
   it('logs error and passes control treatments ("getControlTreatmentsWithConfig") if rendered outside an SplitProvider component.', () => {
@@ -88,7 +90,8 @@ describe('SplitTreatments', () => {
           passedTreatments = treatments;
           return null;
         }}
-      </SplitTreatments>);
+      </SplitTreatments>
+    );
     expect(logSpy).toBeCalledWith(WARN_ST_NO_CLIENT);
     expect(getControlTreatmentsWithConfig).toBeCalledWith(featureFlagNames);
     expect(getControlTreatmentsWithConfig).toHaveReturnedWith(passedTreatments);
@@ -102,8 +105,8 @@ describe('SplitTreatments', () => {
     const featureFlagNames = ['split1', 'split2'];
 
     render(
-      <SplitFactory config={sdkBrowser} >{
-        () => {
+      <SplitFactory config={sdkBrowser} >
+        {() => {
           return (
             <>
               {/* @ts-expect-error Test error handling */}
@@ -129,9 +132,9 @@ describe('SplitTreatments', () => {
               </SplitTreatments>
             </>
           );
-        }
-      }
-      </SplitFactory>);
+        }}
+      </SplitFactory>
+    );
     expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
     expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
 
@@ -270,7 +273,8 @@ describe('SplitTreatments optimization', () => {
             return null;
           }}
         </SplitTreatments>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     // test context updates on SplitClient
     render(
@@ -283,7 +287,8 @@ describe('SplitTreatments optimization', () => {
             }}
           </SplitTreatments>
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     expect(renderTimesComp1).toBe(1);
     expect(renderTimesComp2).toBe(1);
