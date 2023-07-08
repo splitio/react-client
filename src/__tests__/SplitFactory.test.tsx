@@ -91,8 +91,7 @@ describe('SplitFactory', () => {
               fail('Child must not be rerendered');
           }
           expect(factory).toBe(outerFactory);
-          expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
-          expect(lastUpdate).toBeLessThanOrEqual(Date.now());
+          expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
           renderTimes++;
           previousLastUpdate = lastUpdate;
           return null;
@@ -131,8 +130,7 @@ describe('SplitFactory', () => {
               fail('Child must not be rerendered');
           }
           expect(factory).toBe(outerFactory);
-          expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
-          expect(lastUpdate).toBeLessThanOrEqual(Date.now());
+          expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
           renderTimes++;
           previousLastUpdate = lastUpdate;
           return null;
@@ -168,7 +166,6 @@ describe('SplitFactory', () => {
           }
           expect(factory).toBe(outerFactory);
           expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
-          expect(lastUpdate).toBeLessThanOrEqual(Date.now());
           renderTimes++;
           previousLastUpdate = lastUpdate;
           return null;

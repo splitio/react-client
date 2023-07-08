@@ -99,8 +99,7 @@ describe('SplitClient', () => {
                 fail('Child must not be rerendered');
             }
             expect(client).toBe(outerFactory.client('user2'));
-            expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
-            expect(lastUpdate).toBeLessThanOrEqual(Date.now());
+            expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
             renderTimes++;
             previousLastUpdate = lastUpdate;
             return null;
@@ -146,8 +145,7 @@ describe('SplitClient', () => {
                 fail('Child must not be rerendered');
             }
             expect(client).toBe(outerFactory.client('user2'));
-            expect(lastUpdate).toBeGreaterThanOrEqual(previousLastUpdate);
-            expect(lastUpdate).toBeLessThanOrEqual(Date.now());
+            expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
             renderTimes++;
             previousLastUpdate = lastUpdate;
             return null;
@@ -189,7 +187,6 @@ describe('SplitClient', () => {
             }
             expect(client).toBe(outerFactory.client('user2'));
             expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
-            expect(lastUpdate).toBeLessThanOrEqual(Date.now());
             renderTimes++;
             previousLastUpdate = lastUpdate;
             return null;

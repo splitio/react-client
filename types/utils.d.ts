@@ -1,3 +1,4 @@
+import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
@@ -9,6 +10,7 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
         hasTimedout: boolean;
         isDestroyed: boolean;
     };
+    lastUpdate: number;
 }
 /**
  * FactoryWithClientInstances interface.
@@ -21,14 +23,7 @@ export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClie
 export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
 export declare function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext;
 export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
-export interface IClientStatus {
-    isReady: boolean;
-    isReadyFromCache: boolean;
-    hasTimedout: boolean;
-    isTimedout: boolean;
-    isDestroyed: boolean;
-}
-export declare function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus;
+export declare function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus;
 /**
  * Checks if React.useContext is available, and logs given message if not
  *
