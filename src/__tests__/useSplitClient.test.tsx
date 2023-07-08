@@ -21,6 +21,8 @@ test('useSplitClient', () => {
   const user2Client = outerFactory.client('user_2') as any;
 
   let countSplitContext = 0, countSplitClient = 0, countSplitClientUser2 = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
+  let countSplitClientWithUpdate = 0, countUseSplitClientWithUpdate = 0, countSplitClientUser2WithUpdate = 0, countUseSplitClientUser2WithUpdate = 0;
+  let countNestedComponent = 0;
 
   render(
     <SplitFactory factory={outerFactory} >
@@ -47,6 +49,49 @@ test('useSplitClient', () => {
           countUseSplitClientUser2++;
           return null;
         })}
+        <SplitClient splitKey={sdkBrowser.core.key} updateOnSdkUpdate={true} >
+          {() => { countSplitClientWithUpdate++; return null }}
+        </SplitClient>
+        {React.createElement(() => {
+          useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, undefined, { updateOnSdkUpdate: true }).client;
+          countUseSplitClientWithUpdate++;
+          return null;
+        })}
+        <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
+          {() => { countSplitClientUser2WithUpdate++; return null }}
+        </SplitClient>
+        {React.createElement(() => {
+          useSplitClient('user_2', undefined, undefined, { updateOnSdkUpdate: true });
+          countUseSplitClientUser2WithUpdate++;
+          return null;
+        })}
+        <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
+          {React.createElement(() => {
+            const status = useSplitClient('user_2', undefined, undefined, { updateOnSdkUpdate: true });
+            countNestedComponent++;
+
+            expect(status.client).toBe(user2Client);
+            switch (countNestedComponent) {
+              case 1:
+                expect(status.isReady).toBe(false);
+                expect(status.isReadyFromCache).toBe(false);
+                break;
+              case 2:
+                expect(status.isReady).toBe(false);
+                expect(status.isReadyFromCache).toBe(true);
+                break;
+              case 3:
+                expect(status.isReady).toBe(true);
+                expect(status.isReadyFromCache).toBe(true);
+                break;
+              case 4:
+                break;
+              default:
+                throw new Error('Unexpected render');
+            }
+            return null;
+          })}
+        </SplitClient>
       </>
     </SplitFactory>
   );
@@ -70,4 +115,16 @@ test('useSplitClient', () => {
   // they render when the context renders and when the new client is ready and ready from cache.
   expect(countSplitClientUser2).toEqual(countSplitContext + 2);
   expect(countUseSplitClientUser2).toEqual(countSplitContext + 2);
+
+  // If SplitClient and useSplitClient retrieve the same client than the context and have updateOnSdkUpdate = true,
+  // they render when the context renders and when the client updates.
+  expect(countSplitClientWithUpdate).toEqual(countSplitContext + 1);
+  expect(countUseSplitClientWithUpdate).toEqual(countSplitContext + 1);
+
+  // If SplitClient and useSplitClient retrieve a different client than the context and have updateOnSdkUpdate = true,
+  // they render when the context renders and when the new client is ready, ready from cache and updates.
+  expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
+  expect(countUseSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
+
+  expect(countNestedComponent).toEqual(4);
 });

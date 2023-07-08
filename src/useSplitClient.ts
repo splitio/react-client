@@ -2,9 +2,9 @@ import React from 'react';
 import { SplitContext, INITIAL_CONTEXT } from './SplitContext';
 import { ERROR_UC_NO_USECONTEXT } from './constants';
 import { getSplitSharedClient, checkHooks, initAttributes, IClientWithContext, getStatus } from './utils';
-import { ISplitContextValues } from './types';
+import { ISplitContextValues, IUpdateProps } from './types';
 
-const options = {
+const DEFAULT_OPTIONS = {
   updateOnSdkUpdate: false,
   updateOnSdkTimedout: false,
   updateOnSdkReady: true,
@@ -18,11 +18,13 @@ const options = {
  * @return A Split Context object
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): ISplitContextValues {
+export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options: IUpdateProps = {}): ISplitContextValues {
   if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return INITIAL_CONTEXT;
 
+  options = { ...DEFAULT_OPTIONS, ...options };
+
   const context = React.useContext(SplitContext);
-  const { client: contextClient, factory} = context;
+  const { client: contextClient, factory } = context;
 
   if (!factory) return context;
 
