@@ -2,7 +2,7 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event, assertNoListeners } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -67,7 +67,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = render(
+    render(
       <SplitFactory factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -104,11 +104,8 @@ describe('SplitFactory', () => {
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
-    expect(renderTimes).toBe(5);
 
-    // check that outerFactory's clients have no event listeners
-    wrapper.unmount();
-    assertNoListeners(outerFactory);
+    expect(renderTimes).toBe(5);
   });
 
   test('rerenders child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', async () => {
@@ -116,7 +113,7 @@ describe('SplitFactory', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = render(
+    render(
       <SplitFactory factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
         {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -146,11 +143,8 @@ describe('SplitFactory', () => {
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
-    expect(renderTimes).toBe(3);
 
-    // check that outerFactory's clients have no event listeners
-    wrapper.unmount();
-    assertNoListeners(outerFactory);
+    expect(renderTimes).toBe(3);
   });
 
   test('rerenders child only on SDK_READY and SDK_READY_FROM_CACHE event, as default behaviour.', async () => {

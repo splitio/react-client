@@ -83,7 +83,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     }
   }
 
-  // NOTE: assuming that SDK events are scatered enough in time, so that Date.now() result is unique per event and triggers an update
+  // NOTE: assuming that SDK events are scattered enough in time, so that Date.now() result is unique per event and triggers an update
   setReady = () => {
     if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
   }
@@ -112,7 +112,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   }
 
   componentWillUnmount() {
-    // unsubscrite to SDK client events, to remove references to SplitClient instance methods
+    // unsubscribe from events, to remove references to SplitClient instance methods
     this.unsubscribeFromEvents(this.props.client);
   }
 

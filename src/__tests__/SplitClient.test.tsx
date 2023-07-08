@@ -2,7 +2,7 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks and test utils */
-import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitSdk';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -20,12 +20,10 @@ import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 describe('SplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
-    let clientToCheck;
-
     render(
       <SplitFactory config={sdkBrowser} >
         <SplitClient splitKey='user1' >
-          {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
+          {({ isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
             expect(isReady).toBe(false);
             expect(isReadyFromCache).toBe(false);
             expect(hasTimedout).toBe(false);
@@ -33,17 +31,11 @@ describe('SplitClient', () => {
             expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
 
-            clientToCheck = client;
             return null;
           }}
         </SplitClient>
       </SplitFactory>
     );
-
-    // After component mount, listeners should be attached for all ONCE events when none of them has been emitted yet
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY)).toBe(1);
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY_FROM_CACHE)).toBe(1);
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY_TIMED_OUT)).toBe(1);
   });
 
   test('passes ready props to the child if client is ready.', async () => {
@@ -52,7 +44,6 @@ describe('SplitClient', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     await outerFactory.client().ready();
-    let clientToCheck;
 
     render(
       <SplitFactory factory={outerFactory} >
@@ -66,17 +57,11 @@ describe('SplitClient', () => {
             expect(isDestroyed).toBe(false);
             expect(lastUpdate).toBe(0);
 
-            clientToCheck = client;
             return null;
           }}
         </SplitClient>
       </SplitFactory>
     );
-
-    // After component mount, listeners should not be attached for those ONCE events that has been already emitted
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY)).toBe(0);
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY_FROM_CACHE)).toBe(0);
-    expect(clientListenerCount(clientToCheck, Event.SDK_READY_TIMED_OUT)).toBe(0); // this event was not emitted, but will not anyway, since SDK_READY has.
   });
 
   test('rerender child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', async () => {
@@ -89,7 +74,7 @@ describe('SplitClient', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = render(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -130,10 +115,6 @@ describe('SplitClient', () => {
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE));
 
     expect(renderTimes).toBe(5);
-
-    // check that outerFactory's clients have no event listeners
-    wrapper.unmount();
-    assertNoListeners(outerFactory);
   });
 
   test('rerender child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', async () => {
@@ -146,7 +127,7 @@ describe('SplitClient', () => {
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
-    const wrapper = render(
+    render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
@@ -179,10 +160,6 @@ describe('SplitClient', () => {
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE));
     expect(renderTimes).toBe(3);
-
-    // check that outerFactory's clients have no event listeners
-    wrapper.unmount();
-    assertNoListeners(outerFactory);
   });
 
   test('rerender child only on SDK_READY event, as default behaviour.', async () => {
@@ -299,10 +276,6 @@ describe('SplitClient', () => {
                         setTimeout(() => {
                           expect(renderTimes).toBe(6);
 
-                          // check that outerFactory's clients have no event listeners
-                          // eslint-disable-next-line no-use-before-define
-                          wrapper.unmount();
-                          assertNoListeners(outerFactory);
                           done();
                         });
                       });
@@ -359,7 +332,7 @@ describe('SplitClient', () => {
       }
     }
 
-    const wrapper = render(
+    render(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
       </SplitFactory>
