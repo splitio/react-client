@@ -26,7 +26,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
     // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
-    if (client) initAttributes(client, attributes);
+    initAttributes(client, attributes);
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
@@ -146,7 +146,7 @@ export function SplitClient(props: ISplitClientProps) {
       {(splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
         // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType, props.attributes) : null;
+        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );
