@@ -37,6 +37,7 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   const [lastUpdate, setLastUpdate] = React.useState(client === contextClient ? context.lastUpdate : 0);
 
   // Handle client events
+  // NOTE: assuming that SDK events are scattered in time so that Date.now() timestamps are unique per event and trigger an update
   React.useEffect(() => {
     const setReady = () => {
       if (options.updateOnSdkReady) setLastUpdate(Date.now());
