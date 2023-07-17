@@ -11,6 +11,8 @@ import {
   useManager as exportedUseManager,
   useTrack as exportedUseTrack,
   useTreatments as exportedUseTreatments,
+  useSplitClient as exportedUseSplitClient,
+  useSplitTreatments as exportedUseSplitTreatments,
 } from '../index';
 import { SplitContext } from '../SplitContext';
 import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';
@@ -24,6 +26,8 @@ import { useClient } from '../useClient';
 import { useManager } from '../useManager';
 import { useTrack } from '../useTrack';
 import { useTreatments } from '../useTreatments';
+import { useSplitClient } from '../useSplitClient';
+import { useSplitTreatments } from '../useSplitTreatments';
 
 describe('index', () => {
 
@@ -44,6 +48,8 @@ describe('index', () => {
     expect(exportedUseManager).toBe(useManager);
     expect(exportedUseTrack).toBe(useTrack);
     expect(exportedUseTreatments).toBe(useTreatments);
+    expect(exportedUseSplitClient).toBe(useSplitClient);
+    expect(exportedUseSplitTreatments).toBe(useSplitTreatments);
   });
 
   it('should export SplitContext', () => {

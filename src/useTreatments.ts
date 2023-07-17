@@ -1,3 +1,4 @@
+import { IUpdateProps } from './types';
 import { useSplitTreatments } from './useSplitTreatments';
 
 /**
@@ -8,6 +9,6 @@ import { useSplitTreatments } from './useSplitTreatments';
  * @return A TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if feature flag names do not exist.
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export function useTreatments(featureFlagNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): SplitIO.TreatmentsWithConfig {
-  return useSplitTreatments(featureFlagNames, attributes, key).treatments;
+export function useTreatments(featureFlagNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey, options?: IUpdateProps): SplitIO.TreatmentsWithConfig {
+  return useSplitTreatments(featureFlagNames, attributes, key, options).treatments;
 }
