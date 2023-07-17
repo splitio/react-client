@@ -1,4 +1,6 @@
 import React from 'react';
+import memoizeOne from 'memoize-one';
+import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { VERSION } from './constants';
 
@@ -91,7 +93,8 @@ export function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus 
 // Other utils
 
 /**
- * Checks if React.useContext is available, and logs given message if not
+ * Checks if React.useContext is available, and logs given message if not.
+ * Checking for React.useContext is a way to detect if the current React version is >= 16.8.0 and other hooks used by the SDK are available too.
  *
  * @param message
  * @returns boolean indicating if React.useContext is available
@@ -169,4 +172,24 @@ function uniq(arr: string[]): string[] {
  */
 function isString(val: unknown): val is string {
   return typeof val === 'string' || val instanceof String;
+}
+
+/**
+ * Gets a memoized version of the `client.getTreatmentsWithConfig` method.
+ * It is used to avoid duplicated impressions, because the result treatments are the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
+ */
+export function memoizeGetTreatmentsWithConfig() {
+  return memoizeOne(evaluateFeatureFlags, argsAreEqual);
+}
+
+function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
+  return newArgs[0] === lastArgs[0] && // client
+    newArgs[1] === lastArgs[1] && // lastUpdate
+    shallowEqual(newArgs[2], lastArgs[2]) && // names
+    shallowEqual(newArgs[3], lastArgs[3]) && // attributes
+    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
+}
+
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
+  return client.getTreatmentsWithConfig(names, attributes);
 }
