@@ -75,13 +75,15 @@ test('useSplitTreatments', async () => {
     </SplitFactory>
   );
 
-  // Awaiting to make sure each event is processed with a different lastUpdate timestamp.
-  await act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await act(() => mainClient.__emitter__.emit(Event.SDK_READY));
-  await act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_READY));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
+  // Adding a delay between events to make sure they are processed with a different lastUpdate timestamp.
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  await new Promise(resolve => setTimeout(resolve, 10));
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY));
+  act(() => user2Client.__emitter__.emit(Event.SDK_READY));
+  await new Promise(resolve => setTimeout(resolve, 10));
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
+  act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
   // SplitContext renders 3 times: initially, when ready from cache, and when ready.
   expect(countSplitContext).toEqual(3);

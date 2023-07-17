@@ -30,7 +30,8 @@ export interface IClientStatus {
 }
 export declare function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus;
 /**
- * Checks if React.useContext is available, and logs given message if not
+ * Checks if React.useContext is available, and logs given message if not.
+ * Checking for React.useContext is a way to detect if the current React version is >= 16.8.0 and other hooks used by the SDK are available too.
  *
  * @param message
  * @returns boolean indicating if React.useContext is available
@@ -41,3 +42,10 @@ export declare function validateFeatureFlags(maybeFeatureFlags: unknown, listNam
  * Manage client attributes binding
  */
 export declare function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes): void;
+/**
+ * Gets a memoized version of the `client.getTreatmentsWithConfig` method.
+ * It is used to avoid duplicated impressions, because the result treatments are the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
+ */
+export declare function memoizeGetTreatmentsWithConfig(): typeof evaluateFeatureFlags;
+declare function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes): import("@splitsoftware/splitio/types/splitio").TreatmentsWithConfig;
+export {};
