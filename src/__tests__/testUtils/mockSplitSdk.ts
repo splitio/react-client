@@ -53,8 +53,11 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   const track: jest.Mock = jest.fn(() => {
     return true;
   });
-  const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
-    return 'getTreatmentsWithConfig';
+  const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames: string[]) => {
+    return featureFlagNames.reduce((result: SplitIO.TreatmentsWithConfig, featureName: string) => {
+      result[featureName] = { treatment: 'on', config: null };
+      return result;
+    }, {});
   });
   const setAttributes: jest.Mock = jest.fn((attributes) => {
     attributesCache = Object.assign(attributesCache, attributes);
