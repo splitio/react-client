@@ -61,10 +61,10 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
 
     return () => {
       // Unsubscribe from events
-      client.off(client!.Event.SDK_READY, setReady);
-      client.off(client!.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
-      client.off(client!.Event.SDK_READY_TIMED_OUT, setTimedout);
-      client.off(client!.Event.SDK_UPDATE, setUpdate);
+      client.off(client.Event.SDK_READY, setReady);
+      client.off(client.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
+      client.off(client.Event.SDK_READY_TIMED_OUT, setTimedout);
+      client.off(client.Event.SDK_UPDATE, setUpdate);
     }
   }, [client]);
 
