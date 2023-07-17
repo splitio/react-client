@@ -14,6 +14,25 @@ import { SplitFactory } from '../SplitFactory';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { SplitTreatments } from '../SplitTreatments';
 import { SplitContext } from '../SplitContext';
+import { ISplitTreatmentsChildProps } from '../types';
+
+function validateTreatments({ treatments, isReady, isReadyFromCache}: ISplitTreatmentsChildProps) {
+  if (isReady || isReadyFromCache) {
+    expect(treatments).toEqual({
+      split_test: {
+        treatment: 'on',
+        config: null,
+      }
+    })
+  } else {
+    expect(treatments).toEqual({
+      split_test: {
+        treatment: 'control',
+        config: null,
+      }
+    })
+  }
+}
 
 test('useSplitTreatments', () => {
   const outerFactory = SplitSdk(sdkBrowser);
@@ -32,14 +51,16 @@ test('useSplitTreatments', () => {
           {() => { countSplitTreatments++; return null }}
         </SplitTreatments>
         {React.createElement(() => {
-          const { client } = useSplitTreatments(['split_test'], { att1: 'att1' } );
-          expect(client).toBe(mainClient); // Assert that the main client was retrieved.
+          const context = useSplitTreatments(['split_test'], { att1: 'att1' } );
+          expect(context.client).toBe(mainClient); // Assert that the main client was retrieved.
+          validateTreatments(context);
           countUseSplitTreatments++;
           return null;
         })}
         {React.createElement(() => {
-          const { client } = useSplitTreatments(['split_test'], undefined, 'user_2');
-          expect(client).toBe(user2Client);
+          const context = useSplitTreatments(['split_test'], undefined, 'user_2');
+          expect(context.client).toBe(user2Client);
+          validateTreatments(context);
           countUseSplitTreatmentsUser2++;
           return null;
         })}
@@ -60,7 +81,11 @@ test('useSplitTreatments', () => {
   // SplitTreatments and useSplitTreatments render when the context renders.
   expect(countSplitTreatments).toEqual(countSplitContext);
   expect(countUseSplitTreatments).toEqual(countSplitContext);
+  expect(mainClient.getTreatmentsWithConfig).toHaveBeenCalledTimes(4);
+  expect(mainClient.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], { att1: 'att1' });
 
   // If useSplitTreatments uses a different client than the context one, it renders when the context renders and when the new client is ready and ready from cache.
   expect(countUseSplitTreatmentsUser2).toEqual(countSplitContext + 2);
+  expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(2);
+  expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined);
 });
