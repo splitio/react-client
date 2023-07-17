@@ -9,4 +9,6 @@ export { useClient } from './useClient';
 export { useTreatments } from './useTreatments';
 export { useTrack } from './useTrack';
 export { useManager } from './useManager';
+export { useSplitClient } from './useSplitClient';
+export { useSplitTreatments } from './useSplitTreatments';
 export { SplitContext } from './SplitContext';
