@@ -17,9 +17,9 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   const context = React.useContext(SplitContext);
   let { factory, client } = context;
   if (key && factory) {
-    client = getSplitSharedClient(factory, key, trafficType, attributes);
+    client = getSplitSharedClient(factory, key, trafficType);
   }
-  if (client) initAttributes(client, attributes);
+  initAttributes(client, attributes);
   return client === context.client ? context : {
     ...context, client, ...(client as IClientWithContext).__getStatus()
   };
