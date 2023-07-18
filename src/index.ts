@@ -2,20 +2,20 @@
 export { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 
 // HOC functions
-export { default as withSplitFactory } from './withSplitFactory';
-export { default as withSplitClient } from './withSplitClient';
-export { default as withSplitTreatments } from './withSplitTreatments';
+export { withSplitFactory } from './withSplitFactory';
+export { withSplitClient } from './withSplitClient';
+export { withSplitTreatments } from './withSplitTreatments';
 
 // Render props components
-export { default as SplitTreatments } from './SplitTreatments';
-export { default as SplitClient } from './SplitClient';
-export { default as SplitFactory } from './SplitFactory';
+export { SplitTreatments } from './SplitTreatments';
+export { SplitClient } from './SplitClient';
+export { SplitFactory } from './SplitFactory';
 
 // helper functions/hooks
-export { default as useClient } from './useClient';
-export { default as useTreatments } from './useTreatments';
-export { default as useTrack } from './useTrack';
-export { default as useManager } from './useManager';
+export { useClient } from './useClient';
+export { useTreatments } from './useTreatments';
+export { useTrack } from './useTrack';
+export { useManager } from './useManager';
 
 // SplitContext
-export { default as SplitContext } from './SplitContext';
+export { SplitContext } from './SplitContext';

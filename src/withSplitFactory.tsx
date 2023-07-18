@@ -1,6 +1,6 @@
 import React from 'react';
 import { ISplitFactoryChildProps } from './types';
-import SplitFactory from './SplitFactory';
+import { SplitFactory } from './SplitFactory';
 
 /**
  * High-Order Component for SplitFactory.
@@ -41,5 +41,3 @@ export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: Sp
     };
   };
 }
-
-export default withSplitFactory;

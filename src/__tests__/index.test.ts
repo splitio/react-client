@@ -12,18 +12,18 @@ import {
   useTrack as exportedUseTrack,
   useTreatments as exportedUseTreatments,
 } from '../index';
-import SplitContext from '../SplitContext';
+import { SplitContext } from '../SplitContext';
 import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import SplitTreatments from '../SplitTreatments';
-import withSplitFactory from '../withSplitFactory';
-import withSplitClient from '../withSplitClient';
-import withSplitTreatments from '../withSplitTreatments';
-import useClient from '../useClient';
-import useManager from '../useManager';
-import useTrack from '../useTrack';
-import useTreatments from '../useTreatments';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { SplitTreatments } from '../SplitTreatments';
+import { withSplitFactory } from '../withSplitFactory';
+import { withSplitClient } from '../withSplitClient';
+import { withSplitTreatments } from '../withSplitTreatments';
+import { useClient } from '../useClient';
+import { useManager } from '../useManager';
+import { useTrack } from '../useTrack';
+import { useTreatments } from '../useTreatments';
 
 describe('index', () => {
 

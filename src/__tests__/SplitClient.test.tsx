@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, act } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks and test utils */
 import { mockSdk, Event, assertNoListeners, clientListenerCount } from './testUtils/mockSplitSdk';
@@ -11,9 +11,9 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitClientChildProps } from '../types';
-import SplitFactory from '../SplitFactory';
-import SplitClient from '../SplitClient';
-import SplitContext, { ISplitContextValues } from '../SplitContext';
+import { SplitFactory } from '../SplitFactory';
+import { SplitClient } from '../SplitClient';
+import { SplitContext } from '../SplitContext';
 import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
@@ -121,7 +121,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_FROM_CACHE));
@@ -171,7 +172,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
@@ -216,7 +218,8 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
@@ -229,14 +232,16 @@ describe('SplitClient', () => {
 
     const Component = () => {
       return (
-        <SplitContext.Consumer>{(value: ISplitContextValues) => {
-          expect(value.client).toBe(outerFactory.client('user2'));
-          expect(value.isReady).toBe(false);
-          expect(value.isTimedout).toBe(false);
-          expect(value.lastUpdate).toBe(0);
-          done();
-          return null;
-        }}</SplitContext.Consumer>
+        <SplitContext.Consumer>
+          {(value) => {
+            expect(value.client).toBe(outerFactory.client('user2'));
+            expect(value.isReady).toBe(false);
+            expect(value.isTimedout).toBe(false);
+            expect(value.lastUpdate).toBe(0);
+            done();
+            return null;
+          }}
+        </SplitContext.Consumer>
       );
     };
 
@@ -245,7 +250,8 @@ describe('SplitClient', () => {
         <SplitClient splitKey='user2' >
           <Component />
         </SplitClient>
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
@@ -256,15 +262,15 @@ describe('SplitClient', () => {
           expect(client).toBe(null);
           return null;
         }}
-      </SplitClient>);
+      </SplitClient>
+    );
     expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
   });
 
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
     const outerFactory = SplitSdk(sdkBrowser);
-    let renderTimes = 0; // eslint-disable-next-line prefer-const
-    let wrapper: RenderResult;
+    let renderTimes = 0;
 
     class InnerComponent extends React.Component<any, { splitKey: string }> {
 
@@ -294,6 +300,7 @@ describe('SplitClient', () => {
                           expect(renderTimes).toBe(6);
 
                           // check that outerFactory's clients have no event listeners
+                          // eslint-disable-next-line no-use-before-define
                           wrapper.unmount();
                           assertNoListeners(outerFactory);
                           done();
@@ -352,10 +359,11 @@ describe('SplitClient', () => {
       }
     }
 
-    wrapper = render(
+    const wrapper = render(
       <SplitFactory factory={outerFactory} >
         <InnerComponent />
-      </SplitFactory>);
+      </SplitFactory>
+    );
   });
 
   test('attributes binding test with utility', (done) => {

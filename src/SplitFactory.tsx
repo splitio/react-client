@@ -2,7 +2,7 @@ import React from 'react';
 
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
-import { VERSION, WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
+import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients } from './utils';
 
 /**
@@ -15,7 +15,7 @@ import { getSplitFactory, destroySplitFactory, IFactoryWithClients } from './uti
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
  */
-class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
+export class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
 
   static defaultProps: ISplitFactoryProps = {
     updateOnSdkUpdate: false,
@@ -46,8 +46,6 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
       factory = propFactory;
     } else {
       if (config) {
-        // Don't try this at home. Used to overwrite the settings version when we create our own factory.
-        (config as any).version = VERSION;
         // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
         // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
         factory = getSplitFactory(config);
@@ -55,7 +53,7 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
     }
     this.isFactoryExternal = propFactory ? true : false;
 
-    // Instantiate main client.
+    // Instantiate main client. Attributes are set on `SplitComponent.getDerivedStateFromProps`
     const client = factory ? factory.client() : null;
 
     this.state = {
@@ -79,5 +77,3 @@ class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitI
     );
   }
 }
-
-export default SplitFactory;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ISplitClientChildProps } from './types';
-import SplitClient from './SplitClient';
+import { SplitClient } from './SplitClient';
 
 /**
  * High-Order Component for SplitClient.
@@ -10,7 +10,7 @@ import SplitClient from './SplitClient';
  * @param splitKey The customer identifier.
  * @param trafficType Traffic type associated with the customer identifier. If no provided here or at the config object, it will be required on the client.track() calls.
  */
-function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes) {
+export function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes) {
 
   return function withSplitClientHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitClientChildProps>,
@@ -41,5 +41,3 @@ function withSplitClient(splitKey: SplitIO.SplitKey, trafficType?: string, attri
     };
   };
 }
-
-export default withSplitClient;

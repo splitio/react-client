@@ -108,7 +108,7 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
 
 export function mockSdk() {
 
-  return jest.fn((config: SplitIO.IBrowserSettings) => {
+  return jest.fn((config: SplitIO.IBrowserSettings, __updateModules) => {
 
     // Manager
     const names: jest.Mock = jest.fn().mockReturnValue([]);
@@ -133,6 +133,8 @@ export function mockSdk() {
         version: jsSdkVersion,
       }, config),
     };
+
+    if (__updateModules) __updateModules(factory);
 
     return factory;
   });

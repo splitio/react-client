@@ -1,5 +1,5 @@
 import React from 'react';
-import SplitContext from './SplitContext';
+import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitSharedClient, initAttributes } from './utils';
@@ -26,7 +26,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
     // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
-    if (client) initAttributes(client, attributes);
+    initAttributes(client, attributes);
     const status = getStatus(client);
     // no need to compare status.isTimedout, since it derives from isReady and hasTimedout
     if (client !== state.client ||
@@ -119,11 +119,13 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   render() {
     const { children } = this.props;
     return (
-      <SplitContext.Provider value={this.state} >{
-        typeof children === 'function' ?
-          children({ ...this.state }) :
-          children
-      }</SplitContext.Provider>
+      <SplitContext.Provider value={this.state} >
+        {
+          typeof children === 'function' ?
+            children({ ...this.state }) :
+            children
+        }
+      </SplitContext.Provider>
     );
   }
 }
@@ -138,19 +140,17 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-function SplitClient(props: ISplitClientProps) {
+export function SplitClient(props: ISplitClientProps) {
   return (
-    <SplitContext.Consumer>{
-      (splitContext: ISplitContextValues) => {
+    <SplitContext.Consumer>
+      {(splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
         // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType, props.attributes) : null;
+        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );
-      }
-    }</SplitContext.Consumer>
+      }}
+    </SplitContext.Consumer>
   );
 }
-
-export default SplitClient;
