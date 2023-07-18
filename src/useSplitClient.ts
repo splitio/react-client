@@ -22,7 +22,7 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   options = { ...DEFAULT_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
-  const { client: contextClient, factory, lastUpdate: contextLastUpdate } = context;
+  const { client: contextClient, factory } = context;
 
   let client = contextClient as IClientWithContext;
   if (key && factory) {
@@ -37,27 +37,19 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
     if (!client) return;
 
     const setReady = () => {
-      if (options.updateOnSdkReady && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
-        setLastUpdate(client.lastUpdate);
-      }
+      if (options.updateOnSdkReady) setLastUpdate(client.lastUpdate);
     }
 
     const setReadyFromCache = () => {
-      if (options.updateOnSdkReadyFromCache && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
-        setLastUpdate(client.lastUpdate);
-      }
+      if (options.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
     }
 
     const setTimedout = () => {
-      if (options.updateOnSdkTimedout && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
-        setLastUpdate(client.lastUpdate);
-      }
+      if (options.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
     }
 
     const setUpdate = () => {
-      if (options.updateOnSdkUpdate && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
-        setLastUpdate(client.lastUpdate);
-      }
+      if (options.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
     }
 
     // Subscribe to SDK events
