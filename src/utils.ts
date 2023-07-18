@@ -44,7 +44,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string, _attributes?: SplitIO.Attributes): IClientWithContext {
+export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
   // factory.client is an idempotent operation
   const client = factory.client(key, trafficType) as IClientWithContext;
   if ((factory as IFactoryWithClients).sharedClientInstances) {
@@ -127,8 +127,8 @@ export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'spl
 /**
  * Manage client attributes binding
  */
-export function initAttributes(client: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
-  if (attributes) client.setAttributes(attributes);
+export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
+  if (client && attributes) client.setAttributes(attributes);
 }
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;

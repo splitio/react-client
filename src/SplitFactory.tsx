@@ -53,7 +53,7 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
     }
     this.isFactoryExternal = propFactory ? true : false;
 
-    // Instantiate main client.
+    // Instantiate main client. Attributes are set on `SplitComponent.getDerivedStateFromProps`
     const client = factory ? factory.client() : null;
 
     this.state = {
