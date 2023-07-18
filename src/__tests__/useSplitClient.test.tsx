@@ -15,7 +15,7 @@ import { useSplitClient } from '../useSplitClient';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 
-test('useSplitClient', () => {
+test('useSplitClient', async () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
   const user2Client = outerFactory.client('user_2') as any;
@@ -97,10 +97,12 @@ test('useSplitClient', () => {
   );
 
   act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  act(() => mainClient.__emitter__.emit(Event.SDK_READY));
-  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  await new Promise(resolve => setTimeout(resolve, 10));
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY));
+  await new Promise(resolve => setTimeout(resolve, 10));
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
   act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
   // SplitContext renders 3 times: initially, when ready from cache, and when ready.

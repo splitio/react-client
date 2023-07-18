@@ -2,7 +2,7 @@ import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
-import { getStatus, getSplitSharedClient, initAttributes } from './utils';
+import { getStatus, getSplitClient, initAttributes } from './utils';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
@@ -145,8 +145,8 @@ export function SplitClient(props: ISplitClientProps) {
     <SplitContext.Consumer>
       {(splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
-        // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
+        // getSplitClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
+        const client = factory ? getSplitClient(factory, props.splitKey, props.trafficType) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );

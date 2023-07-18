@@ -23,7 +23,7 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
-  sharedClientInstances: Set<IClientWithContext>;
+  clientInstances: Set<IClientWithContext>;
   config: SplitIO.IBrowserSettings;
 }
 
@@ -38,7 +38,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
     const newFactory = SplitSdk(config, (modules) => {
       modules.settings.version = VERSION;
     }) as IFactoryWithClients;
-    newFactory.sharedClientInstances = new Set();
+    newFactory.clientInstances = new Set();
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
@@ -46,22 +46,21 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = factory.client(key, trafficType) as IClientWithContext;
-  if ((factory as IFactoryWithClients).sharedClientInstances) {
-    (factory as IFactoryWithClients).sharedClientInstances.add(client);
+  const client = (key ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+  if ((factory as IFactoryWithClients).clientInstances) {
+    (factory as IFactoryWithClients).clientInstances.add(client);
   }
   return client;
 }
 
 export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
   // call destroy of shared clients and main one
-  const destroyPromises = [];
-  factory.sharedClientInstances.forEach((client) => destroyPromises.push(client.destroy()));
-  destroyPromises.push(factory.client().destroy());
+  const destroyPromises: Promise<void>[] = [];
+  factory.clientInstances.forEach((client) => destroyPromises.push(client.destroy()));
   // remove references to release allocated memory
-  factory.sharedClientInstances.clear();
+  factory.clientInstances.clear();
   __factories.delete(factory.config);
   return Promise.all(destroyPromises);
 }
