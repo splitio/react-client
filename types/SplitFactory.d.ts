@@ -1,4 +1,4 @@
-import React from 'react';
+/// <reference types="react" />
 import { ISplitFactoryProps } from './types';
 /**
  * SplitFactory will initialize the Split SDK and its main client, listen for its events in order to update the Split Context,
@@ -10,17 +10,4 @@ import { ISplitFactoryProps } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
  */
-export declare class SplitFactory extends React.Component<ISplitFactoryProps, {
-    factory: SplitIO.IBrowserSDK | null;
-    client: SplitIO.IBrowserClient | null;
-}> {
-    static defaultProps: ISplitFactoryProps;
-    readonly state: Readonly<{
-        factory: SplitIO.IBrowserSDK | null;
-        client: SplitIO.IBrowserClient | null;
-    }>;
-    readonly isFactoryExternal: boolean;
-    constructor(props: ISplitFactoryProps);
-    componentWillUnmount(): void;
-    render(): JSX.Element;
-}
+export declare function SplitFactory(props: ISplitFactoryProps): JSX.Element;

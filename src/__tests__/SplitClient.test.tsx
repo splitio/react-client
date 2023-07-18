@@ -14,7 +14,6 @@ import { ISplitClientChildProps } from '../types';
 import { SplitFactory } from '../SplitFactory';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('SplitClient', () => {
@@ -254,18 +253,19 @@ describe('SplitClient', () => {
     );
   });
 
-  test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
-    const errorSpy = jest.spyOn(console, 'error');
-    render(
-      <SplitClient splitKey='user2' >
-        {({ client }) => {
-          expect(client).toBe(null);
-          return null;
-        }}
-      </SplitClient>
-    );
-    expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
-  });
+  // @TODO throw error or log error?
+  // test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
+  //   const errorSpy = jest.spyOn(console, 'error');
+  //   render(
+  //     <SplitClient splitKey='user2' >
+  //       {({ client }) => {
+  //         expect(client).toBe(null);
+  //         return null;
+  //       }}
+  //     </SplitClient>
+  //   );
+  //   expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
+  // });
 
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {

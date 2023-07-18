@@ -1,4 +1,4 @@
-import React from 'react';
+/// <reference types="react" />
 import { ISplitTreatmentsProps } from './types';
 /**
  * SplitTreatments accepts a list of feature flag names and optional attributes. It access the client at SplitContext to
@@ -6,9 +6,4 @@ import { ISplitTreatmentsProps } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export declare class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
-    private logWarning?;
-    private evaluateFeatureFlags;
-    render(): JSX.Element;
-    componentDidMount(): void;
-}
+export declare function SplitTreatments(props: ISplitTreatmentsProps): JSX.Element;

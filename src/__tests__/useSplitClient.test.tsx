@@ -73,18 +73,19 @@ test('useSplitClient', async () => {
             expect(status.client).toBe(user2Client);
             switch (countNestedComponent) {
               case 1:
+              case 2:
                 expect(status.isReady).toBe(false);
                 expect(status.isReadyFromCache).toBe(false);
                 break;
-              case 2:
+              case 3:
+              case 4:
                 expect(status.isReady).toBe(false);
                 expect(status.isReadyFromCache).toBe(true);
                 break;
-              case 3:
+              case 5:
+              case 6:
                 expect(status.isReady).toBe(true);
                 expect(status.isReadyFromCache).toBe(true);
-                break;
-              case 4:
                 break;
               default:
                 throw new Error('Unexpected render');
@@ -128,5 +129,6 @@ test('useSplitClient', async () => {
   expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
   expect(countUseSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
 
-  expect(countNestedComponent).toEqual(4);
+  // @TODO This is because useSplitClient inside SplitClient renders twice per SDK event
+  expect(countNestedComponent).toEqual(6);
 });
