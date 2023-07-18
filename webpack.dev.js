@@ -8,6 +8,6 @@ module.exports = env => merge(common, {
   mode: 'development',
   devtool: 'source-map',
   output: {
-    filename: `[name]${env.branch !== 'master' ? `-dev-${VERSION}` : `-${VERSION}`}.js`
+    filename: `[name]${env.branch !== 'master' ? '-dev-' + VERSION : '-' + VERSION}.js`
   }
 });
