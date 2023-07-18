@@ -40,12 +40,6 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   __emitter__.on(Event.SDK_READY, () => { __isReady__ = true; });
   __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
   __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
-  const __internalListenersCount__ = {
-    [Event.SDK_READY]: 1,
-    [Event.SDK_READY_FROM_CACHE]: 1,
-    [Event.SDK_READY_TIMED_OUT]: 1,
-    [Event.SDK_UPDATE]: 0,
-  };
 
   let attributesCache = {};
 
@@ -73,9 +67,9 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   const ready: jest.Mock = jest.fn(() => {
     return new Promise<void>((res, rej) => {
       if (__isReady__) res();
-      else { __internalListenersCount__[Event.SDK_READY]++; __emitter__.on(Event.SDK_READY, res); }
+      else { __emitter__.on(Event.SDK_READY, res); }
       if (__hasTimedout__) rej();
-      else { __internalListenersCount__[Event.SDK_READY_TIMED_OUT]++; __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
+      else { __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
     });
   });
   const __getStatus = () => ({
@@ -87,6 +81,7 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   });
   const destroy: jest.Mock = jest.fn(() => {
     __isDestroyed__ = true;
+    // __emitter__.removeAllListeners();
     return Promise.resolve();
   });
 
@@ -101,8 +96,6 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
     getAttributes,
     // EventEmitter exposed to trigger events manually
     __emitter__,
-    // Count of internal listeners set by the client mock, used to assert how many external listeners were attached
-    __internalListenersCount__,
     // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
     __getStatus,
     // Restore the mock client to its initial NO-READY status.
@@ -146,19 +139,4 @@ export function mockSdk() {
     return factory;
   });
 
-}
-
-export function assertNoListeners(factory: any) {
-  Object.values((factory as any).__clients__).forEach((client) => assertNoListenersOnClient(client));
-}
-
-function assertNoListenersOnClient(client: any) {
-  expect(client.__emitter__.listenerCount(Event.SDK_READY)).toBe(client.__internalListenersCount__[Event.SDK_READY]);
-  expect(client.__emitter__.listenerCount(Event.SDK_READY_FROM_CACHE)).toBe(client.__internalListenersCount__[Event.SDK_READY_FROM_CACHE]);
-  expect(client.__emitter__.listenerCount(Event.SDK_READY_TIMED_OUT)).toBe(client.__internalListenersCount__[Event.SDK_READY_TIMED_OUT]);
-  expect(client.__emitter__.listenerCount(Event.SDK_UPDATE)).toBe(client.__internalListenersCount__[Event.SDK_UPDATE]);
-}
-
-export function clientListenerCount(client: any, event: string) {
-  return client.__emitter__.listenerCount(event) - client.__internalListenersCount__[event];
 }

@@ -23,6 +23,7 @@ import { SplitFactory } from '../SplitFactory';
 import { SplitClient } from '../SplitClient';
 import { useTreatments } from '../useTreatments';
 
+// @TODO validate that useTreatments re-render when the client is ready and updated.
 describe('useTreatments', () => {
 
   const featureFlagNames = ['split1'];

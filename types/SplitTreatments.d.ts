@@ -6,4 +6,4 @@ import { ISplitTreatmentsProps } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export declare function SplitTreatments(props: ISplitTreatmentsProps): JSX.Element;
+export declare function SplitTreatments(props: ISplitTreatmentsProps): JSX.Element | null;

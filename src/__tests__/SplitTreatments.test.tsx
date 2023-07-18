@@ -300,8 +300,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(2);
     expect(renderTimesComp2).toBe(2); // updateOnSdkReadyFromCache === false, in second component
 
-    // delay SDK events to guarantee a different lastUpdate timestamp for SplitTreatments to re-evaluate
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT);
@@ -310,7 +308,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(3);
     expect(renderTimesComp2).toBe(3);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY);
@@ -319,7 +316,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(3); // updateOnSdkReady === false, in first component
     expect(renderTimesComp2).toBe(4);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);

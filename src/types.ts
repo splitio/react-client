@@ -3,7 +3,7 @@ import SplitIO from '@splitsoftware/splitio/types/splitio';
 /**
  * Split Status interface. It represents the current readiness state of the SDK.
  */
-interface ISplitStatus {
+export interface ISplitStatus {
 
   /**
    * isReady indicates if the Split SDK client has triggered an SDK_READY event and thus is ready to be consumed.
@@ -182,6 +182,7 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component,
  * used to call 'client.getTreatmentsWithConfig()' and pass the result to the child component.
  */
+// @TODO extend ISplitClientProps, to add splitKey and update options
 export interface ISplitTreatmentsProps {
 
   /**
@@ -197,5 +198,6 @@ export interface ISplitTreatmentsProps {
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
    */
+  // @TODO add treatments to context & `children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null) | JSX.Element | null;`
   children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null);
 }

@@ -15,6 +15,9 @@ import { useSplitClient } from '../useSplitClient';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 
+// @TODO are we validating that SplitClient and useSplitClient do not re-render unnecessarily when there was a render due to the same event in the context?
+// @TODO It seems that we don't need `client !== contextClient || client.lastUpdate !== contextLastUpdate`, but why?
+// @TODO and so, we don't have to move lastUpdate calculation to getSplitClient, right?
 test('useSplitClient', async () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
@@ -99,10 +102,8 @@ test('useSplitClient', async () => {
 
   act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await new Promise(resolve => setTimeout(resolve, 10));
   act(() => mainClient.__emitter__.emit(Event.SDK_READY));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY));
-  await new Promise(resolve => setTimeout(resolve, 10));
   act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
   act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
@@ -129,6 +130,6 @@ test('useSplitClient', async () => {
   expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
   expect(countUseSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
 
-  // @TODO This is because useSplitClient inside SplitClient renders twice per SDK event
+  // A component using useSplitClient inside SplitClient, renders twice per SDK event
   expect(countNestedComponent).toEqual(6);
 });

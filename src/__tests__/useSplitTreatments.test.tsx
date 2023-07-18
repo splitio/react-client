@@ -40,6 +40,8 @@ test('useSplitTreatments', async () => {
   const user2Client = outerFactory.client('user_2') as any;
 
   let countSplitContext = 0, countSplitTreatments = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0, countUseSplitTreatmentsUser2WithUpdate = 0;
+  const lastUpdateSetUser2 = new Set<number>();
+  const lastUpdateSetUser2WithUpdate = new Set<number>();
 
   render(
     <SplitFactory factory={outerFactory} >
@@ -61,6 +63,7 @@ test('useSplitTreatments', async () => {
           const context = useSplitTreatments(['split_test'], undefined, 'user_2');
           expect(context.client).toBe(user2Client);
           validateTreatments(context);
+          lastUpdateSetUser2.add(context.lastUpdate);
           countUseSplitTreatmentsUser2++;
           return null;
         })}
@@ -68,6 +71,7 @@ test('useSplitTreatments', async () => {
           const context = useSplitTreatments(['split_test'], undefined, 'user_2', { updateOnSdkUpdate: true });
           expect(context.client).toBe(user2Client);
           validateTreatments(context);
+          lastUpdateSetUser2WithUpdate.add(context.lastUpdate);
           countUseSplitTreatmentsUser2WithUpdate++;
           return null;
         })}
@@ -75,13 +79,10 @@ test('useSplitTreatments', async () => {
     </SplitFactory>
   );
 
-  // Adding a delay between events to make sure they are processed with a different lastUpdate timestamp.
   act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await new Promise(resolve => setTimeout(resolve, 10));
   act(() => mainClient.__emitter__.emit(Event.SDK_READY));
   act(() => user2Client.__emitter__.emit(Event.SDK_READY));
-  await new Promise(resolve => setTimeout(resolve, 10));
   act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
   act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
@@ -96,8 +97,10 @@ test('useSplitTreatments', async () => {
 
   // If useSplitTreatments uses a different client than the context one, it renders when the context renders and when the new client is ready and ready from cache.
   expect(countUseSplitTreatmentsUser2).toEqual(countSplitContext + 2);
+  expect(lastUpdateSetUser2.size).toEqual(3);
   // If it is used with `updateOnSdkUpdate: true`, it also renders when the client emits an SDK_UPDATE event.
   expect(countUseSplitTreatmentsUser2WithUpdate).toEqual(countSplitContext + 3);
+  expect(lastUpdateSetUser2WithUpdate.size).toEqual(4);
   expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(5);
   expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined);
 });

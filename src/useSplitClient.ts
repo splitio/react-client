@@ -22,7 +22,7 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   options = { ...DEFAULT_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
-  const { client: contextClient, factory } = context;
+  const { client: contextClient, factory, lastUpdate: contextLastUpdate } = context;
 
   let client = contextClient as IClientWithContext;
   if (key && factory) {
@@ -30,27 +30,34 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   }
   initAttributes(client, attributes);
 
-  const [lastUpdate, setLastUpdate] = React.useState(client === contextClient ? context.lastUpdate : 0);
+  const [, setLastUpdate] = React.useState(client ? client.lastUpdate : 0);
 
   // Handle client events
-  // NOTE: assuming that SDK events are scattered in time so that Date.now() timestamps are unique per event and trigger an update
   React.useEffect(() => {
     if (!client) return;
 
     const setReady = () => {
-      if (options.updateOnSdkReady) setLastUpdate(Date.now());
+      if (options.updateOnSdkReady && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
+        setLastUpdate(client.lastUpdate);
+      }
     }
 
     const setReadyFromCache = () => {
-      if (options.updateOnSdkReadyFromCache) setLastUpdate(Date.now());
+      if (options.updateOnSdkReadyFromCache && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
+        setLastUpdate(client.lastUpdate);
+      }
     }
 
     const setTimedout = () => {
-      if (options.updateOnSdkTimedout) setLastUpdate(Date.now());
+      if (options.updateOnSdkTimedout && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
+        setLastUpdate(client.lastUpdate);
+      }
     }
 
     const setUpdate = () => {
-      if (options.updateOnSdkUpdate) setLastUpdate(Date.now());
+      if (options.updateOnSdkUpdate && (client !== contextClient || client.lastUpdate !== contextLastUpdate)) {
+        setLastUpdate(client.lastUpdate);
+      }
     }
 
     // Subscribe to SDK events
@@ -70,6 +77,6 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   }, [client]);
 
   return {
-    factory, client, ...getStatus(client), lastUpdate
+    factory, client, ...getStatus(client)
   };
 }
