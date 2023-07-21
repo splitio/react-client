@@ -29,13 +29,6 @@ export interface IClientStatus {
     isDestroyed: boolean;
 }
 export declare function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus;
-/**
- * Checks if React.useContext is available, and logs given message if not
- *
- * @param message
- * @returns boolean indicating if React.useContext is available
- */
-export declare function checkHooks(message: string): boolean;
 export declare function validateFeatureFlags(maybeFeatureFlags: unknown, listName?: string): false | string[];
 /**
  * Manage client attributes binding
