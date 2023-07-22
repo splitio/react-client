@@ -1,7 +1,6 @@
 import React from 'react';
-import { SplitContext, INITIAL_CONTEXT } from './SplitContext';
-import { ERROR_UC_NO_USECONTEXT } from './constants';
-import { getSplitSharedClient, checkHooks, initAttributes, IClientWithContext, getStatus } from './utils';
+import { SplitContext } from './SplitContext';
+import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues, IUpdateProps } from './types';
 
 const DEFAULT_OPTIONS = {
@@ -19,40 +18,37 @@ const DEFAULT_OPTIONS = {
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options: IUpdateProps = {}): ISplitContextValues {
-  if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return INITIAL_CONTEXT;
-
   options = { ...DEFAULT_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
   const { client: contextClient, factory } = context;
 
-  if (!factory) return context;
-
   let client = contextClient as IClientWithContext;
   if (key && factory) {
-    client = getSplitSharedClient(factory, key, trafficType);
+    client = getSplitClient(factory, key, trafficType);
   }
   initAttributes(client, attributes);
 
-  const [lastUpdate, setLastUpdate] = React.useState(client === contextClient ? context.lastUpdate : 0);
+  const [, setLastUpdate] = React.useState(client ? client.lastUpdate : 0);
 
   // Handle client events
-  // NOTE: assuming that SDK events are scattered in time so that Date.now() timestamps are unique per event and trigger an update
   React.useEffect(() => {
+    if (!client) return;
+
     const setReady = () => {
-      if (options.updateOnSdkReady) setLastUpdate(Date.now());
+      if (options.updateOnSdkReady) setLastUpdate(client.lastUpdate);
     }
 
     const setReadyFromCache = () => {
-      if (options.updateOnSdkReadyFromCache) setLastUpdate(Date.now());
+      if (options.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
     }
 
     const setTimedout = () => {
-      if (options.updateOnSdkTimedout) setLastUpdate(Date.now());
+      if (options.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
     }
 
     const setUpdate = () => {
-      if (options.updateOnSdkUpdate) setLastUpdate(Date.now());
+      if (options.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
     }
 
     // Subscribe to SDK events
@@ -72,6 +68,6 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   }, [client]);
 
   return {
-    factory, client, ...getStatus(client), lastUpdate
+    factory, client, ...getStatus(client)
   };
 }

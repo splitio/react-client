@@ -79,14 +79,17 @@ describe('useClient', () => {
 
   test('attributes binding test with utility', (done) => {
 
+    // eslint-disable-next-line react/prop-types
+    const InnerComponent = ({ splitKey, attributesClient, testSwitch}) => {
+      useClient(splitKey, 'user', attributesClient);
+      testSwitch(done, splitKey);
+      return null;
+    };
+
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       return (
         <SplitFactory factory={factory} attributes={attributesFactory} >
-          {React.createElement(() => {
-            useClient(splitKey, 'user', attributesClient);
-            testSwitch(done, splitKey);
-            return null;
-          })}
+          <InnerComponent splitKey={splitKey} attributesClient={attributesClient} testSwitch={testSwitch} />
         </SplitFactory>
       );
     }

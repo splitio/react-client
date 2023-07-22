@@ -3,7 +3,7 @@ import SplitIO from '@splitsoftware/splitio/types/splitio';
 /**
  * Split Status interface. It represents the current readiness state of the SDK.
  */
-interface ISplitStatus {
+export interface ISplitStatus {
 
   /**
    * isReady indicates if the Split SDK client has triggered an SDK_READY event and thus is ready to be consumed.
