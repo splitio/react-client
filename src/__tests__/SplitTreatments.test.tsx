@@ -252,9 +252,9 @@ describe.each([
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
   });
 
-  it('rerenders and re-evaluates feature flags if client changes.', () => {
+  it('rerenders and re-evaluates feature flags if client changes.', async () => {
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
-    act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
+    await act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
 
     // Initial render + 2 renders (in 3 updates) -> automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
     expect(renderTimes).toBe(3);
@@ -262,7 +262,7 @@ describe.each([
     expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
-  it('rerenders and re-evaluate splfeature flagsits when Split context changes (in both SplitFactory and SplitClient components).', async () => {
+  it('rerenders and re-evaluate feature flags when Split context changes (in both SplitFactory and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];
@@ -307,8 +307,6 @@ describe.each([
     expect(renderTimesComp1).toBe(2);
     expect(renderTimesComp2).toBe(2); // updateOnSdkReadyFromCache === false, in second component
 
-    // delay SDK events to guarantee a different lastUpdate timestamp for SplitTreatments to re-evaluate
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT);
@@ -317,7 +315,6 @@ describe.each([
     expect(renderTimesComp1).toBe(3);
     expect(renderTimesComp2).toBe(3);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY);
@@ -326,7 +323,6 @@ describe.each([
     expect(renderTimesComp1).toBe(3); // updateOnSdkReady === false, in first component
     expect(renderTimesComp2).toBe(4);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
