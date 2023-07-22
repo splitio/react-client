@@ -224,7 +224,7 @@ describe('SplitTreatments optimization', () => {
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  it('rerenders and re-evaluates feature flags if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', (done) => {
+  it('rerenders and re-evaluates feature flags if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', () => {
     expect(renderTimes).toBe(1);
 
     // State update and split evaluation
@@ -234,16 +234,13 @@ describe('SplitTreatments optimization', () => {
     (outerFactory as any).client().destroy();
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
 
-    setTimeout(() => {
-      // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
-      expect(renderTimes).toBe(3);
-      expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+    // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
-      // Restore the client to be READY
-      (outerFactory as any).client().__restore();
-      (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
-      done();
-    })
+    // Restore the client to be READY
+    (outerFactory as any).client().__restore();
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
   });
 
   it('rerenders and re-evaluates feature flags if client changes.', () => {
@@ -301,8 +298,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(2);
     expect(renderTimesComp2).toBe(2); // updateOnSdkReadyFromCache === false, in second component
 
-    // delay SDK events to guarantee a different lastUpdate timestamp for SplitTreatments to re-evaluate
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT);
@@ -311,7 +306,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(3);
     expect(renderTimesComp2).toBe(3);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY);
@@ -320,7 +314,6 @@ describe('SplitTreatments optimization', () => {
     expect(renderTimesComp1).toBe(3); // updateOnSdkReady === false, in first component
     expect(renderTimesComp2).toBe(4);
 
-    await new Promise(resolve => setTimeout(resolve, 10));
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
       (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE);
