@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, IFactoryWithClients } from './utils';
+import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient } from './utils';
 
 /**
  * SplitFactory will initialize the Split SDK and its main client, listen for its events in order to update the Split Context,
@@ -54,7 +54,7 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
     this.isFactoryExternal = propFactory ? true : false;
 
     // Instantiate main client. Attributes are set on `SplitComponent.getDerivedStateFromProps`
-    const client = factory ? factory.client() : null;
+    const client = factory ? getSplitClient(factory) : null;
 
     this.state = {
       client,

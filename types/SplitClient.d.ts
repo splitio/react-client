@@ -25,9 +25,10 @@ export declare class SplitComponent extends React.Component<IUpdateProps & {
     }, state: ISplitContextValues): {
         isReady: boolean;
         isReadyFromCache: boolean;
-        hasTimedout: boolean;
         isTimedout: boolean;
+        hasTimedout: boolean;
         isDestroyed: boolean;
+        lastUpdate: number;
         client: import("@splitsoftware/splitio/types/splitio").IBrowserClient | null;
         factory: import("@splitsoftware/splitio/types/splitio").IBrowserSDK | null;
     } | null;

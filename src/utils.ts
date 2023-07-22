@@ -1,6 +1,6 @@
-import React from 'react';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { VERSION } from './constants';
+import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 
@@ -15,13 +15,14 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
     hasTimedout: boolean;
     isDestroyed: boolean;
   };
+  lastUpdate: number;
 }
 
 /**
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
-  sharedClientInstances: Set<IClientWithContext>;
+  clientInstances: Set<IClientWithContext>;
   config: SplitIO.IBrowserSettings;
 }
 
@@ -36,7 +37,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
     const newFactory = SplitSdk(config, (modules) => {
       modules.settings.version = VERSION;
     }) as IFactoryWithClients;
-    newFactory.sharedClientInstances = new Set();
+    newFactory.clientInstances = new Set();
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
@@ -44,38 +45,43 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 }
 
 // idempotent operation
-export function getSplitSharedClient(factory: SplitIO.IBrowserSDK, key: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = factory.client(key, trafficType) as IClientWithContext;
-  if ((factory as IFactoryWithClients).sharedClientInstances) {
-    (factory as IFactoryWithClients).sharedClientInstances.add(client);
+  const client = (key ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+
+  // Handle client lastUpdate
+  if (client.lastUpdate === undefined) {
+    const updateLastUpdate = () => {
+      const lastUpdate = Date.now();
+      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
+    }
+
+    client.lastUpdate = 0;
+    client.on(client.Event.SDK_READY, updateLastUpdate);
+    client.on(client.Event.SDK_READY_FROM_CACHE, updateLastUpdate);
+    client.on(client.Event.SDK_READY_TIMED_OUT, updateLastUpdate);
+    client.on(client.Event.SDK_UPDATE, updateLastUpdate);
+  }
+
+  if ((factory as IFactoryWithClients).clientInstances) {
+    (factory as IFactoryWithClients).clientInstances.add(client);
   }
   return client;
 }
 
 export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
-  // call destroy of shared clients and main one
-  const destroyPromises = [];
-  factory.sharedClientInstances.forEach((client) => destroyPromises.push(client.destroy()));
-  destroyPromises.push(factory.client().destroy());
+  // call destroy of clients
+  const destroyPromises: Promise<void>[] = [];
+  factory.clientInstances.forEach((client) => destroyPromises.push(client.destroy()));
   // remove references to release allocated memory
-  factory.sharedClientInstances.clear();
+  factory.clientInstances.clear();
   __factories.delete(factory.config);
   return Promise.all(destroyPromises);
 }
 
-// Utils used to access client status.
-// They might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
-
-export interface IClientStatus {
-  isReady: boolean;
-  isReadyFromCache: boolean;
-  hasTimedout: boolean;
-  isTimedout: boolean;
-  isDestroyed: boolean;
-}
-
-export function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus {
+// Util used to get client status.
+// It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
+export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
   const isReady = status ? status.isReady : false;
   const hasTimedout = status ? status.hasTimedout : false;
@@ -85,24 +91,8 @@ export function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus 
     isTimedout: hasTimedout && !isReady,
     hasTimedout,
     isDestroyed: status ? status.isDestroyed : false,
+    lastUpdate: client ? (client as IClientWithContext).lastUpdate || 0 : 0,
   };
-}
-
-// Other utils
-
-/**
- * Checks if React.useContext is available, and logs given message if not
- *
- * @param message
- * @returns boolean indicating if React.useContext is available
- */
-export function checkHooks(message: string): boolean {
-  if (!React.useContext) {
-    console.log(message);
-    return false;
-  } else {
-    return true;
-  }
 }
 
 // Input validation utils that will be replaced eventually

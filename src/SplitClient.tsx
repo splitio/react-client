@@ -2,7 +2,7 @@ import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
-import { getStatus, getSplitSharedClient, initAttributes } from './utils';
+import { getStatus, getSplitClient, initAttributes, IClientWithContext } from './utils';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
@@ -58,7 +58,6 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
       factory,
       client,
       ...getStatus(client),
-      lastUpdate: 0,
     };
   }
 
@@ -83,21 +82,20 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     }
   }
 
-  // NOTE: assuming that SDK events are scatered enough in time, so that Date.now() result is unique per event and triggers an update
   setReady = () => {
-    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: Date.now() });
+    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   setReadyFromCache = () => {
-    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: Date.now() });
+    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   setTimedout = () => {
-    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: Date.now() });
+    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   setUpdate = () => {
-    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: Date.now() });
+    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   componentDidMount() {
@@ -112,7 +110,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   }
 
   componentWillUnmount() {
-    // unsubscrite to SDK client events, to remove references to SplitClient instance methods
+    // unsubscribe from events, to remove references to SplitClient instance methods
     this.unsubscribeFromEvents(this.props.client);
   }
 
@@ -145,8 +143,8 @@ export function SplitClient(props: ISplitClientProps) {
     <SplitContext.Consumer>
       {(splitContext: ISplitContextValues) => {
         const { factory } = splitContext;
-        // getSplitSharedClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
-        const client = factory ? getSplitSharedClient(factory, props.splitKey, props.trafficType) : null;
+        // getSplitClient is idempotent like factory.client: it returns the same client given the same factory, Split Key and TT
+        const client = factory ? getSplitClient(factory, props.splitKey, props.trafficType) : null;
         return (
           <SplitComponent {...props} factory={factory} client={client} attributes={props.attributes} />
         );
