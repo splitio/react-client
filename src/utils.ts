@@ -53,7 +53,7 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   if (client.lastUpdate === undefined) {
     const updateLastUpdate = () => {
       const lastUpdate = Date.now();
-      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : lastUpdate === client.lastUpdate ? lastUpdate + 1 : client.lastUpdate + 1;
+      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
     }
 
     client.lastUpdate = 0;
