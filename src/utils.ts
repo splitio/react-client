@@ -1,4 +1,3 @@
-import React from 'react';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { VERSION } from './constants';
 import { ISplitStatus } from './types';
@@ -94,23 +93,6 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
     isDestroyed: status ? status.isDestroyed : false,
     lastUpdate: client ? (client as IClientWithContext).lastUpdate || 0 : 0,
   };
-}
-
-// Other utils
-
-/**
- * Checks if React.useContext is available, and logs given message if not
- *
- * @param message
- * @returns boolean indicating if React.useContext is available
- */
-export function checkHooks(message: string): boolean {
-  if (!React.useContext) {
-    console.log(message);
-    return false;
-  } else {
-    return true;
-  }
 }
 
 // Input validation utils that will be replaced eventually
