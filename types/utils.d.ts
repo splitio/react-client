@@ -1,3 +1,4 @@
+import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
@@ -9,6 +10,7 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
         hasTimedout: boolean;
         isDestroyed: boolean;
     };
+    lastUpdate: number;
 }
 /**
  * FactoryWithClientInstances interface.
@@ -21,22 +23,7 @@ export declare const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClie
 export declare function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients;
 export declare function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext;
 export declare function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]>;
-export interface IClientStatus {
-    isReady: boolean;
-    isReadyFromCache: boolean;
-    hasTimedout: boolean;
-    isTimedout: boolean;
-    isDestroyed: boolean;
-}
-export declare function getStatus(client: SplitIO.IBrowserClient | null): IClientStatus;
-/**
- * Checks if React.useContext is available, and logs given message if not.
- * Checking for React.useContext is a way to detect if the current React version is >= 16.8.0 and other hooks used by the SDK are available too.
- *
- * @param message
- * @returns boolean indicating if React.useContext is available
- */
-export declare function checkHooks(message: string): boolean;
+export declare function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus;
 export declare function validateFeatureFlags(maybeFeatureFlags: unknown, listName?: string): false | string[];
 /**
  * Manage client attributes binding

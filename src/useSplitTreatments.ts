@@ -1,8 +1,7 @@
 import React from 'react';
-import { getControlTreatmentsWithConfig, ERROR_UT_NO_USECONTEXT } from './constants';
-import { checkHooks, IClientWithContext, memoizeGetTreatmentsWithConfig } from './utils';
+import { getControlTreatmentsWithConfig } from './constants';
+import { IClientWithContext, memoizeGetTreatmentsWithConfig } from './utils';
 import { ISplitTreatmentsChildProps, IUpdateProps } from './types';
-import { INITIAL_CONTEXT } from './SplitContext';
 import { useSplitClient } from './useSplitClient';
 
 /**
@@ -13,7 +12,7 @@ import { useSplitClient } from './useSplitClient';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 export function useSplitTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey, options?: IUpdateProps): ISplitTreatmentsChildProps {
-  const context = checkHooks(ERROR_UT_NO_USECONTEXT) ? useSplitClient(key, undefined, undefined, options) : INITIAL_CONTEXT;
+  const context = useSplitClient(key, undefined, undefined, options);
   const client = context.client;
 
   const getTreatmentsWithConfig = React.useMemo(memoizeGetTreatmentsWithConfig, []);
