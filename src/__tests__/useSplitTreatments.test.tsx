@@ -75,7 +75,6 @@ test('useSplitTreatments', async () => {
     </SplitFactory>
   );
 
-  // Awaiting to make sure each event is processed with a different lastUpdate timestamp.
   await act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
   await act(() => mainClient.__emitter__.emit(Event.SDK_READY));
   await act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
