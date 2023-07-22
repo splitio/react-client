@@ -14,7 +14,6 @@ import { ISplitClientChildProps } from '../types';
 import { SplitFactory } from '../SplitFactory';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('SplitClient', () => {

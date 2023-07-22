@@ -143,6 +143,7 @@ export interface ISplitClientProps extends IUpdateProps {
   /**
    * The customer identifier.
    */
+  // @TODO make optional and unify with useSplitClient
   splitKey: SplitIO.SplitKey;
 
   /**

@@ -253,9 +253,9 @@ describe.each([
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
   });
 
-  it('rerenders and re-evaluates feature flags if client changes.', () => {
+  it('rerenders and re-evaluates feature flags if client changes.', async () => {
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
-    act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
+    await act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
 
     // Initial render + 2 renders (in 3 updates) -> automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
     expect(renderTimes).toBe(3);

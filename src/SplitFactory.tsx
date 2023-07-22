@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitClient } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { ERROR_SF_NO_CONFIG_AND_FACTORY, WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { IFactoryWithClients, destroySplitFactory, getSplitFactory, getStatus } from './utils';
+import { IFactoryWithClients, destroySplitFactory, getSplitClient, getSplitFactory, getStatus } from './utils';
 import { SplitContext } from './SplitContext';
 
 /**
@@ -31,8 +31,8 @@ export function SplitFactory(props: ISplitFactoryProps) {
   // Instantiate factory
   // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
   // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
-  const [factory] = React.useState(propFactory ? propFactory : config ? getSplitFactory(config) : null);
-  const [client] = React.useState(factory ? factory.client() : null);
+  const [factory] = React.useState(() => propFactory ? propFactory : config ? getSplitFactory(config) : null);
+  const [client] = React.useState(() => factory ? getSplitClient(factory) : null);
 
   React.useEffect(() => {
     return () => {
@@ -40,11 +40,11 @@ export function SplitFactory(props: ISplitFactoryProps) {
         destroySplitFactory(factory as IFactoryWithClients);
       }
     }
-  }, []);
+  });
 
   return (
     <SplitContext.Provider value={{
-      factory, client, ...getStatus(client), lastUpdate: 0
+      factory, client, ...getStatus(client)
     }} >
       <SplitClient {...props}
         splitKey={(factory ? factory.settings.core.key : undefined) as any}
