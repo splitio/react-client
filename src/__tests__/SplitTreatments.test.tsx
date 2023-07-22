@@ -25,6 +25,7 @@ jest.mock('../constants', () => {
 import { getControlTreatmentsWithConfig } from '../constants';
 import { getStatus } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
+import { useSplitTreatments } from '../useSplitTreatments';
 
 describe('SplitTreatments', () => {
 
@@ -144,13 +145,26 @@ describe('SplitTreatments', () => {
 
 });
 
+let renderTimes = 0;
+
 /**
- * Tests for asserting that client.getTreatmentsWithConfig is not called unnecessarely
+ * Tests for asserting that client.getTreatmentsWithConfig is not called unnecessarily when using SplitTreatments and useSplitTreatments.
  */
-describe('SplitTreatments optimization', () => {
-
-  let renderTimes = 0;
-
+describe.each([
+  ({ names, attributes }) => (
+    <SplitTreatments names={names} attributes={attributes} >
+      {() => {
+        renderTimes++;
+        return null;
+      }}
+    </SplitTreatments>
+  ),
+  ({ names, attributes }) => {
+    useSplitTreatments(names, attributes);
+    renderTimes++;
+    return null;
+  }
+])('SplitTreatments & useSplitTreatments optimization', (InnerComponent) => {
   let outerFactory = SplitSdk(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
@@ -163,13 +177,7 @@ describe('SplitTreatments optimization', () => {
     return (
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
-          <SplitTreatments names={names} attributes={attributes} >
-            {(context) => {
-              // console.log('context', { ...context, factory: undefined, client: undefined });
-              renderTimes++;
-              return null;
-            }}
-          </SplitTreatments>
+          <InnerComponent names={names} attributes={attributes} />
         </SplitClient>
       </SplitFactory>
     );

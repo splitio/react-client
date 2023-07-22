@@ -15,10 +15,7 @@ import { useSplitClient } from '../useSplitClient';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 
-// @TODO are we validating that SplitClient and useSplitClient do not re-render unnecessarily when there was a render due to the same event in the context?
-// @TODO It seems that we don't need `client !== contextClient || client.lastUpdate !== contextLastUpdate`, but why?
-// @TODO and so, we don't have to move lastUpdate calculation to getSplitClient, right?
-test('useSplitClient', async () => {
+test('useSplitClient must update on SDK events', () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
   const user2Client = outerFactory.client('user_2') as any;
@@ -132,4 +129,41 @@ test('useSplitClient', async () => {
 
   // A component using useSplitClient inside SplitClient, renders twice per SDK event
   expect(countNestedComponent).toEqual(6);
+});
+
+test('useSplitClient must support changes in update props', () => {
+  const outerFactory = SplitSdk(sdkBrowser);
+  const mainClient = outerFactory.client() as any;
+
+  let rendersCount = 0;
+
+  function InnerComponent(updateOptions) {
+    useSplitClient(undefined, undefined, undefined, updateOptions);
+    rendersCount++;
+    return null;
+  }
+
+  function Component(updateOptions) {
+    return (
+      <SplitFactory factory={outerFactory} >
+        <InnerComponent {...updateOptions} />
+      </SplitFactory>
+    )
+  }
+
+  const wrapper = render(<Component />);
+
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false by default
+  expect(rendersCount).toBe(2);
+
+  wrapper.rerender(<Component updateOnSdkUpdate={true} />); // trigger re-render
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
+
+  expect(rendersCount).toBe(4);
+
+  wrapper.rerender(<Component updateOnSdkUpdate={false} />); // trigger re-render
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
+
+  expect(rendersCount).toBe(5);
 });

@@ -1,4 +1,3 @@
-import React from 'react';
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
@@ -56,7 +55,7 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   if (client.lastUpdate === undefined) {
     const updateLastUpdate = () => {
       const lastUpdate = Date.now();
-      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : lastUpdate === client.lastUpdate ? lastUpdate + 1 : client.lastUpdate + 1;
+      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
     }
 
     client.lastUpdate = 0;
@@ -96,24 +95,6 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
     isDestroyed: status ? status.isDestroyed : false,
     lastUpdate: client ? (client as IClientWithContext).lastUpdate || 0 : 0,
   };
-}
-
-// Other utils
-
-/**
- * Checks if React.useContext is available, and logs given message if not.
- * Checking for React.useContext is a way to detect if the current React version is >= 16.8.0 and other hooks used by the SDK are available too.
- *
- * @param message
- * @returns boolean indicating if React.useContext is available
- */
-export function checkHooks(message: string): boolean {
-  if (!React.useContext) {
-    console.log(message);
-    return false;
-  } else {
-    return true;
-  }
 }
 
 // Input validation utils that will be replaced eventually

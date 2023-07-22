@@ -17,9 +17,10 @@ const DEFAULT_OPTIONS = {
  * @return A Split Context object
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-// @TODO review signature (options) and document signature
-export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options: IUpdateProps = {}): ISplitContextValues {
-  options = { ...DEFAULT_OPTIONS, ...options };
+export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options?: IUpdateProps): ISplitContextValues {
+  const {
+    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
+  } = { ...DEFAULT_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
   const { client: contextClient, factory } = context;
@@ -36,37 +37,23 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   React.useEffect(() => {
     if (!client) return;
 
-    const setReady = () => {
-      if (options.updateOnSdkReady) setLastUpdate(client.lastUpdate);
-    }
-
-    const setReadyFromCache = () => {
-      if (options.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
-    }
-
-    const setTimedout = () => {
-      if (options.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
-    }
-
-    const setUpdate = () => {
-      if (options.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
-    }
+    const update = () => setLastUpdate(client.lastUpdate);
 
     // Subscribe to SDK events
     const status = getStatus(client);
-    if (!status.isReady) client.once(client.Event.SDK_READY, setReady);
-    if (!status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
-    if (!status.hasTimedout && !status.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, setTimedout);
-    client.on(client.Event.SDK_UPDATE, setUpdate);
+    if (!status.isReady && updateOnSdkReady) client.once(client.Event.SDK_READY, update);
+    if (!status.isReadyFromCache && updateOnSdkReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
+    if (!status.hasTimedout && !status.isReady && updateOnSdkTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+    if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
     return () => {
       // Unsubscribe from events
-      client.off(client.Event.SDK_READY, setReady);
-      client.off(client.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
-      client.off(client.Event.SDK_READY_TIMED_OUT, setTimedout);
-      client.off(client.Event.SDK_UPDATE, setUpdate);
+      client.off(client.Event.SDK_READY, update);
+      client.off(client.Event.SDK_READY_FROM_CACHE, update);
+      client.off(client.Event.SDK_READY_TIMED_OUT, update);
+      client.off(client.Event.SDK_UPDATE, update);
     }
-  }, [client]);
+  }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
 
   return {
     factory, client, ...getStatus(client)
