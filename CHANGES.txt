@@ -1,4 +1,5 @@
 1.10.0 (XXX XX, 2023)
+ - Bugfixing - Updated `useClient` and `useTreatments` hooks to re-render and re-evaluate feature flags when they consume a different SDK client than the context and its status updates (i.e., when it emits SDK_READY or other event).
  - Bugfixing - Removed check of hooks availability to follow rules of hooks. If attempting to use hooks with React below version 16.8.0, an error will be thrown rather than logging an error message.
 
 1.9.0 (July 18, 2023)
