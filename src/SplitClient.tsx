@@ -22,7 +22,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
 
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
   // It could be avoided by removing the client and its status from the component state.
-  // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Producer
+  // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Provider
   static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
     // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
