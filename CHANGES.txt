@@ -1,4 +1,6 @@
 1.10.0 (XXX XX, 2023)
+ - Added a new parameter `options` to `useClient` and `useTreatments` hooks, to allow controlling on what SDK events the hook should update the component. Read more in our docs.
+ - Added new `useSplitClient` and `useSplitTreatments` hooks. Their input parameters and logic are equivalent to `useClient` and `useTreatments` hooks, but rather than returning only the SDK client and treatments respectively, they return the Split context object together with the SDK client and treatments. Read more in our docs.
  - Bugfixing - Removed check of hooks availability to follow rules of hooks. If attempting to use hooks with React below version 16.8.0, an error will be thrown rather than logging an error message.
 
 1.9.0 (July 18, 2023)
