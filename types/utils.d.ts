@@ -29,3 +29,10 @@ export declare function validateFeatureFlags(maybeFeatureFlags: unknown, listNam
  * Manage client attributes binding
  */
 export declare function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes): void;
+/**
+ * Gets a memoized version of the `client.getTreatmentsWithConfig` method.
+ * It is used to avoid duplicated impressions, because the result treatments are the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
+ */
+export declare function memoizeGetTreatmentsWithConfig(): typeof evaluateFeatureFlags;
+declare function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes): import("@splitsoftware/splitio/types/splitio").TreatmentsWithConfig;
+export {};

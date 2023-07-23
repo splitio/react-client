@@ -1,3 +1,5 @@
+import memoizeOne from 'memoize-one';
+import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { VERSION } from './constants';
 import { ISplitStatus } from './types';
@@ -159,4 +161,24 @@ function uniq(arr: string[]): string[] {
  */
 function isString(val: unknown): val is string {
   return typeof val === 'string' || val instanceof String;
+}
+
+/**
+ * Gets a memoized version of the `client.getTreatmentsWithConfig` method.
+ * It is used to avoid duplicated impressions, because the result treatments are the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
+ */
+export function memoizeGetTreatmentsWithConfig() {
+  return memoizeOne(evaluateFeatureFlags, argsAreEqual);
+}
+
+function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
+  return newArgs[0] === lastArgs[0] && // client
+    newArgs[1] === lastArgs[1] && // lastUpdate
+    shallowEqual(newArgs[2], lastArgs[2]) && // names
+    shallowEqual(newArgs[3], lastArgs[3]) && // attributes
+    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
+}
+
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
+  return client.getTreatmentsWithConfig(names, attributes);
 }

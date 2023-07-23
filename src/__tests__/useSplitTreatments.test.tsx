@@ -34,7 +34,7 @@ function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTre
   }
 }
 
-test('useSplitTreatments', async () => {
+test('useSplitTreatments must update on SDK events', async () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
   const user2Client = outerFactory.client('user_2') as any;
@@ -75,7 +75,6 @@ test('useSplitTreatments', async () => {
     </SplitFactory>
   );
 
-  // Awaiting to make sure each event is processed with a different lastUpdate timestamp.
   await act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
   await act(() => mainClient.__emitter__.emit(Event.SDK_READY));
   await act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));

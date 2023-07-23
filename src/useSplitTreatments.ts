@@ -1,5 +1,6 @@
+import React from 'react';
 import { getControlTreatmentsWithConfig } from './constants';
-import { IClientWithContext } from './utils';
+import { IClientWithContext, memoizeGetTreatmentsWithConfig } from './utils';
 import { ISplitTreatmentsChildProps, IUpdateProps } from './types';
 import { useSplitClient } from './useSplitClient';
 
@@ -13,8 +14,11 @@ import { useSplitClient } from './useSplitClient';
 export function useSplitTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey, options?: IUpdateProps): ISplitTreatmentsChildProps {
   const context = useSplitClient(key, undefined, undefined, options);
   const client = context.client;
+
+  const getTreatmentsWithConfig = React.useMemo(memoizeGetTreatmentsWithConfig, []);
+
   const treatments = client && (client as IClientWithContext).__getStatus().isOperational ?
-    client.getTreatmentsWithConfig(splitNames, attributes) :
+    getTreatmentsWithConfig(client, context.lastUpdate, splitNames, attributes, { ...client.getAttributes() }) :
     getControlTreatmentsWithConfig(splitNames);
 
   return {
