@@ -28,7 +28,7 @@ module.exports = {
     'eol-last': ['error', 'always'],
     'keyword-spacing': 'error',
     'no-trailing-spaces': 'error',
-    'space-before-function-paren': ['error', {'named': 'never'}],
+    'space-before-function-paren': ['error', { 'named': 'never' }],
     'react/display-name': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
@@ -38,6 +38,11 @@ module.exports = {
     'prefer-const': ['error', {
       'destructuring': 'all'
     }]
+  },
+  'settings': {
+    'react': {
+      'version': '16.3.0' // minimum supported version of React
+    }
   },
   'overrides': [{
     'files': ['src/**/*.ts', 'src/**/*.tsx'],
@@ -52,7 +57,7 @@ module.exports = {
     },
     'rules': {
       'no-restricted-syntax': ['error', 'ForOfStatement', 'ForInStatement'],
-      'compat/compat': ['error', 'defaults, not ie < 11'],
+      'compat/compat': ['error', 'defaults, ie 11'],
       'no-throw-literal': 'error',
       'import/no-self-import': 'error',
       'import/no-default-export': 'error',
