@@ -1,7 +1,6 @@
-import { getControlTreatmentsWithConfig, ERROR_UT_NO_USECONTEXT } from './constants';
-import { checkHooks, IClientWithContext } from './utils';
+import { getControlTreatmentsWithConfig } from './constants';
+import { IClientWithContext } from './utils';
 import { ISplitTreatmentsChildProps } from './types';
-import { INITIAL_CONTEXT } from './SplitContext';
 import { useSplitClient } from './useSplitClient';
 
 /**
@@ -12,7 +11,7 @@ import { useSplitClient } from './useSplitClient';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
 export function useSplitTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): ISplitTreatmentsChildProps {
-  const context = checkHooks(ERROR_UT_NO_USECONTEXT) ? useSplitClient(key) : INITIAL_CONTEXT;
+  const context = useSplitClient(key);
   const client = context.client;
   const treatments = client && (client as IClientWithContext).__getStatus().isOperational ?
     client.getTreatmentsWithConfig(splitNames, attributes) :

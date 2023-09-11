@@ -1,7 +1,6 @@
 import React from 'react';
-import { SplitContext, INITIAL_CONTEXT } from './SplitContext';
-import { ERROR_UC_NO_USECONTEXT } from './constants';
-import { getSplitSharedClient, checkHooks, initAttributes, IClientWithContext } from './utils';
+import { SplitContext } from './SplitContext';
+import { getSplitSharedClient, initAttributes, IClientWithContext } from './utils';
 import { ISplitContextValues } from './types';
 
 /**
@@ -12,8 +11,6 @@ import { ISplitContextValues } from './types';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): ISplitContextValues {
-  if (!checkHooks(ERROR_UC_NO_USECONTEXT)) return INITIAL_CONTEXT;
-
   const context = React.useContext(SplitContext);
   let { factory, client } = context;
   if (key && factory) {

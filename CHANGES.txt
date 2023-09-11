@@ -1,5 +1,6 @@
 1.9.1 (September XX, 2023)
  - Updated linter and other dependencies for vulnerability fixes.
+ - Bugfixing - To adhere to the rules of hooks and prevent React warnings, conditional code within hooks was removed. Previously, this code checked for the availability of the hooks API (available in React version 16.8.0 or above) and logged an error message. Now, using hooks with React versions below 16.8.0 will throw an error.
 
 1.9.0 (July 18, 2023)
  - Updated some transitive dependencies for vulnerability fixes.
