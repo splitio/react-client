@@ -1,4 +1,5 @@
-1.9.1 (September XX, 2023)
+1.10.0 (September XX, 2023)
+ - Added TypeScript types and interfaces to the library index exports, allowing them to be imported from the library index. For example, `import type { ISplitFactoryProps } from '@splitsoftware/splitio-react';` (Related to issue https://github.com/splitio/react-client/issues/162).
  - Updated linter and other dependencies for vulnerability fixes.
  - Bugfixing - To adhere to the rules of hooks and prevent React warnings, conditional code within hooks was removed. Previously, this code checked for the availability of the hooks API (available in React version 16.8.0 or above) and logged an error message. Now, using hooks with React versions below 16.8.0 will throw an error.
  - Bugfixing - Updated `useClient` and `useTreatments` hooks to re-render and re-evaluate feature flags when they consume a different SDK client than the context and its status updates (i.e., when it emits SDK_READY or other event).
