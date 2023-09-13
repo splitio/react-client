@@ -1,6 +1,6 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
-import { getSplitSharedClient, initAttributes, IClientWithContext } from './utils';
+import { getSplitClient, initAttributes, IClientWithContext } from './utils';
 import { ISplitContextValues } from './types';
 
 /**
@@ -14,7 +14,7 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
   const context = React.useContext(SplitContext);
   let { factory, client } = context;
   if (key && factory) {
-    client = getSplitSharedClient(factory, key, trafficType);
+    client = getSplitClient(factory, key, trafficType);
   }
   initAttributes(client, attributes);
   return client === context.client ? context : {
