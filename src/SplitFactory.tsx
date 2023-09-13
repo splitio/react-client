@@ -4,6 +4,7 @@ import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient } from './utils';
+import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
  * SplitFactory will initialize the Split SDK and its main client, listen for its events in order to update the Split Context,
@@ -18,11 +19,8 @@ import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClie
 export class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
 
   static defaultProps: ISplitFactoryProps = {
-    updateOnSdkUpdate: false,
-    updateOnSdkTimedout: false,
-    updateOnSdkReady: true,
-    updateOnSdkReadyFromCache: true,
     children: null,
+    ...DEFAULT_UPDATE_OPTIONS,
   };
 
   readonly state: Readonly<{ factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }>;

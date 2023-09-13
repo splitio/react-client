@@ -3,6 +3,7 @@ import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
 import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitClient, initAttributes, IClientWithContext } from './utils';
+import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
@@ -11,13 +12,10 @@ import { getStatus, getSplitClient, initAttributes, IClientWithContext } from '.
 export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes, children: any }, ISplitContextValues> {
 
   static defaultProps = {
-    updateOnSdkUpdate: false,
-    updateOnSdkTimedout: false,
-    updateOnSdkReady: true,
-    updateOnSdkReadyFromCache: true,
     children: null,
     factory: null,
     client: null,
+    ...DEFAULT_UPDATE_OPTIONS,
   }
 
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.

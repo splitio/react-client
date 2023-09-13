@@ -41,21 +41,28 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
   __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
 
+  let attributesCache = {};
+
   // Client methods
   const track: jest.Mock = jest.fn(() => {
     return true;
   });
-  const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
-    return 'getTreatmentsWithConfig';
+  const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames: string[]) => {
+    return featureFlagNames.reduce((result: SplitIO.TreatmentsWithConfig, featureName: string) => {
+      result[featureName] = { treatment: 'on', config: null };
+      return result;
+    }, {});
   });
-  const setAttributes: jest.Mock = jest.fn(() => {
+  const setAttributes: jest.Mock = jest.fn((attributes) => {
+    attributesCache = Object.assign(attributesCache, attributes);
     return true;
   });
   const clearAttributes: jest.Mock = jest.fn(() => {
+    attributesCache = {};
     return true;
   });
   const getAttributes: jest.Mock = jest.fn(() => {
-    return true;
+    return attributesCache;
   });
   const ready: jest.Mock = jest.fn(() => {
     return new Promise<void>((res, rej) => {

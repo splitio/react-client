@@ -1,7 +1,14 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
-import { getSplitClient, initAttributes, IClientWithContext } from './utils';
+import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues } from './types';
+
+export const DEFAULT_UPDATE_OPTIONS = {
+  updateOnSdkUpdate: false,
+  updateOnSdkTimedout: false,
+  updateOnSdkReady: true,
+  updateOnSdkReadyFromCache: true,
+};
 
 /**
  * 'useSplitClient' is a hook that returns an Split Context object with the client and its status corresponding to the provided key and trafficType.
@@ -12,12 +19,53 @@ import { ISplitContextValues } from './types';
  */
 export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): ISplitContextValues {
   const context = React.useContext(SplitContext);
-  let { factory, client } = context;
+  const { client: contextClient, factory } = context;
+
+  let client = contextClient as IClientWithContext;
   if (key && factory) {
     client = getSplitClient(factory, key, trafficType);
   }
   initAttributes(client, attributes);
-  return client === context.client ? context : {
-    ...context, client, ...(client as IClientWithContext).__getStatus()
+
+  const [, setLastUpdate] = React.useState(client ? client.lastUpdate : 0);
+
+  // Handle client events
+  React.useEffect(() => {
+    if (!client) return;
+
+    const setReady = () => {
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkReady) setLastUpdate(client.lastUpdate);
+    }
+
+    const setReadyFromCache = () => {
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
+    }
+
+    const setTimedout = () => {
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
+    }
+
+    const setUpdate = () => {
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
+    }
+
+    // Subscribe to SDK events
+    const status = getStatus(client);
+    if (!status.isReady) client.once(client.Event.SDK_READY, setReady);
+    if (!status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
+    if (!status.hasTimedout && !status.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, setTimedout);
+    client.on(client.Event.SDK_UPDATE, setUpdate);
+
+    return () => {
+      // Unsubscribe from events
+      client.off(client.Event.SDK_READY, setReady);
+      client.off(client.Event.SDK_READY_FROM_CACHE, setReadyFromCache);
+      client.off(client.Event.SDK_READY_TIMED_OUT, setTimedout);
+      client.off(client.Event.SDK_UPDATE, setUpdate);
+    }
+  }, [client]);
+
+  return {
+    factory, client, ...getStatus(client)
   };
 }
