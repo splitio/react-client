@@ -3,7 +3,7 @@ import { SplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues } from './types';
 
-const options = {
+export const DEFAULT_UPDATE_OPTIONS = {
   updateOnSdkUpdate: false,
   updateOnSdkTimedout: false,
   updateOnSdkReady: true,
@@ -34,19 +34,19 @@ export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, att
     if (!client) return;
 
     const setReady = () => {
-      if (options.updateOnSdkReady) setLastUpdate(client.lastUpdate);
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkReady) setLastUpdate(client.lastUpdate);
     }
 
     const setReadyFromCache = () => {
-      if (options.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkReadyFromCache) setLastUpdate(client.lastUpdate);
     }
 
     const setTimedout = () => {
-      if (options.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkTimedout) setLastUpdate(client.lastUpdate);
     }
 
     const setUpdate = () => {
-      if (options.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
+      if (DEFAULT_UPDATE_OPTIONS.updateOnSdkUpdate) setLastUpdate(client.lastUpdate);
     }
 
     // Subscribe to SDK events
