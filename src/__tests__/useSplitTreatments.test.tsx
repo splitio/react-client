@@ -75,12 +75,12 @@ test('useSplitTreatments', async () => {
     </SplitFactory>
   );
 
-  await act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await act(() => mainClient.__emitter__.emit(Event.SDK_READY));
-  await act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_READY));
-  await act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  act(() => mainClient.__emitter__.emit(Event.SDK_READY));
+  act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
+  act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  act(() => user2Client.__emitter__.emit(Event.SDK_READY));
+  act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
   // SplitContext renders 3 times: initially, when ready from cache, and when ready.
   expect(countSplitContext).toEqual(3);
