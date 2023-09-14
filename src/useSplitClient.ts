@@ -3,7 +3,7 @@ import { SplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues, IUpdateProps } from './types';
 
-const DEFAULT_OPTIONS = {
+export const DEFAULT_UPDATE_OPTIONS = {
   updateOnSdkUpdate: false,
   updateOnSdkTimedout: false,
   updateOnSdkReady: true,
@@ -20,7 +20,7 @@ const DEFAULT_OPTIONS = {
 export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options?: IUpdateProps): ISplitContextValues {
   const {
     updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
-  } = { ...DEFAULT_OPTIONS, ...options };
+  } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
   const { client: contextClient, factory } = context;
