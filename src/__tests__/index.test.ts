@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   SplitContext as ExportedSplitContext,
   SplitSdk as ExportedSplitSdk,
@@ -13,6 +14,16 @@ import {
   useTreatments as exportedUseTreatments,
   useSplitClient as exportedUseSplitClient,
   useSplitTreatments as exportedUseSplitTreatments,
+  // Checks that types are exported. Otherwise, the test would fail with a TS error.
+  ISplitClientChildProps,
+  ISplitClientProps,
+  ISplitContextValues,
+  ISplitFactoryChildProps,
+  ISplitFactoryProps,
+  ISplitStatus,
+  ISplitTreatmentsChildProps,
+  ISplitTreatmentsProps,
+  IUpdateProps
 } from '../index';
 import { SplitContext } from '../SplitContext';
 import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';

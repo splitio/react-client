@@ -80,26 +80,42 @@ describe('useTreatments', () => {
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from a new client given a splitKey, or control if the client is not operational.', async () => {
+  test('returns the Treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
-    let treatments;
-
-    client.__emitter__.emit(Event.SDK_READY);
-    await client.destroy();
+    let renderTimes = 0;
 
     render(
       <SplitFactory factory={outerFactory} >
         {React.createElement(() => {
-          treatments = useTreatments(featureFlagNames, attributes, 'user2');
+          const treatments = useTreatments(featureFlagNames, attributes, 'user2');
+
+          renderTimes++;
+          switch (renderTimes) {
+            case 1:
+              // returns control if not operational (SDK not ready), without calling `getTreatmentsWithConfig` method
+              expect(client.getTreatmentsWithConfig).not.toBeCalled();
+              expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+              break;
+            case 2:
+            case 3:
+              // once operational (SDK_READY or SDK_READY_FROM_CACHE), it evaluates feature flags
+              expect(client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(featureFlagNames, attributes);
+              expect(client.getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
+              break;
+            default:
+              throw new Error('Unexpected render');
+          }
+
           return null;
         })}
       </SplitFactory>
     );
 
-    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
-    expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+    act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => client.__emitter__.emit(Event.SDK_READY));
+    act(() => client.__emitter__.emit(Event.SDK_UPDATE)); // should not trigger a re-render by default
+    expect(client.getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
   // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
