@@ -84,7 +84,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues {
 }
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
- * used to instantiate a factory and client instances, update the Split context, and listen for SDK events.
+ * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitFactoryProps extends IUpdateProps {
     /**
@@ -112,7 +112,7 @@ export interface ISplitClientChildProps extends ISplitContextValues {
 }
 /**
  * SplitClient Props interface. These are the props accepted by SplitClient component,
- * used to instantiate a new client instances, update the Split context, and listen for SDK events.
+ * used to instantiate a new client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitClientProps extends IUpdateProps {
     /**
