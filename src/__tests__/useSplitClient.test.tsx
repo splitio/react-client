@@ -30,19 +30,25 @@ test('useSplitClient must update on SDK events', () => {
         <SplitContext.Consumer>
           {() => countSplitContext++}
         </SplitContext.Consumer>
-        <SplitClient splitKey={sdkBrowser.core.key}>
+        <SplitClient splitKey={sdkBrowser.core.key} trafficType={sdkBrowser.core.trafficType}
+          /* Disabling update props is ineffective because the wrapping SplitFactory has them enabled: */
+          updateOnSdkReady={false} updateOnSdkReadyFromCache={false}
+        >
           {() => { countSplitClient++; return null }}
         </SplitClient>
-        <SplitClient splitKey={'user_2'}>
-          {() => { countSplitClientUser2++; return null }}
-        </SplitClient>
         {React.createElement(() => {
-          const { client } = useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, { att1: 'att1' });
+          // Equivalent to
+          // - Using config key and traffic type: `const { client } = useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, { att1: 'att1' });`
+          // - Disabling update props, since the wrapping SplitFactory has them enabled: `const { client } = useSplitClient(undefined, undefined, { att1: 'att1' }, { updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
+          const { client } = useSplitClient(undefined, undefined, { att1: 'att1' });
           expect(client).toBe(mainClient); // Assert that the main client was retrieved.
           expect(client!.getAttributes()).toEqual({ att1: 'att1' }); // Assert that the client was retrieved with the provided attributes.
           countUseSplitClient++;
           return null;
         })}
+        <SplitClient splitKey={'user_2'}>
+          {() => { countSplitClientUser2++; return null }}
+        </SplitClient>
         {React.createElement(() => {
           const { client } = useSplitClient('user_2');
           expect(client).toBe(user2Client);

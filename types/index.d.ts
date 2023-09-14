@@ -10,3 +10,4 @@ export { useTreatments } from './useTreatments';
 export { useTrack } from './useTrack';
 export { useManager } from './useManager';
 export { SplitContext } from './SplitContext';
+export type { ISplitClientChildProps, ISplitClientProps, ISplitContextValues, ISplitFactoryChildProps, ISplitFactoryProps, ISplitStatus, ISplitTreatmentsChildProps, ISplitTreatmentsProps, IUpdateProps } from './types';

@@ -19,3 +19,16 @@ export { useManager } from './useManager';
 
 // SplitContext
 export { SplitContext } from './SplitContext';
+
+// Types
+export type {
+  ISplitClientChildProps,
+  ISplitClientProps,
+  ISplitContextValues,
+  ISplitFactoryChildProps,
+  ISplitFactoryProps,
+  ISplitStatus,
+  ISplitTreatmentsChildProps,
+  ISplitTreatmentsProps,
+  IUpdateProps
+} from './types';
