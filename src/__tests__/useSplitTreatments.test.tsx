@@ -16,7 +16,7 @@ import { SplitTreatments } from '../SplitTreatments';
 import { SplitContext } from '../SplitContext';
 import { ISplitTreatmentsChildProps } from '../types';
 
-function validateTreatments({ treatments, isReady, isReadyFromCache}: ISplitTreatmentsChildProps) {
+function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTreatmentsChildProps) {
   if (isReady || isReadyFromCache) {
     expect(treatments).toEqual({
       split_test: {
@@ -34,12 +34,12 @@ function validateTreatments({ treatments, isReady, isReadyFromCache}: ISplitTrea
   }
 }
 
-test('useSplitTreatments', () => {
+test('useSplitTreatments', async () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
   const user2Client = outerFactory.client('user_2') as any;
 
-  let countSplitContext = 0, countSplitTreatments = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0;
+  let countSplitContext = 0, countSplitTreatments = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0, countUseSplitTreatmentsUser2WithUpdate = 0;
 
   render(
     <SplitFactory factory={outerFactory} >
@@ -51,7 +51,7 @@ test('useSplitTreatments', () => {
           {() => { countSplitTreatments++; return null }}
         </SplitTreatments>
         {React.createElement(() => {
-          const context = useSplitTreatments(['split_test'], { att1: 'att1' } );
+          const context = useSplitTreatments(['split_test'], { att1: 'att1' });
           expect(context.client).toBe(mainClient); // Assert that the main client was retrieved.
           validateTreatments(context);
           countUseSplitTreatments++;
@@ -62,6 +62,13 @@ test('useSplitTreatments', () => {
           expect(context.client).toBe(user2Client);
           validateTreatments(context);
           countUseSplitTreatmentsUser2++;
+          return null;
+        })}
+        {React.createElement(() => {
+          const context = useSplitTreatments(['split_test'], undefined, 'user_2', { updateOnSdkUpdate: true });
+          expect(context.client).toBe(user2Client);
+          validateTreatments(context);
+          countUseSplitTreatmentsUser2WithUpdate++;
           return null;
         })}
       </>
@@ -86,6 +93,8 @@ test('useSplitTreatments', () => {
 
   // If useSplitTreatments uses a different client than the context one, it renders when the context renders and when the new client is ready and ready from cache.
   expect(countUseSplitTreatmentsUser2).toEqual(countSplitContext + 2);
-  expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(2);
+  // If it is used with `updateOnSdkUpdate: true`, it also renders when the client emits an SDK_UPDATE event.
+  expect(countUseSplitTreatmentsUser2WithUpdate).toEqual(countSplitContext + 3);
+  expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(5);
   expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined);
 });

@@ -1,4 +1,4 @@
-import { ISplitContextValues } from './types';
+import { ISplitContextValues, IUpdateProps } from './types';
 export declare const DEFAULT_UPDATE_OPTIONS: {
     updateOnSdkUpdate: boolean;
     updateOnSdkTimedout: boolean;
@@ -12,4 +12,4 @@ export declare const DEFAULT_UPDATE_OPTIONS: {
  * @return A Split Context object
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-export declare function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes): ISplitContextValues;
+export declare function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options?: IUpdateProps): ISplitContextValues;

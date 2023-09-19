@@ -1,6 +1,6 @@
 import { getControlTreatmentsWithConfig } from './constants';
 import { IClientWithContext } from './utils';
-import { ISplitTreatmentsChildProps } from './types';
+import { ISplitTreatmentsChildProps, IUpdateProps } from './types';
 import { useSplitClient } from './useSplitClient';
 
 /**
@@ -10,8 +10,8 @@ import { useSplitClient } from './useSplitClient';
  * @return A Split Context object extended with a TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if split names do not exist.
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export function useSplitTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey): ISplitTreatmentsChildProps {
-  const context = useSplitClient(key);
+export function useSplitTreatments(splitNames: string[], attributes?: SplitIO.Attributes, key?: SplitIO.SplitKey, options?: IUpdateProps): ISplitTreatmentsChildProps {
+  const context = useSplitClient(key, undefined, undefined, options);
   const client = context.client;
   const treatments = client && (client as IClientWithContext).__getStatus().isOperational ?
     client.getTreatmentsWithConfig(splitNames, attributes) :
