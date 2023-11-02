@@ -172,14 +172,19 @@ export interface ISplitClientProps extends IUseSplitClientOptions {
 
 /**
  * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
- * used to call 'client.getTreatmentsWithConfig()' and retrieve the result together with the Split context.
+ * used to call 'client.getTreatmentsWithConfig()' or 'client.getTreatmentsWithConfigByFlagSets()', and retrieve the result together with the Split context.
  */
 export interface IUseSplitTreatmentsOptions extends IUseSplitClientOptions {
 
   /**
    * list of feature flag names
    */
-  names: string[]
+  names?: string[];
+
+  /**
+   * list of feature flag sets
+   */
+  flagSets?: string[];
 }
 
 /**
@@ -207,7 +212,12 @@ export interface ISplitTreatmentsProps {
   /**
    * list of feature flag names
    */
-  names: string[];
+  names?: string[];
+
+  /**
+   * list of feature flag sets
+   */
+  flagSets?: string[];
 
   /**
    * An object of type Attributes used to evaluate the feature flags.

@@ -176,9 +176,10 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     newArgs[1] === lastArgs[1] && // lastUpdate
     shallowEqual(newArgs[2], lastArgs[2]) && // names
     shallowEqual(newArgs[3], lastArgs[3]) && // attributes
-    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
+    shallowEqual(newArgs[4], lastArgs[4]) && // client attributes
+    shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
-  return client.getTreatmentsWithConfig(names, attributes);
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+  return names ? client.getTreatmentsWithConfig(names, attributes) : client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes);
 }
