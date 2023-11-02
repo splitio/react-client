@@ -1,4 +1,5 @@
 import SplitIO from '@splitsoftware/splitio/types/splitio';
+import type { ReactNode } from 'react';
 
 /**
  * Split Status interface. It represents the current readiness state of the SDK.
@@ -124,7 +125,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
-  children: ((props: ISplitFactoryChildProps) => JSX.Element | null) | JSX.Element | null;
+  children: ((props: ISplitFactoryChildProps) => ReactNode) | ReactNode;
 }
 
 /**
@@ -159,7 +160,7 @@ export interface ISplitClientProps extends IUpdateProps {
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
-  children: ((props: ISplitClientChildProps) => JSX.Element | null) | JSX.Element | null;
+  children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
 
 /**
@@ -197,5 +198,5 @@ export interface ISplitTreatmentsProps {
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
    */
-  children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null);
+  children: ((props: ISplitTreatmentsChildProps) => ReactNode);
 }
