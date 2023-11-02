@@ -1,21 +1,8 @@
 import React from 'react';
-import memoizeOne from 'memoize-one';
-import shallowEqual from 'shallowequal';
 import { SplitContext } from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
-
-function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
-  return newArgs[0] === lastArgs[0] && // client
-    newArgs[1] === lastArgs[1] && // lastUpdate
-    shallowEqual(newArgs[2], lastArgs[2]) && // names
-    shallowEqual(newArgs[3], lastArgs[3]) && // attributes
-    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
-}
-
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
-  return client.getTreatmentsWithConfig(names, attributes);
-}
+import { memoizeGetTreatmentsWithConfig } from './utils';
 
 /**
  * SplitTreatments accepts a list of feature flag names and optional attributes. It access the client at SplitContext to
@@ -27,9 +14,8 @@ export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
 
   private logWarning?: boolean;
 
-  // Attaching a memoized `client.getTreatmentsWithConfig` function to the component instance, to avoid duplicated impressions because
-  // the function result is the same given the same `client` instance, `lastUpdate` timestamp, and list of feature flag `names` and `attributes`.
-  private evaluateFeatureFlags = memoizeOne(evaluateFeatureFlags, argsAreEqual);
+  // Using a memoized `client.getTreatmentsWithConfig` function to avoid duplicated impressions
+  private evaluateFeatureFlags = memoizeGetTreatmentsWithConfig();
 
   render() {
     const { names, children, attributes } = this.props;

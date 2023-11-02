@@ -74,9 +74,10 @@ test('useSplitClient must update on SDK events', () => {
         <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
           {React.createElement(() => {
             const status = useSplitClient('user_2', undefined, undefined, { updateOnSdkUpdate: true });
-            countNestedComponent++;
-
             expect(status.client).toBe(user2Client);
+
+            // useSplitClient doesn't re-render twice if it is in the context of a SplitClient with same user key and there is a SDK event
+            countNestedComponent++;
             switch (countNestedComponent) {
               case 1:
                 expect(status.isReady).toBe(false);

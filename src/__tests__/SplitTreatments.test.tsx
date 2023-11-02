@@ -25,6 +25,7 @@ jest.mock('../constants', () => {
 import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from '../constants';
 import { getStatus } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
+import { useSplitTreatments } from '../useSplitTreatments';
 
 describe('SplitTreatments', () => {
 
@@ -143,13 +144,26 @@ describe('SplitTreatments', () => {
 
 });
 
+let renderTimes = 0;
+
 /**
- * Tests for asserting that client.getTreatmentsWithConfig is not called unnecessarely
+ * Tests for asserting that client.getTreatmentsWithConfig is not called unnecessarily when using SplitTreatments and useSplitTreatments.
  */
-describe('SplitTreatments optimization', () => {
-
-  let renderTimes = 0;
-
+describe.each([
+  ({ names, attributes }) => (
+    <SplitTreatments names={names} attributes={attributes} >
+      {() => {
+        renderTimes++;
+        return null;
+      }}
+    </SplitTreatments>
+  ),
+  ({ names, attributes }) => {
+    useSplitTreatments(names, attributes);
+    renderTimes++;
+    return null;
+  }
+])('SplitTreatments & useSplitTreatments optimization', (InnerComponent) => {
   let outerFactory = SplitSdk(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
@@ -162,12 +176,7 @@ describe('SplitTreatments optimization', () => {
     return (
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
-          <SplitTreatments names={names} attributes={attributes} >
-            {() => {
-              renderTimes++;
-              return null;
-            }}
-          </SplitTreatments>
+          <InnerComponent names={names} attributes={attributes} />
         </SplitClient>
       </SplitFactory>
     );
@@ -243,9 +252,9 @@ describe('SplitTreatments optimization', () => {
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
   });
 
-  it('rerenders and re-evaluates feature flags if client changes.', () => {
+  it('rerenders and re-evaluates feature flags if client changes.', async () => {
     wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
-    act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
+    await act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
 
     // Initial render + 2 renders (in 3 updates) -> automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
     expect(renderTimes).toBe(3);
@@ -253,7 +262,7 @@ describe('SplitTreatments optimization', () => {
     expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
-  it('rerenders and re-evaluate splfeature flagsits when Split context changes (in both SplitFactory and SplitClient components).', async () => {
+  it('rerenders and re-evaluate feature flags when Split context changes (in both SplitFactory and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
     const outerFactory = SplitSdk(sdkBrowser);
     const names = ['split1', 'split2'];

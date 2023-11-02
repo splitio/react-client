@@ -34,7 +34,7 @@ function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTre
   }
 }
 
-test('useSplitTreatments', async () => {
+test('useSplitTreatments must update on SDK events', async () => {
   const outerFactory = SplitSdk(sdkBrowser);
   const mainClient = outerFactory.client() as any;
   const user2Client = outerFactory.client('user_2') as any;
