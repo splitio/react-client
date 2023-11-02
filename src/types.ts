@@ -174,18 +174,21 @@ export interface ISplitClientProps extends IUseSplitClientOptions {
  * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
  * used to call 'client.getTreatmentsWithConfig()' or 'client.getTreatmentsWithConfigByFlagSets()', and retrieve the result together with the Split context.
  */
-export interface IUseSplitTreatmentsOptions extends IUseSplitClientOptions {
+export type IUseSplitTreatmentsOptions = IUseSplitClientOptions & ({
 
   /**
    * list of feature flag names
    */
-  names?: string[];
+  names: string[];
+  flagSets?: undefined;
+} | {
 
   /**
    * list of feature flag sets
    */
-  flagSets?: string[];
-}
+  flagSets: string[];
+  names?: undefined;
+})
 
 /**
  * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
@@ -207,17 +210,7 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component,
  * used to call 'client.getTreatmentsWithConfig()' and pass the result to the child component.
  */
-export interface ISplitTreatmentsProps {
-
-  /**
-   * list of feature flag names
-   */
-  names?: string[];
-
-  /**
-   * list of feature flag sets
-   */
-  flagSets?: string[];
+export type ISplitTreatmentsProps = {
 
   /**
    * An object of type Attributes used to evaluate the feature flags.
@@ -228,4 +221,18 @@ export interface ISplitTreatmentsProps {
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
    */
   children: ((props: ISplitTreatmentsChildProps) => ReactNode);
-}
+} & ({
+
+  /**
+   * list of feature flag names
+   */
+  names: string[];
+  flagSets?: undefined;
+} | {
+
+  /**
+   * list of feature flag sets
+   */
+  flagSets: string[];
+  names?: undefined;
+})

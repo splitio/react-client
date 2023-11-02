@@ -150,16 +150,16 @@ let renderTimes = 0;
  * Tests for asserting that client.getTreatmentsWithConfig is not called unnecessarily when using SplitTreatments and useSplitTreatments.
  */
 describe.each([
-  ({ names, attributes }) => (
-    <SplitTreatments names={names} attributes={attributes} >
+  ({ names, attributes }: { names: string[], attributes: SplitIO.Attributes }) => (
+    <SplitTreatments names={names} attributes={attributes} flagSets={undefined} >
       {() => {
         renderTimes++;
         return null;
       }}
     </SplitTreatments>
   ),
-  ({ names, attributes }) => {
-    useSplitTreatments({ names, attributes });
+  ({ names, attributes }: { names: string[], attributes: SplitIO.Attributes }) => {
+    useSplitTreatments({ names, attributes, flagSets: undefined });
     renderTimes++;
     return null;
   }
