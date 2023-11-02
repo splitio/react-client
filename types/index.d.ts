@@ -11,5 +11,6 @@ export { useTrack } from './useTrack';
 export { useManager } from './useManager';
 export { useSplitClient } from './useSplitClient';
 export { useSplitTreatments } from './useSplitTreatments';
+export { useSplitManager } from './useSplitManager';
 export { SplitContext } from './SplitContext';
 export type { ISplitClientChildProps, ISplitClientProps, ISplitContextValues, ISplitFactoryChildProps, ISplitFactoryProps, ISplitStatus, ISplitTreatmentsChildProps, ISplitTreatmentsProps, IUpdateProps } from './types';

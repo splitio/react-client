@@ -1,5 +1,4 @@
-import React from 'react';
-import { SplitContext } from './SplitContext';
+import { useSplitManager } from './useSplitManager';
 
 /**
  * 'useManager' is a hook that returns the Manager instance from the Split factory.
@@ -8,8 +7,9 @@ import { SplitContext } from './SplitContext';
  *
  * @return A Split Manager instance, or null if used outside the scope of SplitFactory
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+ *
+ * @deprecated useSplitManager is the new hook to use.
  */
 export function useManager(): SplitIO.IManager | null {
-  const { factory } = React.useContext(SplitContext);
-  return factory ? factory.manager() : null;
+  return useSplitManager().manager;
 }

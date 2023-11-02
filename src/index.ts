@@ -11,13 +11,14 @@ export { SplitTreatments } from './SplitTreatments';
 export { SplitClient } from './SplitClient';
 export { SplitFactory } from './SplitFactory';
 
-// helper functions/hooks
+// Hooks
 export { useClient } from './useClient';
 export { useTreatments } from './useTreatments';
 export { useTrack } from './useTrack';
 export { useManager } from './useManager';
 export { useSplitClient } from './useSplitClient';
 export { useSplitTreatments } from './useSplitTreatments';
+export { useSplitManager } from './useSplitManager';
 
 // SplitContext
 export { SplitContext } from './SplitContext';
