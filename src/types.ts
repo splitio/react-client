@@ -1,4 +1,5 @@
 import SplitIO from '@splitsoftware/splitio/types/splitio';
+import type { ReactNode } from 'react';
 
 /**
  * Split Status interface. It represents the current readiness state of the SDK.
@@ -124,7 +125,30 @@ export interface ISplitFactoryProps extends IUpdateProps {
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
-  children: ((props: ISplitFactoryChildProps) => JSX.Element | null) | JSX.Element | null;
+  children: ((props: ISplitFactoryChildProps) => ReactNode) | ReactNode;
+}
+
+/**
+ * useSplitClient options interface. This is the options object accepted by useSplitClient hook,
+ * used to retrieve a client instance with the Split context, and listen for SDK events.
+ */
+export interface IUseSplitClientOptions extends IUpdateProps {
+
+  /**
+   * The customer identifier.
+   */
+  splitKey?: SplitIO.SplitKey;
+
+  /**
+   * Traffic type associated with the customer identifier.
+   * If no provided here or at the config object, it will be required on the client.track() calls.
+   */
+  trafficType?: string;
+
+  /**
+   * An object of type Attributes used to evaluate the feature flags.
+   */
+  attributes?: SplitIO.Attributes;
 }
 
 /**
@@ -138,28 +162,24 @@ export interface ISplitClientChildProps extends ISplitContextValues { }
  * SplitClient Props interface. These are the props accepted by SplitClient component,
  * used to instantiate a new client instance, update the Split context, and listen for SDK events.
  */
-export interface ISplitClientProps extends IUpdateProps {
-
-  /**
-   * The customer identifier.
-   */
-  splitKey: SplitIO.SplitKey;
-
-  /**
-   * Traffic type associated with the customer identifier.
-   * If no provided here or at the config object, it will be required on the client.track() calls.
-   */
-  trafficType?: string;
-
-  /**
-   * An object of type Attributes used to evaluate the feature flags.
-   */
-  attributes?: SplitIO.Attributes;
+export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
-  children: ((props: ISplitClientChildProps) => JSX.Element | null) | JSX.Element | null;
+  children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
+}
+
+/**
+ * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
+ * used to call 'client.getTreatmentsWithConfig()' and retrieve the result together with the Split context.
+ */
+export interface IUseSplitTreatmentsOptions extends IUseSplitClientOptions {
+
+  /**
+   * list of feature flag names
+   */
+  names: string[]
 }
 
 /**
@@ -197,5 +217,5 @@ export interface ISplitTreatmentsProps {
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
    */
-  children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null);
+  children: ((props: ISplitTreatmentsChildProps) => ReactNode);
 }

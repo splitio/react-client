@@ -21,16 +21,16 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method binded to the client at Split context updated by SplitFactory.', () => {
+  test('returns the track method bound to the client at Split context updated by SplitFactory.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
-    let bindedTrack;
+    let boundTrack;
     let trackResult;
 
     render(
       <SplitFactory factory={outerFactory} >
         {React.createElement(() => {
-          bindedTrack = useTrack();
-          trackResult = bindedTrack(tt, eventType, value, properties);
+          boundTrack = useTrack();
+          trackResult = boundTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactory>,
@@ -40,17 +40,17 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method binded to the client at Split context updated by SplitClient.', () => {
+  test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
-    let bindedTrack;
+    let boundTrack;
     let trackResult;
 
     render(
       <SplitFactory factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
-            bindedTrack = useTrack();
-            trackResult = bindedTrack(tt, eventType, value, properties);
+            boundTrack = useTrack();
+            trackResult = boundTrack(tt, eventType, value, properties);
             return null;
           })}
         </SplitClient>
@@ -61,16 +61,16 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method binded to a new client given a splitKey and optional trafficType.', () => {
+  test('returns the track method bound to a new client given a splitKey and optional trafficType.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
-    let bindedTrack;
+    let boundTrack;
     let trackResult;
 
     render(
       <SplitFactory factory={outerFactory} >
         {React.createElement(() => {
-          bindedTrack = useTrack('user2', tt);
-          trackResult = bindedTrack(eventType, value, properties);
+          boundTrack = useTrack('user2', tt);
+          trackResult = boundTrack(eventType, value, properties);
           return null;
         })}
       </SplitFactory>,
