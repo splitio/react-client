@@ -1,7 +1,7 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
-import { ISplitContextValues, IUpdateProps } from './types';
+import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
   updateOnSdkUpdate: false,
@@ -17,17 +17,17 @@ export const DEFAULT_UPDATE_OPTIONS = {
  * @return A Split Context object
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-export function useSplitClient(key?: SplitIO.SplitKey, trafficType?: string, attributes?: SplitIO.Attributes, options?: IUpdateProps): ISplitContextValues {
+export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
   const {
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
+    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, trafficType, attributes
   } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
   const context = React.useContext(SplitContext);
   const { client: contextClient, factory } = context;
 
   let client = contextClient as IClientWithContext;
-  if (key && factory) {
-    client = getSplitClient(factory, key, trafficType);
+  if (splitKey && factory) {
+    client = getSplitClient(factory, splitKey, trafficType);
   }
   initAttributes(client, attributes);
 

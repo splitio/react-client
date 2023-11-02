@@ -51,21 +51,21 @@ test('useSplitTreatments must update on SDK events', async () => {
           {() => { countSplitTreatments++; return null }}
         </SplitTreatments>
         {React.createElement(() => {
-          const context = useSplitTreatments(['split_test'], { att1: 'att1' });
+          const context = useSplitTreatments({ names: ['split_test'], attributes: { att1: 'att1' } });
           expect(context.client).toBe(mainClient); // Assert that the main client was retrieved.
           validateTreatments(context);
           countUseSplitTreatments++;
           return null;
         })}
         {React.createElement(() => {
-          const context = useSplitTreatments(['split_test'], undefined, 'user_2');
+          const context = useSplitTreatments({ names: ['split_test'], splitKey: 'user_2' });
           expect(context.client).toBe(user2Client);
           validateTreatments(context);
           countUseSplitTreatmentsUser2++;
           return null;
         })}
         {React.createElement(() => {
-          const context = useSplitTreatments(['split_test'], undefined, 'user_2', { updateOnSdkUpdate: true });
+          const context = useSplitTreatments({ names: ['split_test'], splitKey: 'user_2', updateOnSdkUpdate: true });
           expect(context.client).toBe(user2Client);
           validateTreatments(context);
           countUseSplitTreatmentsUser2WithUpdate++;

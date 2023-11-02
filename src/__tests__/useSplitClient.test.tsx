@@ -40,7 +40,7 @@ test('useSplitClient must update on SDK events', () => {
           // Equivalent to
           // - Using config key and traffic type: `const { client } = useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, { att1: 'att1' });`
           // - Disabling update props, since the wrapping SplitFactory has them enabled: `const { client } = useSplitClient(undefined, undefined, { att1: 'att1' }, { updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
-          const { client } = useSplitClient(undefined, undefined, { att1: 'att1' });
+          const { client } = useSplitClient({ attributes: { att1: 'att1' } });
           expect(client).toBe(mainClient); // Assert that the main client was retrieved.
           expect(client!.getAttributes()).toEqual({ att1: 'att1' }); // Assert that the client was retrieved with the provided attributes.
           countUseSplitClient++;
@@ -50,7 +50,7 @@ test('useSplitClient must update on SDK events', () => {
           {() => { countSplitClientUser2++; return null }}
         </SplitClient>
         {React.createElement(() => {
-          const { client } = useSplitClient('user_2');
+          const { client } = useSplitClient({ splitKey: 'user_2' });
           expect(client).toBe(user2Client);
           countUseSplitClientUser2++;
           return null;
@@ -59,7 +59,7 @@ test('useSplitClient must update on SDK events', () => {
           {() => { countSplitClientWithUpdate++; return null }}
         </SplitClient>
         {React.createElement(() => {
-          useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, undefined, { updateOnSdkUpdate: true }).client;
+          useSplitClient({ splitKey: sdkBrowser.core.key, trafficType: sdkBrowser.core.trafficType, updateOnSdkUpdate: true }).client;
           countUseSplitClientWithUpdate++;
           return null;
         })}
@@ -67,13 +67,13 @@ test('useSplitClient must update on SDK events', () => {
           {() => { countSplitClientUser2WithUpdate++; return null }}
         </SplitClient>
         {React.createElement(() => {
-          useSplitClient('user_2', undefined, undefined, { updateOnSdkUpdate: true });
+          useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
           countUseSplitClientUser2WithUpdate++;
           return null;
         })}
         <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
           {React.createElement(() => {
-            const status = useSplitClient('user_2', undefined, undefined, { updateOnSdkUpdate: true });
+            const status = useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
             expect(status.client).toBe(user2Client);
 
             // useSplitClient doesn't re-render twice if it is in the context of a SplitClient with same user key and there is a SDK event
@@ -143,7 +143,7 @@ test('useSplitClient must support changes in update props', () => {
   let rendersCount = 0;
 
   function InnerComponent(updateOptions) {
-    useSplitClient(undefined, undefined, undefined, updateOptions);
+    useSplitClient(updateOptions);
     rendersCount++;
     return null;
   }

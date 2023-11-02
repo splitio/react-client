@@ -159,7 +159,7 @@ describe.each([
     </SplitTreatments>
   ),
   ({ names, attributes }) => {
-    useSplitTreatments(names, attributes);
+    useSplitTreatments({ names, attributes });
     renderTimes++;
     return null;
   }
