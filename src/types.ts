@@ -102,7 +102,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
- * used to instantiate a factory and client instances, update the Split context, and listen for SDK events.
+ * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitFactoryProps extends IUpdateProps {
 
@@ -129,22 +129,15 @@ export interface ISplitFactoryProps extends IUpdateProps {
 }
 
 /**
- * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
+ * useSplitClient options interface. This is the options object accepted by useSplitClient hook,
+ * used to retrieve a client instance with the Split context, and listen for SDK events.
  */
-// @TODO remove next type (breaking-change)
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ISplitClientChildProps extends ISplitContextValues { }
-
-/**
- * SplitClient Props interface. These are the props accepted by SplitClient component,
- * used to instantiate a new client instances, update the Split context, and listen for SDK events.
- */
-export interface ISplitClientProps extends IUpdateProps {
+export interface IUseSplitClientOptions extends IUpdateProps {
 
   /**
    * The customer identifier.
    */
-  splitKey: SplitIO.SplitKey;
+  splitKey?: SplitIO.SplitKey;
 
   /**
    * Traffic type associated with the customer identifier.
@@ -156,11 +149,37 @@ export interface ISplitClientProps extends IUpdateProps {
    * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
+}
+
+/**
+ * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
+ */
+// @TODO remove next type (breaking-change)
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ISplitClientChildProps extends ISplitContextValues { }
+
+/**
+ * SplitClient Props interface. These are the props accepted by SplitClient component,
+ * used to instantiate a new client instance, update the Split context, and listen for SDK events.
+ */
+export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
+}
+
+/**
+ * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
+ * used to call 'client.getTreatmentsWithConfig()' and retrieve the result together with the Split context.
+ */
+export interface IUseSplitTreatmentsOptions extends IUseSplitClientOptions {
+
+  /**
+   * list of feature flag names
+   */
+  names: string[]
 }
 
 /**
