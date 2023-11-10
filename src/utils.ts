@@ -49,7 +49,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 // idempotent operation
 export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+  const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
 
   // Handle client lastUpdate
   if (client.lastUpdate === undefined) {
