@@ -8,15 +8,7 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-jest.mock('../constants', () => {
-  const actual = jest.requireActual('../constants');
-  return {
-    ...actual,
-    getControlTreatmentsWithConfig: jest.fn(actual.getControlTreatmentsWithConfig),
-  };
-});
-import { CONTROL_WITH_CONFIG, getControlTreatmentsWithConfig } from '../constants';
-const logSpy = jest.spyOn(console, 'log');
+import { CONTROL_WITH_CONFIG } from '../constants';
 
 /** Test target */
 import { SplitFactory } from '../SplitFactory';
@@ -26,20 +18,25 @@ import { SplitTreatments } from '../SplitTreatments';
 import { SplitContext } from '../SplitContext';
 import { ISplitTreatmentsChildProps } from '../types';
 
+const logSpy = jest.spyOn(console, 'log');
+
 describe('useSplitTreatments', () => {
 
   const featureFlagNames = ['split1'];
+  const flagSets = ['set1'];
   const attributes = { att1: 'att1' };
 
-  test('returns the treatments evaluated by the client at Split context updated by SplitFactory, or control if the client is not operational.', () => {
+  test('returns the treatments evaluated by the client at Split context, or control if the client is not operational.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client();
     let treatments: SplitIO.TreatmentsWithConfig;
+    let treatmentsByFlagSets: SplitIO.TreatmentsWithConfig;
 
     render(
       <SplitFactory factory={outerFactory} >
         {React.createElement(() => {
           treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes }).treatments;
           return null;
         })}
       </SplitFactory>
@@ -49,14 +46,21 @@ describe('useSplitTreatments', () => {
     expect(client.getTreatmentsWithConfig).not.toBeCalled();
     expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
+    // returns empty treatments object if not operational, without calling `getTreatmentsWithConfigByFlagSets` method
+    expect(client.getTreatmentsWithConfigByFlagSets).not.toBeCalled();
+    expect(treatmentsByFlagSets!).toEqual({});
+
     // once operational (SDK_READY), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
     expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+
+    expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes);
+    expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
   });
 
-  test('returns the Treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
+  test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
     let treatments: SplitIO.TreatmentsWithConfig;
@@ -83,7 +87,7 @@ describe('useSplitTreatments', () => {
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
-  test('returns the Treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
+  test('returns the treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const client: any = outerFactory.client('user2');
     let renderTimes = 0;
@@ -122,17 +126,17 @@ describe('useSplitTreatments', () => {
   });
 
   // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
-  test('returns Control Treatments if invoked outside Split context.', () => {
-    let treatments;
-
+  test('returns control treatments (empty object if flagSets is provided) if invoked outside Split context.', () => {
     render(
       React.createElement(() => {
-        treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+        const treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+        expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+
+        const treatmentsByFlagSets = useSplitTreatments({ flagSets: featureFlagNames }).treatments;
+        expect(treatmentsByFlagSets).toEqual({});
         return null;
       })
     );
-    expect(getControlTreatmentsWithConfig).toBeCalledWith(featureFlagNames);
-    expect(getControlTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 
   /**
@@ -237,6 +241,18 @@ describe('useSplitTreatments', () => {
     expect(countUseSplitTreatmentsUser2WithUpdate).toEqual(countSplitContext + 3);
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(5);
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined);
+  });
+
+  test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
+    render(
+      React.createElement(() => {
+        const treatments = useSplitTreatments({ names: featureFlagNames, flagSets, attributes }).treatments;
+        expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+        return null;
+      })
+    );
+
+    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both "names" and "flagSets" props were provided. "flagSets" will be ignored.');
   });
 
 });

@@ -9,3 +9,4 @@ export declare const ERROR_SF_NO_CONFIG_AND_FACTORY: string;
 export declare const ERROR_SC_NO_FACTORY: string;
 export declare const WARN_ST_NO_CLIENT: string;
 export declare const EXCEPTION_NO_REACT_OR_CREATECONTEXT: string;
+export declare const WARN_NAMES_AND_FLAGSETS: string;

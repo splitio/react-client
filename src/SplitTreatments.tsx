@@ -1,7 +1,7 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
-import { getControlTreatmentsWithConfig, WARN_ST_NO_CLIENT } from './constants';
+import { WARN_ST_NO_CLIENT } from './constants';
 import { memoizeGetTreatmentsWithConfig } from './utils';
 
 /**
@@ -24,17 +24,9 @@ export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
     return (
       <SplitContext.Consumer>
         {(splitContext: ISplitContextValues) => {
-          const { client, isReady, isReadyFromCache, isDestroyed, lastUpdate } = splitContext;
-          let treatments;
-          const isOperational = !isDestroyed && (isReady || isReadyFromCache);
-          if (client && isOperational) {
-            // Cloning `client.getAttributes` result for memoization, because it returns the same reference unless `client.clearAttributes` is called.
-            // Caveat: same issue happens with `names` and `attributes` props if the user follows the bad practice of mutating the object instead of providing a new one.
-            treatments = this.evaluateFeatureFlags(client, lastUpdate, names, attributes, { ...client.getAttributes() }, flagSets);
-          } else {
-            treatments = getControlTreatmentsWithConfig(names);
-            if (!client) { this.logWarning = true; }
-          }
+          const { client, lastUpdate } = splitContext;
+          const treatments = this.evaluateFeatureFlags(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets);
+          if (!client) { this.logWarning = true; }
           // SplitTreatments only accepts a function as a child, not a React Element (JSX)
           return children({
             ...splitContext, treatments,
