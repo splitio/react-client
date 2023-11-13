@@ -7,6 +7,12 @@ import { ISplitContextValues } from './types';
  * It uses the 'useContext' hook to access the factory at Split context, which is updated by the SplitFactory component.
  *
  * @return An object containing the Split context and the Split Manager instance, which is null if used outside the scope of SplitFactory
+ *
+ * @example
+ * ```js
+ * const { manager, isReady } = useSplitManager();
+ * ```
+ *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
 export function useSplitManager(): ISplitContextValues & { manager: SplitIO.IManager | null } {
