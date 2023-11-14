@@ -37,6 +37,9 @@ describe('useSplitTreatments', () => {
         {React.createElement(() => {
           treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
           treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes }).treatments;
+
+          // @ts-expect-error Options object must provide either names or flagSets
+          expect(useSplitTreatments({}).treatments).toEqual({});
           return null;
         })}
       </SplitFactory>
@@ -246,6 +249,7 @@ describe('useSplitTreatments', () => {
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
     render(
       React.createElement(() => {
+        // @ts-expect-error names and flagSets are mutually exclusive
         const treatments = useSplitTreatments({ names: featureFlagNames, flagSets, attributes }).treatments;
         expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
         return null;

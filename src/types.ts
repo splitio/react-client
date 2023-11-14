@@ -170,17 +170,21 @@ export interface ISplitClientProps extends IUseSplitClientOptions {
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
 
-export type GetTreatmentsOptions = {
+export type GetTreatmentsOptions = ({
 
   /**
    * List of feature flag names to evaluate. Either this or the `flagSets` property must be provided. If both are provided, the `flagSets` option is ignored.
    */
-  names?: string[];
+  names: string[];
+  flagSets?: undefined;
+} | {
 
   /**
    * List of feature flag sets to evaluate. Either this or the `names` property must be provided. If both are provided, the `flagSets` option is ignored.
    */
-  flagSets?: string[];
+  flagSets: string[];
+  names?: undefined;
+}) & {
 
   /**
    * An object of type Attributes used to evaluate the feature flags.
@@ -192,7 +196,7 @@ export type GetTreatmentsOptions = {
  * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
  * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and retrieve the result together with the Split context.
  */
-export interface IUseSplitTreatmentsOptions extends GetTreatmentsOptions, IUseSplitClientOptions { }
+export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientOptions;
 
 /**
  * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
@@ -214,7 +218,7 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component,
  * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and pass the result to the child component.
  */
-export interface ISplitTreatmentsProps extends GetTreatmentsOptions {
+export type ISplitTreatmentsProps = GetTreatmentsOptions & {
 
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.

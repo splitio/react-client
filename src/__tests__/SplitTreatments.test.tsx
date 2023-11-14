@@ -152,6 +152,7 @@ describe('SplitTreatments', () => {
 
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
     render(
+      // @ts-expect-error flagSets and names are mutually exclusive
       <SplitTreatments names={featureFlagNames} flagSets={flagSets} >
         {({ treatments }) => {
           expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
@@ -171,6 +172,7 @@ let renderTimes = 0;
  */
 describe.each([
   ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => (
+    // @ts-expect-error names and flagSets are mutually exclusive
     <SplitTreatments names={names} attributes={attributes} flagSets={flagSets} >
       {() => {
         renderTimes++;
@@ -179,6 +181,7 @@ describe.each([
     </SplitTreatments>
   ),
   ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => {
+    // @ts-expect-error names and flagSets are mutually exclusive
     useSplitTreatments({ names, flagSets, attributes });
     renderTimes++;
     return null;
