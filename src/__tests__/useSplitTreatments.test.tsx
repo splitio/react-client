@@ -156,8 +156,8 @@ describe('useSplitTreatments', () => {
         return null;
       })
     );
-    expect(logSpy).toBeCalledWith('[ERROR] split names must be a non-empty array.');
-    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid split name, split name must be a non-empty string.');
+    expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
+    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid feature flag name, feature flag name must be a non-empty string.');
   });
 
   test('useSplitTreatments must update on SDK events', async () => {

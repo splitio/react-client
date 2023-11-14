@@ -15,6 +15,12 @@ export const DEFAULT_UPDATE_OPTIONS = {
  * It uses the 'useContext' hook to access the context, which is updated by SplitFactory and SplitClient components in the hierarchy of components.
  *
  * @return A Split Context object
+ *
+ * @example
+ * ```js
+ * const { factory, client, isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: 'user_id' });
+ * ```
+ *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
