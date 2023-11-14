@@ -177,12 +177,12 @@ export interface ISplitClientProps extends IUseSplitClientOptions {
 export interface IUseSplitTreatmentsOptions extends IUseSplitClientOptions {
 
   /**
-   * list of feature flag names
+   * list of feature flag names to evaluate. If provided, the `flagSets` option is ignored.
    */
   names?: string[];
 
   /**
-   * list of feature flag sets
+   * list of feature flag sets to evaluate.
    */
   flagSets?: string[];
 }
@@ -220,12 +220,12 @@ export interface ISplitTreatmentsProps {
   children: ((props: ISplitTreatmentsChildProps) => ReactNode);
 
   /**
-   * list of feature flag names
+   * list of feature flag names to evaluate. If provided, the `flagSets` prop is ignored.
    */
   names?: string[];
 
   /**
-   * list of feature flag sets
+   * list of feature flag sets to evaluate.
    */
   flagSets?: string[];
 }
