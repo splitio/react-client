@@ -14,6 +14,7 @@ import {
   useTreatments as exportedUseTreatments,
   useSplitClient as exportedUseSplitClient,
   useSplitTreatments as exportedUseSplitTreatments,
+  useSplitManager as exportedUseSplitManager,
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
   ISplitClientChildProps,
   ISplitClientProps,
@@ -39,6 +40,7 @@ import { useTrack } from '../useTrack';
 import { useTreatments } from '../useTreatments';
 import { useSplitClient } from '../useSplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
+import { useSplitManager } from '../useSplitManager';
 
 describe('index', () => {
 
@@ -61,6 +63,7 @@ describe('index', () => {
     expect(exportedUseTreatments).toBe(useTreatments);
     expect(exportedUseSplitClient).toBe(useSplitClient);
     expect(exportedUseSplitTreatments).toBe(useSplitTreatments);
+    expect(exportedUseSplitManager).toBe(useSplitManager);
   });
 
   it('should export SplitContext', () => {
