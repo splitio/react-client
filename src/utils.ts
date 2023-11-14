@@ -99,7 +99,7 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
 
 // Input validation utils that will be replaced eventually
 
-export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'split names'): false | string[] {
+export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
   if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
     const validatedArray: string[] = [];
     // Remove invalid values
@@ -125,7 +125,7 @@ export function initAttributes(client: SplitIO.IBrowserClient | null, attributes
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
-function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'split name'): false | string {
+function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'feature flag name'): false | string {
   if (maybeFeatureFlag == undefined) {
     console.log(`[ERROR] you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
   } else if (!isString(maybeFeatureFlag)) {
