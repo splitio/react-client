@@ -4,5 +4,6 @@
 /lib
 /es
 /umd
+/types
 /coverage
 .scannerwork

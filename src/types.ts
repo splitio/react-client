@@ -191,8 +191,8 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
    * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
    * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
    *   {
-   *     split1: { treatment: 'on', config: null }
-   *     split2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
+   *     feature1: { treatment: 'on', config: null }
+   *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
    *   }
    */
   treatments: SplitIO.TreatmentsWithConfig;
