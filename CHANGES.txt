@@ -1,7 +1,6 @@
 1.10.0 (November XX, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
-      - Added a new `flagSets` prop to the `SplitTreatments` component and `flagSets` argument to the `useSplitTreatments` hook options object, to support evaluating flags in given flag set/s.
-            - Either `names` or `flagSets` must be provided to the component and hook. If both are provided, `names` will be used.
+      - Added a new `flagSets` prop to the `SplitTreatments` component and `flagSets` option to the `useSplitTreatments` hook options object, to support evaluating flags in given flag set/s. Either `names` or `flagSets` must be provided to the component and hook. If both are provided, `names` will be used.
       - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
       - Updated the following SDK manager methods to expose flag sets on flag views: `manager.splits()` and `manager.split()`.
  - Added new `useSplitClient` and `useSplitTreatments` hooks to use instead of `useClient` and `useTreatments` respectively, which are deprecated now.

@@ -5,8 +5,8 @@ import { useSplitClient } from './useSplitClient';
 
 /**
  * 'useSplitTreatments' is a hook that returns an SplitContext object extended with a `treatments` property object that contains feature flag evaluations.
- * It uses the 'useSplitClient' hook to access the client from the Split context, and invokes the 'getTreatmentsWithConfig' method if `names` option is provided,
- * or the 'getTreatmentsWithConfigByFlagSets' method if `flagSets` option is provided.
+ * It uses the 'useSplitClient' hook to access the client from the Split context, and invokes the 'client.getTreatmentsWithConfig()' method if the `names` option is provided,
+ * or the 'client.getTreatmentsWithConfigByFlagSets()' method if the `flagSets` option is provided.
  *
  * @return A Split Context object extended with a TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if feature flag names do not exist.
  *
@@ -24,8 +24,8 @@ export function useSplitTreatments(options: IUseSplitTreatmentsOptions): ISplitT
 
   const getTreatmentsWithConfig = React.useMemo(memoizeGetTreatmentsWithConfig, []);
 
-  // Clone `client.getAttributes` result for memoization, because it returns the same reference unless `client.clearAttributes` is called.
-  // Note: the same issue occurs with `names` and `attributes` arguments if the user mutates them directly instead of providing a new object.
+  // Shallow copy `client.getAttributes` result for memoization, as it returns the same reference unless `client.clearAttributes` is invoked.
+  // Note: the same issue occurs with the `names` and `attributes` arguments if they are mutated directly by the user instead of providing a new object.
   const treatments = getTreatmentsWithConfig(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets);
 
   return {

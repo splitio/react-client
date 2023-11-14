@@ -160,7 +160,7 @@ describe('SplitTreatments', () => {
       </SplitTreatments>
     );
 
-    expect(logSpy).toBeCalledWith('[WARN]  Both "names" and "flagSets" props were provided. "flagSets" will be ignored.');
+    expect(logSpy).toBeCalledWith('[WARN]  Both names and flagSets props were provided. flagSets will be ignored.');
   });
 });
 

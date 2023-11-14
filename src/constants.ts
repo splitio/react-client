@@ -40,4 +40,4 @@ export const WARN_ST_NO_CLIENT: string = '[WARN]  SplitTreatments does not have 
 
 export const EXCEPTION_NO_REACT_OR_CREATECONTEXT: string = 'React library is not available or its version is not supported. Check that it is properly installed or imported. Split SDK requires version 16.3.0+ of React.';
 
-export const WARN_NAMES_AND_FLAGSETS: string = '[WARN]  Both "names" and "flagSets" props were provided. "flagSets" will be ignored.';
+export const WARN_NAMES_AND_FLAGSETS: string = '[WARN]  Both names and flagSets props were provided. flagSets will be ignored.';

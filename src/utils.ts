@@ -189,5 +189,5 @@ function evaluateFeatureFlags(client: SplitIO.IBrowserClient | null, _lastUpdate
       client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :
     names ?
       getControlTreatmentsWithConfig(names) :
-      {}
+      {} // empty object when evaluating with flag sets and client is not ready
 }
