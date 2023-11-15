@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 /**
  * Split Status interface. It represents the current readiness state of the SDK.
  */
-interface ISplitStatus {
+export interface ISplitStatus {
 
   /**
    * isReady indicates if the Split SDK client has triggered an SDK_READY event and thus is ready to be consumed.
@@ -102,7 +102,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactory Props interface. These are the props accepted by SplitFactory component,
- * used to instantiate a factory and client instances, update the Split context, and listen for SDK events.
+ * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitFactoryProps extends IUpdateProps {
 
@@ -129,22 +129,15 @@ export interface ISplitFactoryProps extends IUpdateProps {
 }
 
 /**
- * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
+ * useSplitClient options interface. This is the options object accepted by useSplitClient hook,
+ * used to retrieve a client instance with the Split context, and listen for SDK events.
  */
-// @TODO remove next type (breaking-change)
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ISplitClientChildProps extends ISplitContextValues { }
-
-/**
- * SplitClient Props interface. These are the props accepted by SplitClient component,
- * used to instantiate a new client instances, update the Split context, and listen for SDK events.
- */
-export interface ISplitClientProps extends IUpdateProps {
+export interface IUseSplitClientOptions extends IUpdateProps {
 
   /**
    * The customer identifier.
    */
-  splitKey: SplitIO.SplitKey;
+  splitKey?: SplitIO.SplitKey;
 
   /**
    * Traffic type associated with the customer identifier.
@@ -156,12 +149,54 @@ export interface ISplitClientProps extends IUpdateProps {
    * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
+}
+
+/**
+ * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
+ */
+// @TODO remove next type (breaking-change)
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ISplitClientChildProps extends ISplitContextValues { }
+
+/**
+ * SplitClient Props interface. These are the props accepted by SplitClient component,
+ * used to instantiate a new client instance, update the Split context, and listen for SDK events.
+ */
+export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
    * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
+
+export type GetTreatmentsOptions = ({
+
+  /**
+   * List of feature flag names to evaluate. Either this or the `flagSets` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  names: string[];
+  flagSets?: undefined;
+} | {
+
+  /**
+   * List of feature flag sets to evaluate. Either this or the `names` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  flagSets: string[];
+  names?: undefined;
+}) & {
+
+  /**
+   * An object of type Attributes used to evaluate the feature flags.
+   */
+  attributes?: SplitIO.Attributes;
+}
+
+/**
+ * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
+ * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and retrieve the result together with the Split context.
+ */
+export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientOptions;
 
 /**
  * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
@@ -172,8 +207,8 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
    * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
    * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
    *   {
-   *     split1: { treatment: 'on', config: null }
-   *     split2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
+   *     feature1: { treatment: 'on', config: null }
+   *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
    *   }
    */
   treatments: SplitIO.TreatmentsWithConfig;
@@ -181,19 +216,9 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
 
 /**
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component,
- * used to call 'client.getTreatmentsWithConfig()' and pass the result to the child component.
+ * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and pass the result to the child component.
  */
-export interface ISplitTreatmentsProps {
-
-  /**
-   * list of feature flag names
-   */
-  names: string[];
-
-  /**
-   * An object of type Attributes used to evaluate the feature flags.
-   */
-  attributes?: SplitIO.Attributes;
+export type ISplitTreatmentsProps = GetTreatmentsOptions & {
 
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
