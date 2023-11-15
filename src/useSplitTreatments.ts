@@ -8,7 +8,7 @@ import { useSplitClient } from './useSplitClient';
  * It uses the 'useSplitClient' hook to access the client from the Split context, and invokes the 'client.getTreatmentsWithConfig()' method if the `names` option is provided,
  * or the 'client.getTreatmentsWithConfigByFlagSets()' method if the `flagSets` option is provided.
  *
- * @return A Split Context object extended with a TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if feature flag names do not exist.
+ * @returns A Split Context object extended with a TreatmentsWithConfig instance, that might contain control treatments if the client is not available or ready, or if feature flag names do not exist.
  *
  * @example
  * ```js
