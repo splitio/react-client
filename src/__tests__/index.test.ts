@@ -16,6 +16,7 @@ import {
   useSplitTreatments as exportedUseSplitTreatments,
   useSplitManager as exportedUseSplitManager,
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
+  GetTreatmentsOptions,
   ISplitClientChildProps,
   ISplitClientProps,
   ISplitContextValues,
@@ -24,7 +25,9 @@ import {
   ISplitStatus,
   ISplitTreatmentsChildProps,
   ISplitTreatmentsProps,
-  IUpdateProps
+  IUpdateProps,
+  IUseSplitClientOptions,
+  IUseSplitTreatmentsOptions,
 } from '../index';
 import { SplitContext } from '../SplitContext';
 import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';

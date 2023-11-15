@@ -25,6 +25,7 @@ export { SplitContext } from './SplitContext';
 
 // Types
 export type {
+  GetTreatmentsOptions,
   ISplitClientChildProps,
   ISplitClientProps,
   ISplitContextValues,
@@ -33,5 +34,7 @@ export type {
   ISplitStatus,
   ISplitTreatmentsChildProps,
   ISplitTreatmentsProps,
-  IUpdateProps
+  IUpdateProps,
+  IUseSplitClientOptions,
+  IUseSplitTreatmentsOptions,
 } from './types';
