@@ -1,12 +1,15 @@
-1.10.0 (November XX, 2023)
+1.10.0 (November 16, 2023)
+ - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
+      - Added a new `flagSets` prop to the `SplitTreatments` component and `flagSets` option to the `useSplitTreatments` hook options object, to support evaluating flags in given flag set/s. Either `names` or `flagSets` must be provided to the component and hook. If both are provided, `names` will be used.
+      - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
+      - Added `sets` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager to expose flag sets on flag views.
  - Added new `useSplitClient`, `useSplitTreatments` and `useSplitManager` hooks as replacements for the now deprecated `useClient`, `useTreatments` and `useManager` hooks.
       - These new hooks return the Split context object along with the SDK client, treatments and manager respectively, enabling direct access to status properties like `isReady`, eliminating the need for using the `useContext` hook or the client's `ready` promise.
       - `useSplitClient` and `useSplitTreatments` accept an options object as parameter, which support the same arguments as their predecessors, with additional boolean options for controlling re-rendering: `updateOnSdkReady`, `updateOnSdkReadyFromCache`, `updateOnSdkTimedout`, and `updateOnSdkUpdate`.
       - `useSplitTreatments` optimizes feature flag evaluations by using the `useMemo` hook to memoize `getTreatmentsWithConfig` method calls from the SDK. This avoids re-evaluating feature flags when the hook is called with the same options and the feature flag definitions have not changed.
       - They fixed a bug in the deprecated `useClient` and `useTreatments` hooks, which caused them to not re-render and re-evaluate feature flags when they access a different SDK client than the context and its status updates (i.e., when it emits SDK_READY or other event).
- - Added TypeScript types and interfaces to the library index exports, allowing them to be imported, e.g., `import type { ISplitFactoryProps } from '@splitsoftware/splitio-react'` (Related to issue https://github.com/splitio/react-client/issues/162).
+ - Added TypeScript types and interfaces to the library index exports, allowing them to be imported from the library index, e.g., `import type { ISplitFactoryProps } from '@splitsoftware/splitio-react'` (Related to issue https://github.com/splitio/react-client/issues/162).
  - Updated type declarations of the library components to not restrict the type of the `children` prop to ReactElement, allowing to pass any valid ReactNode value (Related to issue https://github.com/splitio/react-client/issues/164).
- - Updated the `useTreatments` hook to optimize feature flag evaluations.
  - Updated linter and other dependencies for vulnerability fixes.
  - Bugfixing - Removed conditional code within hooks to adhere to the rules of hooks and prevent React warnings. Previously, this code checked for the availability of the hooks API (available in React version 16.8.0 or above) and logged an error message. Now, using hooks with React versions below 16.8.0 will throw an error.
  - Bugfixing - Updated `useClient` and `useTreatments` hooks to re-render and re-evaluate feature flags when they consume a different SDK client than the context and its status updates (i.e., when it emits SDK_READY or other event).

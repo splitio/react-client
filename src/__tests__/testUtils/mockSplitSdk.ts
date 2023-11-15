@@ -53,6 +53,12 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
       return result;
     }, {});
   });
+  const getTreatmentsWithConfigByFlagSets: jest.Mock = jest.fn((flagSets: string[]) => {
+    return flagSets.reduce((result: SplitIO.TreatmentsWithConfig, flagSet: string) => {
+      result[flagSet + '_feature_flag'] = { treatment: 'on', config: null };
+      return result;
+    }, {});
+  });
   const setAttributes: jest.Mock = jest.fn((attributes) => {
     attributesCache = Object.assign(attributesCache, attributes);
     return true;
@@ -87,6 +93,7 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
 
   return Object.assign(Object.create(__emitter__), {
     getTreatmentsWithConfig,
+    getTreatmentsWithConfigByFlagSets,
     track,
     ready,
     destroy,

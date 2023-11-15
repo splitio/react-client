@@ -1,7 +1,7 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
-import { VERSION } from './constants';
+import { VERSION, WARN_NAMES_AND_FLAGSETS, getControlTreatmentsWithConfig } from './constants';
 import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -176,9 +176,18 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     newArgs[1] === lastArgs[1] && // lastUpdate
     shallowEqual(newArgs[2], lastArgs[2]) && // names
     shallowEqual(newArgs[3], lastArgs[3]) && // attributes
-    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
+    shallowEqual(newArgs[4], lastArgs[4]) && // client attributes
+    shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
-  return client.getTreatmentsWithConfig(names, attributes);
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | null, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+  if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
+
+  return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
+    names ?
+      client.getTreatmentsWithConfig(names, attributes) :
+      client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :
+    names ?
+      getControlTreatmentsWithConfig(names) :
+      {} // empty object when evaluating with flag sets and client is not ready
 }
