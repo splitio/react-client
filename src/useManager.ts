@@ -5,7 +5,8 @@ import { useSplitManager } from './useSplitManager';
  * It uses the 'useContext' hook to access the factory at Split context, which is updated by
  * the SplitFactory component.
  *
- * @return A Split Manager instance, or null if used outside the scope of SplitFactory
+ * @returns A Split Manager instance, or null if used outside the scope of SplitFactory
+ *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  *
  * @deprecated Replace with the new `useSplitManager` hook.

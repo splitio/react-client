@@ -256,7 +256,7 @@ describe('useSplitTreatments', () => {
       })
     );
 
-    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets props were provided. flagSets will be ignored.');
+    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
   });
 
 });
