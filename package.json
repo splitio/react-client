@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -19,7 +19,7 @@
   "scripts": {
     "build:cjs": "rimraf lib/* types/* && tsc -m commonjs --outDir lib -d true --declarationDir types",
     "build:esm": "rimraf es/* && tsc",
-    "build:umd": "rimraf umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT",
+    "build:umd": "rimraf umd/* && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH",
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "postbuild": "replace 'REACT_SDK_VERSION_NUMBER' $npm_package_version ./lib/constants.js ./es/constants.js ./umd -r",
     "check": "npm run check:lint && npm run check:types",
@@ -62,7 +62,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "10.23.0",
+    "@splitsoftware/splitio": "10.24.0-beta",
     "memoize-one": "^5.1.1",
     "shallowequal": "^1.1.0"
   },
@@ -75,12 +75,13 @@
     "@types/react-dom": "^18.0.0",
     "@types/react-test-renderer": "^18.0.0",
     "@types/shallowequal": "^1.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.55.0",
-    "@typescript-eslint/parser": "^5.55.0",
-    "eslint": "^8.36.0",
-    "eslint-plugin-compat": "^4.1.2",
+    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/parser": "^6.6.0",
+    "eslint": "^8.48.0",
+    "eslint-plugin-compat": "^4.2.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^3.1.0",
     "jest": "^27.2.3",
     "react": "^18.0.0",

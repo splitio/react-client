@@ -1,43 +1,21 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
-jest.mock('@splitsoftware/splitio/client', () => {
-  return { SplitFactory: mockSdk() };
-});
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
-import { sdkBrowser } from './testUtils/sdkConfigs';
+const useSplitManagerMock = jest.fn();
+jest.mock('../useSplitManager', () => ({
+  useSplitManager: useSplitManagerMock
+}));
 
 /** Test target */
-import { SplitFactory } from '../SplitFactory';
 import { useManager } from '../useManager';
 
 describe('useManager', () => {
 
-  test('returns the factory manager from the Split context.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
-    let manager;
-    render(
-      <SplitFactory factory={outerFactory} >
-        {React.createElement(() => {
-          manager = useManager();
-          return null;
-        })}
-      </SplitFactory>
-    );
-    expect(manager).toBe(outerFactory.manager());
-  });
+  test('calls useSplitManager with the correct arguments and returns the manager.', () => {
+    const manager = 'manager';
+    useSplitManagerMock.mockReturnValue({ manager, isReady: false });
 
-  test('returns null if invoked outside Split context.', () => {
-    let manager;
-    render(
-      React.createElement(() => {
-        manager = useManager();
-        return null;
-      })
-    );
-    expect(manager).toBe(null);
+    expect(useManager()).toBe(manager);
+
+    expect(useSplitManagerMock).toHaveBeenCalledTimes(1);
   });
 
 });
