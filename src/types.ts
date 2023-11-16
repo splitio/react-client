@@ -193,8 +193,8 @@ export type GetTreatmentsOptions = ({
 }
 
 /**
- * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook,
- * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and retrieve the result together with the Split context.
+ * useSplitTreatments options interface. This is the options object accepted by useSplitTreatments hook, used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()',
+ * depending on whether `names` or `flagSets` options are provided, and to retrieve the result along with the Split context.
  */
 export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientOptions;
 
@@ -206,17 +206,20 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
   /**
    * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
    * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
+   *
+   * ```js
    *   {
-   *     feature1: { treatment: 'on', config: null }
+   *     feature1: { treatment: 'on', config: null },
    *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
    *   }
+   * ```
    */
   treatments: SplitIO.TreatmentsWithConfig;
 }
 
 /**
- * SplitTreatments Props interface. These are the props accepted by SplitTreatments component,
- * used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()', and pass the result to the child component.
+ * SplitTreatments Props interface. These are the props accepted by SplitTreatments component, used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()',
+ * depending on whether `names` or `flagSets` props are provided, and to pass the result to the child component.
  */
 export type ISplitTreatmentsProps = GetTreatmentsOptions & {
 
