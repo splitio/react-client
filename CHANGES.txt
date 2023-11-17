@@ -1,3 +1,6 @@
+1.10.1 (November 21, 2023)
+ - Bugfixing - Resolved an issue with `useSplitClient` hook, which was not re-rendering when an SDK client event was emitted between the hook's call and the execution of its internal effect.
+
 1.10.0 (November 16, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
       - Added a new `flagSets` prop to the `SplitTreatments` component and `flagSets` option to the `useSplitTreatments` hook options object, to support evaluating flags in given flag set/s. Either `names` or `flagSets` must be provided to the component and hook. If both are provided, `names` will be used.

@@ -63,10 +63,21 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // The listeners take into account the value of `updateOnSdk***` props.
   subscribeToEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
-      const status = getStatus(client);
-      if (this.props.updateOnSdkReady && !status.isReady) client.once(client.Event.SDK_READY, this.update);
-      if (this.props.updateOnSdkReadyFromCache && !status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.update);
-      if (this.props.updateOnSdkTimedout && !status.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, this.update);
+      const statusOnEffect = getStatus(client);
+      const status = this.state;
+
+      if (this.props.updateOnSdkReady) {
+        if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, this.update);
+        else if (!status.isReady) this.update();
+      }
+      if (this.props.updateOnSdkReadyFromCache) {
+        if (!statusOnEffect.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.update);
+        else if (!status.isReadyFromCache) this.update();
+      }
+      if (this.props.updateOnSdkTimedout) {
+        if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, this.update);
+        else if (!status.hasTimedout) this.update();
+      }
       if (this.props.updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, this.update);
     }
   }

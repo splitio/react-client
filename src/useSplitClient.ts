@@ -47,10 +47,20 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
     const update = () => setLastUpdate(client.lastUpdate);
 
     // Subscribe to SDK events
-    const status = getStatus(client);
-    if (updateOnSdkReady && !status.isReady) client.once(client.Event.SDK_READY, update);
-    if (updateOnSdkReadyFromCache && !status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
-    if (updateOnSdkTimedout && !status.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+    const statusOnEffect = getStatus(client); // Effect call is not synchronous, so the status may have changed
+
+    if (updateOnSdkReady) {
+      if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, update);
+      else if (!status.isReady) update();
+    }
+    if (updateOnSdkReadyFromCache) {
+      if (!statusOnEffect.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
+      else if (!status.isReadyFromCache) update();
+    }
+    if (updateOnSdkTimedout) {
+      if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+      else if (!status.hasTimedout) update();
+    }
     if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
     return () => {
@@ -60,7 +70,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
       client.off(client.Event.SDK_READY_TIMED_OUT, update);
       client.off(client.Event.SDK_UPDATE, update);
     }
-  }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
+  }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, status]);
 
   return {
     factory, client, ...status
