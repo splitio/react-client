@@ -37,7 +37,8 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   }
   initAttributes(client, attributes);
 
-  const [, setLastUpdate] = React.useState(client ? client.lastUpdate : 0);
+  const status = getStatus(client);
+  const [, setLastUpdate] = React.useState(status.lastUpdate);
 
   // Handle client events
   React.useEffect(() => {
@@ -47,9 +48,9 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
     // Subscribe to SDK events
     const status = getStatus(client);
-    if (!status.isReady && updateOnSdkReady) client.once(client.Event.SDK_READY, update);
-    if (!status.isReadyFromCache && updateOnSdkReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
-    if (!status.hasTimedout && !status.isReady && updateOnSdkTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+    if (updateOnSdkReady && !status.isReady) client.once(client.Event.SDK_READY, update);
+    if (updateOnSdkReadyFromCache && !status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
+    if (updateOnSdkTimedout && !status.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
     if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
     return () => {
@@ -62,6 +63,6 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
 
   return {
-    factory, client, ...getStatus(client)
+    factory, client, ...status
   };
 }

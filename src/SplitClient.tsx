@@ -64,36 +64,24 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   subscribeToEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
       const status = getStatus(client);
-      if (!status.isReady) client.once(client.Event.SDK_READY, this.setReady);
-      if (!status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-      if (!status.hasTimedout && !status.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-      client.on(client.Event.SDK_UPDATE, this.setUpdate);
+      if (this.props.updateOnSdkReady && !status.isReady) client.once(client.Event.SDK_READY, this.update);
+      if (this.props.updateOnSdkReadyFromCache && !status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.update);
+      if (this.props.updateOnSdkTimedout && !status.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, this.update);
+      if (this.props.updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, this.update);
     }
   }
 
   unsubscribeFromEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
-      client.removeListener(client.Event.SDK_READY, this.setReady);
-      client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-      client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-      client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
+      client.off(client.Event.SDK_READY, this.update);
+      client.off(client.Event.SDK_READY_FROM_CACHE, this.update);
+      client.off(client.Event.SDK_READY_TIMED_OUT, this.update);
+      client.off(client.Event.SDK_UPDATE, this.update);
     }
   }
 
-  setReady = () => {
-    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setReadyFromCache = () => {
-    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setTimedout = () => {
-    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setUpdate = () => {
-    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
+  update = () => {
+    this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   componentDidMount() {

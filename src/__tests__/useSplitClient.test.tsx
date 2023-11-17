@@ -240,19 +240,24 @@ describe('useSplitClient', () => {
     }
 
     const wrapper = render(<Component />);
+    expect(rendersCount).toBe(1);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    expect(rendersCount).toBe(2);
+
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false by default
     expect(rendersCount).toBe(2);
 
     wrapper.rerender(<Component updateOnSdkUpdate={true} />); // trigger re-render
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
+    expect(rendersCount).toBe(3);
 
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
     expect(rendersCount).toBe(4);
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} />); // trigger re-render
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
+    expect(rendersCount).toBe(5);
 
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
     expect(rendersCount).toBe(5);
   });
 
