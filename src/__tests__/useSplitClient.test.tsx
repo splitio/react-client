@@ -82,7 +82,7 @@ describe('useSplitClient', () => {
 
     // eslint-disable-next-line react/prop-types
     const InnerComponent = ({ splitKey, attributesClient, testSwitch }) => {
-      useSplitClient({ splitKey, trafficType: 'user', attributes: attributesClient});
+      useSplitClient({ splitKey, trafficType: 'user', attributes: attributesClient });
       testSwitch(done, splitKey);
       return null;
     };
@@ -98,13 +98,13 @@ describe('useSplitClient', () => {
     testAttributesBinding(Component);
   });
 
-  test('useSplitClient must update on SDK events', () => {
+  test('must update on SDK events', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 
     let countSplitContext = 0, countSplitClient = 0, countSplitClientUser2 = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
-    let countSplitClientWithUpdate = 0, countUseSplitClientWithUpdate = 0, countSplitClientUser2WithUpdate = 0, countUseSplitClientUser2WithUpdate = 0;
+    let countSplitClientWithUpdate = 0, countUseSplitClientWithUpdate = 0, countSplitClientUser2WithUpdate = 0, countUseSplitClientUser2WithTimeout = 0;
     let countNestedComponent = 0;
 
     render(
@@ -150,8 +150,8 @@ describe('useSplitClient', () => {
             {() => { countSplitClientUser2WithUpdate++; return null }}
           </SplitClient>
           {React.createElement(() => {
-            useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
-            countUseSplitClientUser2WithUpdate++;
+            useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: true });
+            countUseSplitClientUser2WithTimeout++;
             return null;
           })}
           <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
@@ -190,6 +190,7 @@ describe('useSplitClient', () => {
     act(() => mainClient.__emitter__.emit(Event.SDK_READY));
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => user2Client.__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
@@ -214,12 +215,35 @@ describe('useSplitClient', () => {
     // If SplitClient and useSplitClient retrieve a different client than the context and have updateOnSdkUpdate = true,
     // they render when the context renders and when the new client is ready, ready from cache and updates.
     expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
-    expect(countUseSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
+    expect(countUseSplitClientUser2WithTimeout).toEqual(countSplitContext + 3);
 
     expect(countNestedComponent).toEqual(4);
   });
 
-  test('useSplitClient must support changes in update props', () => {
+  // Remove this test once side effects are moved to the useSplitClient effect.
+  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () =>{
+    const outerFactory = SplitSdk(sdkBrowser);
+    let count = 0;
+
+    render(
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
+          useSplitClient({ splitKey: 'some_user' });
+          count++;
+
+          // side effect in the render phase
+          const client = outerFactory.client('some_user') as any;
+          if (!client.__getStatus().isReady) client.__emitter__.emit(Event.SDK_READY);
+
+          return null;
+        })}
+      </SplitFactory>
+    )
+
+    expect(count).toEqual(2);
+  });
+
+  test('must support changes in update props', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const mainClient = outerFactory.client() as any;
 
@@ -240,19 +264,24 @@ describe('useSplitClient', () => {
     }
 
     const wrapper = render(<Component />);
+    expect(rendersCount).toBe(1);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    expect(rendersCount).toBe(2);
+
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false by default
     expect(rendersCount).toBe(2);
 
     wrapper.rerender(<Component updateOnSdkUpdate={true} />); // trigger re-render
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
+    expect(rendersCount).toBe(3);
 
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
     expect(rendersCount).toBe(4);
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} />); // trigger re-render
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
+    expect(rendersCount).toBe(5);
 
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
     expect(rendersCount).toBe(5);
   });
 

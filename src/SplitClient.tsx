@@ -63,37 +63,36 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // The listeners take into account the value of `updateOnSdk***` props.
   subscribeToEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
-      const status = getStatus(client);
-      if (!status.isReady) client.once(client.Event.SDK_READY, this.setReady);
-      if (!status.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-      if (!status.hasTimedout && !status.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-      client.on(client.Event.SDK_UPDATE, this.setUpdate);
+      const statusOnEffect = getStatus(client);
+      const status = this.state;
+
+      if (this.props.updateOnSdkReady) {
+        if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, this.update);
+        else if (!status.isReady) this.update();
+      }
+      if (this.props.updateOnSdkReadyFromCache) {
+        if (!statusOnEffect.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, this.update);
+        else if (!status.isReadyFromCache) this.update();
+      }
+      if (this.props.updateOnSdkTimedout) {
+        if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, this.update);
+        else if (!status.hasTimedout) this.update();
+      }
+      if (this.props.updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, this.update);
     }
   }
 
   unsubscribeFromEvents(client: SplitIO.IBrowserClient | null) {
     if (client) {
-      client.removeListener(client.Event.SDK_READY, this.setReady);
-      client.removeListener(client.Event.SDK_READY_FROM_CACHE, this.setReadyFromCache);
-      client.removeListener(client.Event.SDK_READY_TIMED_OUT, this.setTimedout);
-      client.removeListener(client.Event.SDK_UPDATE, this.setUpdate);
+      client.off(client.Event.SDK_READY, this.update);
+      client.off(client.Event.SDK_READY_FROM_CACHE, this.update);
+      client.off(client.Event.SDK_READY_TIMED_OUT, this.update);
+      client.off(client.Event.SDK_UPDATE, this.update);
     }
   }
 
-  setReady = () => {
-    if (this.props.updateOnSdkReady) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setReadyFromCache = () => {
-    if (this.props.updateOnSdkReadyFromCache) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setTimedout = () => {
-    if (this.props.updateOnSdkTimedout) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
-  }
-
-  setUpdate = () => {
-    if (this.props.updateOnSdkUpdate) this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
+  update = () => {
+    this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
   }
 
   componentDidMount() {
