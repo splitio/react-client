@@ -33,11 +33,13 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
   let client = contextClient as IClientWithContext;
   if (splitKey && factory) {
+    // @TODO `getSplitClient` starts client sync. Move side effects to useEffect
     client = getSplitClient(factory, splitKey, trafficType);
   }
   initAttributes(client, attributes);
 
-  const [, setLastUpdate] = React.useState(client ? client.lastUpdate : 0);
+  const status = getStatus(client);
+  const [, setLastUpdate] = React.useState(status.lastUpdate);
 
   // Handle client events
   React.useEffect(() => {
@@ -45,11 +47,22 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
     const update = () => setLastUpdate(client.lastUpdate);
 
+    // Clients are created on the hook's call, so the status may have changed
+    const statusOnEffect = getStatus(client);
+
     // Subscribe to SDK events
-    const status = getStatus(client);
-    if (!status.isReady && updateOnSdkReady) client.once(client.Event.SDK_READY, update);
-    if (!status.isReadyFromCache && updateOnSdkReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
-    if (!status.hasTimedout && !status.isReady && updateOnSdkTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+    if (updateOnSdkReady) {
+      if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, update);
+      else if (!status.isReady) update();
+    }
+    if (updateOnSdkReadyFromCache) {
+      if (!statusOnEffect.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
+      else if (!status.isReadyFromCache) update();
+    }
+    if (updateOnSdkTimedout) {
+      if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+      else if (!status.hasTimedout) update();
+    }
     if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
     return () => {
@@ -59,9 +72,9 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
       client.off(client.Event.SDK_READY_TIMED_OUT, update);
       client.off(client.Event.SDK_UPDATE, update);
     }
-  }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
+  }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, status]);
 
   return {
-    factory, client, ...getStatus(client)
+    factory, client, ...status
   };
 }
