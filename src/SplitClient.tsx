@@ -14,8 +14,8 @@ import { useSplitClient } from './useSplitClient';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 export function SplitClient(props: ISplitClientProps) {
-  const { splitKey, trafficType, attributes, children } = props;
-  const context = useSplitClient(splitKey, trafficType, attributes, props);
+  const { children } = props;
+  const context = useSplitClient(props);
 
   return (
     <SplitContext.Provider value={context}>

@@ -11,7 +11,7 @@ This SDK is designed to work with Split, the platform for controlled rollouts, w
 
 This SDK is compatible with React 16.3.0 and above, since it uses [React Context API](https://reactjs.org/docs/context.html).
 
-Some features, such as `useClient` and `useManager`, use [React Hooks API](https://reactjs.org/docs/hooks-overview.html) that requires React 16.8.0 or later.
+Some features, such as `useSplitClient` and `useSplitTreatments`, use [React Hooks API](https://reactjs.org/docs/hooks-overview.html) that requires React 16.8.0 or later.
 
 ## Getting started
 Below is a simple example that describes the instantiation and most basic usage of our SDK:
@@ -20,7 +20,7 @@ Below is a simple example that describes the instantiation and most basic usage 
 import React from 'react';
 
 // Import SDK functions
-import { SplitFactory, SplitTreatments } from '@splitsoftware/splitio-react';
+import { SplitFactory, useSplitTreatments } from '@splitsoftware/splitio-react';
 
 // Define your config object
 const CONFIG = {
@@ -30,25 +30,27 @@ const CONFIG = {
   }
 };
 
-function MyReactComponent() {
+function MyComponent() {
+  // Evaluate feature flags with useSplitTreatments hook
+  const { treatments: { FEATURE_FLAG_NAME }, isReady } = useSplitTreatments({ names: ['FEATURE_FLAG_NAME'] });
+
+  // Check SDK readiness using isReady prop
+  if (!isReady) return <div>Loading SDK ...</div>;
+
+  if (FEATURE_FLAG_NAME.treatment === 'on') {
+    // return JSX for on treatment
+  } else if (FEATURE_FLAG_NAME.treatment === 'off') {
+    // return JSX for off treatment
+  } else {
+    // return JSX for control treatment
+  };
+}
+
+function MyApp() {
   return (
-    /* Use SplitFactory to instantiate the SDK and makes it available to nested components */
+    // Use SplitFactory to instantiate the SDK and makes it available to nested components
     <SplitFactory config={CONFIG} >
-      {/* Evaluate feature flags with SplitTreatments component */}
-      <SplitTreatments names={['FEATURE_FLAG_NAME']} >
-        {({ treatments: { FEATURE_FLAG_NAME }, isReady }) => {
-          // Check SDK readiness using isReady prop
-          if (!isReady)
-            return <div>Loading SDK ...</div>;
-          if (FEATURE_FLAG_NAME.treatment === 'on') {
-            // return JSX for on treatment
-          } else if (FEATURE_FLAG_NAME.treatment === 'off') {
-            // return JSX for off treatment
-          } else {
-            // return JSX for control treatment
-          }
-        }}
-      </SplitTreatments>
+      <MyComponent />
     </SplitFactory>
   );
 }

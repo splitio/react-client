@@ -1,7 +1,7 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
-import { VERSION } from './constants';
+import { VERSION, WARN_NAMES_AND_FLAGSETS, getControlTreatmentsWithConfig } from './constants';
 import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -49,7 +49,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithC
 // idempotent operation
 export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+  const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
 
   // Handle client lastUpdate
   if (client.lastUpdate === undefined) {
@@ -99,7 +99,7 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
 
 // Input validation utils that will be replaced eventually
 
-export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'split names'): false | string[] {
+export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
   if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
     const validatedArray: string[] = [];
     // Remove invalid values
@@ -125,7 +125,7 @@ export function initAttributes(client: SplitIO.IBrowserClient | null, attributes
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
-function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'split name'): false | string {
+function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'feature flag name'): false | string {
   if (maybeFeatureFlag == undefined) {
     console.log(`[ERROR] you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
   } else if (!isString(maybeFeatureFlag)) {
@@ -176,9 +176,18 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     newArgs[1] === lastArgs[1] && // lastUpdate
     shallowEqual(newArgs[2], lastArgs[2]) && // names
     shallowEqual(newArgs[3], lastArgs[3]) && // attributes
-    shallowEqual(newArgs[4], lastArgs[4]); // client attributes
+    shallowEqual(newArgs[4], lastArgs[4]) && // client attributes
+    shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient, lastUpdate: number, names: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes) {
-  return client.getTreatmentsWithConfig(names, attributes);
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | null, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+  if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
+
+  return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
+    names ?
+      client.getTreatmentsWithConfig(names, attributes) :
+      client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :
+    names ?
+      getControlTreatmentsWithConfig(names) :
+      {} // empty object when evaluating with flag sets and client is not ready
 }

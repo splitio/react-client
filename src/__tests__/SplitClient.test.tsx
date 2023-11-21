@@ -253,36 +253,18 @@ describe('SplitClient', () => {
         this.state = { splitKey: 'user1' };
       }
 
-      componentDidMount() {
-        setTimeout(() => {
-          act(() => this.setState({ splitKey: 'user2' }));
-          setTimeout(() => {
-            act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
-            setTimeout(() => {
-              act(() => (outerFactory as any).client('user1').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
-              setTimeout(() => {
-                act(() => this.setState({ splitKey: 'user3' }));
-                setTimeout(() => {
-                  act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
-                  setTimeout(() => {
-                    act(() => (outerFactory as any).client('user3').__emitter__.emit(Event.SDK_READY));
-                    setTimeout(() => {
-                      act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE));
-                      setTimeout(() => {
-                        act(() => (outerFactory as any).client('user3').__emitter__.emit(Event.SDK_UPDATE));
-                        setTimeout(() => {
-                          expect(renderTimes).toBe(6);
+      async componentDidMount() {
+        await act(() => this.setState({ splitKey: 'user2' }));
+        await act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+        await act(() => (outerFactory as any).client('user1').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+        await act(() => this.setState({ splitKey: 'user3' }));
+        await act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
+        await act(() => (outerFactory as any).client('user3').__emitter__.emit(Event.SDK_READY));
+        await act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE));
+        await act(() => (outerFactory as any).client('user3').__emitter__.emit(Event.SDK_UPDATE));
+        expect(renderTimes).toBe(6);
 
-                          done();
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
+        done();
       }
 
       render() {

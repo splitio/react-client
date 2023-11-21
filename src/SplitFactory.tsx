@@ -2,8 +2,8 @@ import React from 'react';
 
 import { SplitClient } from './SplitClient';
 import { ISplitFactoryProps } from './types';
-import { ERROR_SF_NO_CONFIG_AND_FACTORY, WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { IFactoryWithClients, destroySplitFactory, getSplitClient, getSplitFactory, getStatus } from './utils';
+import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
+import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
 import { SplitContext } from './SplitContext';
 
 /**
