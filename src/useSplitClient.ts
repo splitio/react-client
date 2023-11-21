@@ -33,6 +33,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
   let client = contextClient as IClientWithContext;
   if (splitKey && factory) {
+    // @TODO `getSplitClient` starts client sync. Move side effects to useEffect
     client = getSplitClient(factory, splitKey, trafficType);
   }
   initAttributes(client, attributes);
@@ -46,9 +47,10 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
     const update = () => setLastUpdate(client.lastUpdate);
 
-    // Subscribe to SDK events
-    const statusOnEffect = getStatus(client); // Effect call is not synchronous, so the status may have changed
+    // Clients are created on the hook's call, so the status may have changed
+    const statusOnEffect = getStatus(client);
 
+    // Subscribe to SDK events
     if (updateOnSdkReady) {
       if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, update);
       else if (!status.isReady) update();

@@ -82,7 +82,7 @@ describe('useSplitClient', () => {
 
     // eslint-disable-next-line react/prop-types
     const InnerComponent = ({ splitKey, attributesClient, testSwitch }) => {
-      useSplitClient({ splitKey, trafficType: 'user', attributes: attributesClient});
+      useSplitClient({ splitKey, trafficType: 'user', attributes: attributesClient });
       testSwitch(done, splitKey);
       return null;
     };

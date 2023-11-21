@@ -1,5 +1,5 @@
 1.10.1 (November 21, 2023)
- - Bugfixing - Resolved an issue with `useSplitClient` hook, which was not re-rendering when an SDK client event was emitted between the hook's call and the execution of its internal effect.
+ - Bugfixing - Resolved an issue with `useSplitClient` hook, which was not re-rendering when an SDK client event was emitted between the hook's call (render phase) and the execution of its internal effect (commit phase).
 
 1.10.0 (November 16, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
