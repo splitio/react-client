@@ -98,7 +98,7 @@ describe('useSplitClient', () => {
     testAttributesBinding(Component);
   });
 
-  test('useSplitClient must update on SDK events', () => {
+  test('must update on SDK events', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
@@ -219,7 +219,30 @@ describe('useSplitClient', () => {
     expect(countNestedComponent).toEqual(4);
   });
 
-  test('useSplitClient must support changes in update props', () => {
+  // Remove this test once side effects are moved to the useSplitClient effect.
+  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () =>{
+    const outerFactory = SplitSdk(sdkBrowser);
+    let count = 0;
+
+    render(
+      <SplitFactory factory={outerFactory} >
+        {React.createElement(() => {
+          useSplitClient({ splitKey: 'some_user' });
+          count++;
+
+          // side effect in the render phase
+          const client = outerFactory.client('some_user') as any;
+          if (!client.__getStatus().isReady) client.__emitter__.emit(Event.SDK_READY);
+
+          return null;
+        })}
+      </SplitFactory>
+    )
+
+    expect(count).toEqual(2);
+  });
+
+  test('must support changes in update props', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     const mainClient = outerFactory.client() as any;
 
