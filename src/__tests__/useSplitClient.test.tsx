@@ -104,7 +104,7 @@ describe('useSplitClient', () => {
     const user2Client = outerFactory.client('user_2') as any;
 
     let countSplitContext = 0, countSplitClient = 0, countSplitClientUser2 = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
-    let countSplitClientWithUpdate = 0, countUseSplitClientWithUpdate = 0, countSplitClientUser2WithUpdate = 0, countUseSplitClientUser2WithUpdate = 0;
+    let countSplitClientWithUpdate = 0, countUseSplitClientWithUpdate = 0, countSplitClientUser2WithUpdate = 0, countUseSplitClientUser2WithTimeout = 0;
     let countNestedComponent = 0;
 
     render(
@@ -150,8 +150,8 @@ describe('useSplitClient', () => {
             {() => { countSplitClientUser2WithUpdate++; return null }}
           </SplitClient>
           {React.createElement(() => {
-            useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
-            countUseSplitClientUser2WithUpdate++;
+            useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: true });
+            countUseSplitClientUser2WithTimeout++;
             return null;
           })}
           <SplitClient splitKey={'user_2'} updateOnSdkUpdate={true}>
@@ -190,6 +190,7 @@ describe('useSplitClient', () => {
     act(() => mainClient.__emitter__.emit(Event.SDK_READY));
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => user2Client.__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
@@ -214,7 +215,7 @@ describe('useSplitClient', () => {
     // If SplitClient and useSplitClient retrieve a different client than the context and have updateOnSdkUpdate = true,
     // they render when the context renders and when the new client is ready, ready from cache and updates.
     expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
-    expect(countUseSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
+    expect(countUseSplitClientUser2WithTimeout).toEqual(countSplitContext + 3);
 
     expect(countNestedComponent).toEqual(4);
   });
