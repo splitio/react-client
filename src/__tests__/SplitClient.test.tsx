@@ -47,6 +47,7 @@ describe('SplitClient', () => {
 
     render(
       <SplitFactory factory={outerFactory} >
+        {/* Equivalent to <SplitClient splitKey={undefined} > */}
         <SplitClient splitKey={sdkBrowser.core.key} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
             expect(client).toBe(outerFactory.client());
@@ -199,6 +200,31 @@ describe('SplitClient', () => {
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY));
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_UPDATE));
     expect(renderTimes).toBe(2);
+  });
+
+  test('must update on SDK events between the render and commit phases', () => {
+    const outerFactory = SplitSdk(sdkBrowser);
+    let count = 0;
+
+    render(
+      <SplitFactory factory={outerFactory} >
+        <SplitClient splitKey='some_user' >
+          {({ client }) => {
+            count++;
+
+            // side effect in the render phase
+            if (!(client as any).__getStatus().isReady) {
+              console.log('emit');
+              (client as any).__emitter__.emit(Event.SDK_READY);
+            }
+
+            return null;
+          }}
+        </SplitClient>
+      </SplitFactory>
+    );
+
+    expect(count).toEqual(2);
   });
 
   test('renders a passed JSX.Element with a new SplitContext value.', (done) => {

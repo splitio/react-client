@@ -1,5 +1,8 @@
+1.10.2 (December 12, 2023)
+ - Updated @splitsoftware/splitio package to version 10.24.1 that updates localStorage usage to clear cached feature flag definitions before initiating the synchronization process, if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria, to avoid using invalid cached data when the SDK is ready from cache.
+
 1.10.1 (November 21, 2023)
- - Bugfixing - Resolved an issue with `useSplitClient` hook, which was not re-rendering when an SDK client event was emitted between the hook's call (render phase) and the execution of its internal effect (commit phase).
+ - Bugfixing - Resolved an issue with `useSplitClient` hook and `SplitClient` component, that were not re-rendering when an SDK client event was emitted between the render and the commit phases of component lifecycle.
 
 1.10.0 (November 16, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
