@@ -36,5 +36,5 @@ export type {
   ISplitTreatmentsProps,
   IUpdateProps,
   IUseSplitClientOptions,
-  IUseSplitTreatmentsOptions,
+  IUseSplitTreatmentsOptions
 } from './types';
