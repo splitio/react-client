@@ -47,11 +47,6 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     super(props);
     const { factory, client } = props;
 
-    // Log error if factory is not available
-    if (!factory) {
-      console.error(ERROR_SC_NO_FACTORY);
-    }
-
     this.state = {
       factory,
       client,
@@ -96,6 +91,11 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   }
 
   componentDidMount() {
+    // Log error if factory is not available on client-side
+    if (!this.props.factory) {
+      console.error(ERROR_SC_NO_FACTORY);
+    }
+
     this.subscribeToEvents(this.props.client);
   }
 

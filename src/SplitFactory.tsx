@@ -28,14 +28,7 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
   constructor(props: ISplitFactoryProps) {
     super(props);
 
-    // Log warning and error
     let { factory, config } = props;
-    if (!config && !factory) {
-      console.error(ERROR_SF_NO_CONFIG_AND_FACTORY);
-    }
-    if (config && factory) {
-      console.log(WARN_SF_CONFIG_AND_FACTORY);
-    }
 
     // Instantiate factory
     if (!factory && config) {
@@ -49,6 +42,17 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
       client: factory ? getSplitClient(factory) : null,
       factory: factory || null,
     };
+  }
+
+  componentDidMount() {
+    // Log warning and errors on client-side
+    const { factory, config } = this.props;
+    if (!config && !factory) {
+      console.error(ERROR_SF_NO_CONFIG_AND_FACTORY);
+    }
+    if (config && factory) {
+      console.log(WARN_SF_CONFIG_AND_FACTORY);
+    }
   }
 
   componentWillUnmount() {
