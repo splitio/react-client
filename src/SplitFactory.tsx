@@ -24,45 +24,36 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
   };
 
   readonly state: Readonly<{ factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }>;
-  readonly isFactoryExternal: boolean;
 
   constructor(props: ISplitFactoryProps) {
     super(props);
 
     // Log warning and error
-    const { factory: propFactory, config } = props;
-    if (!config && !propFactory) {
+    let { factory, config } = props;
+    if (!config && !factory) {
       console.error(ERROR_SF_NO_CONFIG_AND_FACTORY);
     }
-    if (config && propFactory) {
+    if (config && factory) {
       console.log(WARN_SF_CONFIG_AND_FACTORY);
     }
 
     // Instantiate factory
-    let factory = null;
-    if (propFactory) {
-      factory = propFactory;
-    } else {
-      if (config) {
-        // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
-        // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
-        factory = getSplitFactory(config);
-      }
+    if (!factory && config) {
+      // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
+      // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
+      factory = getSplitFactory(config);
     }
-    this.isFactoryExternal = propFactory ? true : false;
-
-    // Instantiate main client. Attributes are set on `SplitComponent.getDerivedStateFromProps`
-    const client = factory ? getSplitClient(factory) : null;
 
     this.state = {
-      client,
-      factory,
+      // Instantiate main client. Attributes are set on `SplitComponent.getDerivedStateFromProps`
+      client: factory ? getSplitClient(factory) : null,
+      factory: factory || null,
     };
   }
 
   componentWillUnmount() {
     // only destroy the client if the factory was created internally. Otherwise, the shutdown must be handled by the user
-    if (!this.isFactoryExternal && this.state.factory) {
+    if (!this.props.factory && this.state.factory) {
       destroySplitFactory(this.state.factory as IFactoryWithClients);
     }
   }
