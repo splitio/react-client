@@ -12,7 +12,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { withSplitFactory } from '../withSplitFactory';
 import { withSplitClient } from '../withSplitClient';
 import { withSplitTreatments } from '../withSplitTreatments';
-import { getControlTreatmentsWithConfig } from '../constants';
+import { getControlTreatmentsWithConfig } from '../utils';
 
 describe('withSplitTreatments', () => {
 

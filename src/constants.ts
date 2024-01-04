@@ -1,5 +1,3 @@
-import { validateFeatureFlags } from './utils';
-
 // The string below is a marker and will be replaced by the real version number. DO NOT CHANGE
 export const VERSION: string = 'react-' + 'REACT_SDK_VERSION_NUMBER';
 
@@ -13,20 +11,6 @@ export const CONTROL: SplitIO.Treatment = 'control'; // SplitIO default value
 export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   treatment: 'control', // SplitIO default value
   config: null,
-};
-
-export const getControlTreatmentsWithConfig = (featureFlagNames: unknown): SplitIO.TreatmentsWithConfig => {
-  // validate featureFlags Names
-  const validatedFeatureFlagNames = validateFeatureFlags(featureFlagNames);
-
-  // return empty object if the returned value is false
-  if (!validatedFeatureFlagNames) return {};
-
-  // return control treatments for each validated feature flag name
-  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
-    pValue[cValue] = CONTROL_WITH_CONFIG;
-    return pValue;
-  }, {});
 };
 
 // Warning and error messages

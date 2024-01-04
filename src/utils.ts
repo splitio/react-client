@@ -1,7 +1,7 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
-import { VERSION, WARN_NAMES_AND_FLAGSETS, getControlTreatmentsWithConfig } from './constants';
+import { CONTROL_WITH_CONFIG, VERSION, WARN_NAMES_AND_FLAGSETS } from './constants';
 import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -97,9 +97,16 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
   };
 }
 
+/**
+ * Manage client attributes binding
+ */
+export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
+  if (client && attributes) client.setAttributes(attributes);
+}
+
 // Input validation utils that will be replaced eventually
 
-export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
+function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
   if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
     const validatedArray: string[] = [];
     // Remove invalid values
@@ -114,13 +121,6 @@ export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'fea
 
   console.log(`[ERROR] ${listName} must be a non-empty array.`);
   return false;
-}
-
-/**
- * Manage client attributes binding
- */
-export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
-  if (client && attributes) client.setAttributes(attributes);
 }
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
@@ -144,6 +144,20 @@ function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'feature flag nam
   }
 
   return false;
+}
+
+export function getControlTreatmentsWithConfig(featureFlagNames: unknown): SplitIO.TreatmentsWithConfig {
+  // validate featureFlags Names
+  const validatedFeatureFlagNames = validateFeatureFlags(featureFlagNames);
+
+  // return empty object if the returned value is false
+  if (!validatedFeatureFlagNames) return {};
+
+  // return control treatments for each validated feature flag name
+  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+    pValue[cValue] = CONTROL_WITH_CONFIG;
+    return pValue;
+  }, {});
 }
 
 /**
