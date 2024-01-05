@@ -205,3 +205,14 @@ function evaluateFeatureFlags(client: SplitIO.IBrowserClient | null, _lastUpdate
       getControlTreatmentsWithConfig(names) :
       {} // empty object when evaluating with flag sets and client is not ready
 }
+
+// Utils based on https://github.com/alex-cory/use-ssr and https://github.com/facebook/react/blob/main/packages/shared/ExecutionEnvironment.js
+const canUseDOM: boolean = !!(
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.createElement
+)
+
+const canUseNative: boolean = typeof navigator != 'undefined' && navigator.product == 'ReactNative'
+
+export const isServerEnvironment = !canUseDOM && !canUseNative

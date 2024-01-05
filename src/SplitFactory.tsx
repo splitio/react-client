@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient } from './utils';
+import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, isServerEnvironment } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
@@ -29,6 +29,14 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
     super(props);
 
     let { factory, config } = props;
+
+    // At the moment, SSR is supported only with the SDK running in the client. So, it cannot create or use factory in server-side.
+    if (isServerEnvironment) {
+      // @TODO Remove when SSR is supported with the SDK running in the server (initialState prop)
+      factory = undefined;
+      // @TODO Remove when SplitFactory component creates the factory in the commit phase (breaking change)
+      config = undefined;
+    }
 
     // Instantiate factory
     if (!factory && config) {
