@@ -48,15 +48,15 @@ export interface ISplitContextValues extends ISplitStatus {
    * Split factory instance.
    *
    * NOTE: This property is not recommended for direct use, as better alternatives are available.
-   * It should not be used for server-side rendering.
+   * It should not be used for server-side rendering, since it is null on the server and might cause a hydration mismatch.
    */
   factory: SplitIO.IBrowserSDK | null;
 
   /**
    * Split client instance.
    *
-   * NOTE: This property is not recommended for direct use, as better alternatives are available.
-   * It should not be used for server-side rendering.
+   * Caveat: This property is not recommended for direct use, as better alternatives are available.
+   * It should not be used for server-side rendering, since it is null on the server and might cause a hydration mismatch.
    *
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */

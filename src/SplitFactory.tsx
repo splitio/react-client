@@ -30,7 +30,7 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
 
     let { factory, config } = props;
 
-    // At the moment, SSR is supported only with the SDK running in the client. So, it cannot create or use factory in server-side.
+    // At the moment, SSR is supported only with the SDK running in the client. So, it cannot create or use a factory in server-side, to avoid instantiating a factory per request/session.
     if (isServerEnvironment) {
       // @TODO Remove when SSR is supported with the SDK running in the server (initialState prop)
       factory = undefined;
