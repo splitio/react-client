@@ -1,7 +1,6 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
-import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitClient, initAttributes, IClientWithContext } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
@@ -46,11 +45,6 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   constructor(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
     super(props);
     const { factory, client } = props;
-
-    // Log error if factory is not available
-    if (!factory) {
-      console.error(ERROR_SC_NO_FACTORY);
-    }
 
     this.state = {
       factory,

@@ -6,10 +6,11 @@ export { withSplitFactory } from './withSplitFactory';
 export { withSplitClient } from './withSplitClient';
 export { withSplitTreatments } from './withSplitTreatments';
 
-// Render props components
+// Components
 export { SplitTreatments } from './SplitTreatments';
 export { SplitClient } from './SplitClient';
 export { SplitFactory } from './SplitFactory';
+export { SplitFactoryProvider } from './SplitFactoryProvider';
 
 // Hooks
 export { useClient } from './useClient';
