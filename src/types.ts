@@ -99,14 +99,14 @@ export interface IUpdateProps {
 }
 
 /**
- * SplitFactory Child Props interface. These are the props that the child component receives from the 'SplitFactory' component.
+ * SplitFactoryProvider Child Props interface. These are the props that the child component receives from the 'SplitFactoryProvider' component.
  */
-// @TODO remove next type (breaking-change)
+// @TODO rename/remove next type (breaking-change)
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
- * SplitFactory Props interface. These are the props accepted by SplitFactory component,
+ * SplitFactoryProvider Props interface. These are the props accepted by SplitFactoryProvider component,
  * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitFactoryProps extends IUpdateProps {
@@ -128,7 +128,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
   attributes?: SplitIO.Attributes;
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitFactoryProvider component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitFactoryChildProps) => ReactNode) | ReactNode;
 }
@@ -170,7 +170,7 @@ export interface ISplitClientChildProps extends ISplitContextValues { }
 export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitClient component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
