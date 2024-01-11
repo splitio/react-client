@@ -119,6 +119,8 @@ export interface ISplitFactoryProps extends IUpdateProps {
 
   /**
    * Split factory instance to use instead of creating a new one with the config object.
+   *
+   * If both `factory` and `config` are provided, the `config` option is ignored.
    */
   factory?: SplitIO.IBrowserSDK;
 

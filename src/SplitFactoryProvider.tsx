@@ -62,6 +62,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
       if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
       return () => {
+        // Factory destroy unsubscribes from events
         destroySplitFactory(factory as IFactoryWithClients);
       }
     }
