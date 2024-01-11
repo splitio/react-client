@@ -14,9 +14,11 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  * The underlying SDK factory and client is set on the constructor, and cannot be changed during the component lifecycle,
  * even if the component is updated with a different config or factory prop.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
- *
  * @deprecated Replace with the new `SplitFactoryProvider` component.
+ * `SplitFactoryProvider` is a drop-in replacement that properly handles side effects (factory creation and destruction) within the React component lifecycle, avoiding issues with factory recreation and memory leaks.
+ * Note: There is a subtle breaking change in `SplitFactoryProvider`. When using the `config` prop, `factory` and `client` properties in the context are `null` in the first render, until the context is updated when the factory is ready. This differs from the previous behavior where `factory` and `client` were immediately available.
+ *
+ * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
 export class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
 
