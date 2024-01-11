@@ -12,7 +12,7 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  * since they access the Split Context and its elements (factory, clients, etc).
  *
  * NOTE: Either pass a factory instance or a config object. If both are passed, the config object will be ignored.
- * Pass a reference to the config or factory object rather than a new instance on each render, to avoid unnecessary props changes and SDK reinitializations.
+ * Pass the same reference to the config or factory object rather than a new instance on each render, to avoid unnecessary props changes and SDK reinitializations.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */

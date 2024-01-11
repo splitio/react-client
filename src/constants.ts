@@ -16,7 +16,7 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
 // Warning and error messages
 export const WARN_SF_CONFIG_AND_FACTORY: string = '[WARN]  Both a config and factory props were provided to SplitFactoryProvider. Config prop will be ignored.';
 
-// @TODO remove with SplitFactory component in next major version
+// @TODO remove with SplitFactory component in next major version. SplitFactoryProvider can accept no props and eventually only an initialState
 export const ERROR_SF_NO_CONFIG_AND_FACTORY: string = '[ERROR] SplitFactory must receive either a Split config or a Split factory as props.';
 
 export const EXCEPTION_NO_REACT_OR_CREATECONTEXT: string = 'React library is not available or its version is not supported. Check that it is properly installed or imported. Split SDK requires version 16.3.0+ of React.';
