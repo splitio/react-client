@@ -11,17 +11,16 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { ISplitClientChildProps } from '../types';
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { ERROR_SC_NO_FACTORY } from '../constants';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('SplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
     render(
-      <SplitFactory config={sdkBrowser} >
+      <SplitFactoryProvider config={sdkBrowser} >
         <SplitClient splitKey='user1' >
           {({ isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
             expect(isReady).toBe(false);
@@ -34,7 +33,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
   });
 
@@ -46,7 +45,7 @@ describe('SplitClient', () => {
     await outerFactory.client().ready();
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {/* Equivalent to <SplitClient splitKey={undefined} > */}
         <SplitClient splitKey={sdkBrowser.core.key} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
@@ -61,7 +60,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
   });
 
@@ -76,7 +75,7 @@ describe('SplitClient', () => {
     let previousLastUpdate = -1;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
             const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -106,7 +105,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
@@ -128,7 +127,7 @@ describe('SplitClient', () => {
     let previousLastUpdate = -1;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
             const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -152,7 +151,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
@@ -172,7 +171,7 @@ describe('SplitClient', () => {
     let previousLastUpdate = -1;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitClientChildProps) => {
             const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
@@ -193,7 +192,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => (outerFactory as any).client('user2').__emitter__.emit(Event.SDK_READY_TIMED_OUT));
@@ -207,7 +206,7 @@ describe('SplitClient', () => {
     let count = 0;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='some_user' >
           {({ client }) => {
             count++;
@@ -221,7 +220,7 @@ describe('SplitClient', () => {
             return null;
           }}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     expect(count).toEqual(2);
@@ -246,26 +245,27 @@ describe('SplitClient', () => {
     };
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           <Component />
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
   });
 
-  test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
-    const errorSpy = jest.spyOn(console, 'error');
-    render(
-      <SplitClient splitKey='user2' >
-        {({ client }) => {
-          expect(client).toBe(null);
-          return null;
-        }}
-      </SplitClient>
-    );
-    expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
-  });
+  // @TODO Update test in breaking change, following common practice in React libraries, like React-redux and React-query: use a falsy value as default context value, and throw an error – instead of logging it – if components are not wrapped in a SplitContext.Provider, i.e., if the context is falsy.
+  // test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
+  //   const errorSpy = jest.spyOn(console, 'error');
+  //   render(
+  //     <SplitClient splitKey='user2' >
+  //       {({ client }) => {
+  //         expect(client).toBe(null);
+  //         return null;
+  //       }}
+  //     </SplitClient>
+  //   );
+  //   expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
+  // });
 
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
@@ -338,9 +338,9 @@ describe('SplitClient', () => {
     }
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <InnerComponent />
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
   });
 
@@ -348,14 +348,14 @@ describe('SplitClient', () => {
 
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       return (
-        <SplitFactory factory={factory} attributes={attributesFactory} >
+        <SplitFactoryProvider factory={factory} attributes={attributesFactory} >
           <SplitClient splitKey={splitKey} attributes={attributesClient} trafficType='user' >
             {() => {
               testSwitch(done, splitKey);
               return null;
             }}
           </SplitClient>
-        </SplitFactory>
+        </SplitFactoryProvider>
       );
     }
 

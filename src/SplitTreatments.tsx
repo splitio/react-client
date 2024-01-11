@@ -1,7 +1,6 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitTreatmentsProps, ISplitContextValues } from './types';
-import { WARN_ST_NO_CLIENT } from './constants';
 import { memoizeGetTreatmentsWithConfig } from './utils';
 
 /**
@@ -26,7 +25,7 @@ export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
         {(splitContext: ISplitContextValues) => {
           const { client, lastUpdate } = splitContext;
           const treatments = this.evaluateFeatureFlags(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets);
-          if (!client) { this.logWarning = true; }
+
           // SplitTreatments only accepts a function as a child, not a React Element (JSX)
           return children({
             ...splitContext, treatments,
@@ -35,9 +34,4 @@ export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
       </SplitContext.Consumer>
     );
   }
-
-  componentDidMount() {
-    if (this.logWarning) { console.log(WARN_ST_NO_CLIENT); }
-  }
-
 }
