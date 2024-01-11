@@ -3,6 +3,7 @@ import {
   SplitContext as ExportedSplitContext,
   SplitSdk as ExportedSplitSdk,
   SplitFactory as ExportedSplitFactory,
+  SplitFactoryProvider as ExportedSplitFactoryProvider,
   SplitClient as ExportedSplitClient,
   SplitTreatments as ExportedSplitTreatments,
   withSplitFactory as exportedWithSplitFactory,
@@ -32,6 +33,7 @@ import {
 import { SplitContext } from '../SplitContext';
 import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';
 import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitTreatments } from '../SplitTreatments';
 import { withSplitFactory } from '../withSplitFactory';
@@ -49,6 +51,7 @@ describe('index', () => {
 
   it('should export components', () => {
     expect(ExportedSplitFactory).toBe(SplitFactory);
+    expect(ExportedSplitFactoryProvider).toBe(SplitFactoryProvider);
     expect(ExportedSplitClient).toBe(SplitClient);
     expect(ExportedSplitTreatments).toBe(SplitTreatments);
   });

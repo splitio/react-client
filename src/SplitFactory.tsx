@@ -15,6 +15,8 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  * even if the component is updated with a different config or factory prop.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK}
+ *
+ * @deprecated Replace with the new `SplitFactoryProvider` component.
  */
 export class SplitFactory extends React.Component<ISplitFactoryProps, { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }> {
 
