@@ -336,40 +336,74 @@ describe('SplitFactoryProvider', () => {
     logSpy.mockRestore();
   });
 
-  test('cleans up on unmount.', () => {
-    let destroyMainClientSpy;
-    let destroySharedClientSpy;
-    const wrapper = render(
-      <SplitFactoryProvider config={sdkBrowser} >
-        {({ factory }) => {
-          if (!factory) return null; // 1st render
+  test('cleans up on update and unmount.', () => {
+    let renderTimes = 0;
+    const createdFactories = new Set<SplitIO.ISDK>();
+    const clientDestroySpies: jest.SpyInstance[] = [];
 
-          // 2nd render (SDK ready)
+    const Component = ({ factory, isReady, hasTimedout }: ISplitFactoryChildProps) => {
+      renderTimes++;
+      if (factory) createdFactories.add(factory);
+
+      switch (renderTimes) {
+        case 1:
+        case 3:
+          expect(isReady).toBe(false);
+          expect(hasTimedout).toBe(false);
+          expect(factory).toBe(null);
+          return null;
+
+        case 2:
+        case 4:
+          expect(isReady).toBe(true);
+          expect(hasTimedout).toBe(true);
           expect(__factories.size).toBe(1);
-          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          clientDestroySpies.push(jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy'));
           return (
             <SplitClient splitKey='other_key' >
               {({ client }) => {
-                destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
+                clientDestroySpies.push(jest.spyOn(client as SplitIO.IClient, 'destroy'));
                 return null;
               }}
             </SplitClient>
           );
-        }}
+        case 5:
+          throw new Error('Child must not be rerendered');
+      }
+    };
+
+    const emitSdkEvents = () => {
+      const factory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+      factory.client().__emitter__.emit(Event.SDK_READY_TIMED_OUT)
+      factory.client().__emitter__.emit(Event.SDK_READY)
+    };
+
+    // 1st render
+    const wrapper = render(
+      <SplitFactoryProvider config={sdkBrowser} >
+        {Component}
       </SplitFactoryProvider>
     );
 
-    // SDK ready to re-render
-    act(() => {
-      const factory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
-      factory.client().__emitter__.emit(Event.SDK_READY)
-    });
+    // 2nd render: SDK ready (timeout is ignored due to updateOnSdkTimedout=false)
+    act(emitSdkEvents);
+
+    // 3rd render: Update config prop -> factory is recreated
+    wrapper.rerender(
+      <SplitFactoryProvider config={{ ...sdkBrowser }} updateOnSdkReady={false} updateOnSdkTimedout={true} >
+        {Component}
+      </SplitFactoryProvider>
+    );
+
+    // 4th render: SDK timeout (ready is ignored due to updateOnSdkReady=false)
+    act(emitSdkEvents);
 
     wrapper.unmount();
-    // the factory created by the component is removed from `factories` cache and its clients are destroyed
+
+    // Created factories are removed from `factories` cache and their clients are destroyed
+    expect(createdFactories.size).toBe(2);
     expect(__factories.size).toBe(0);
-    expect(destroyMainClientSpy).toBeCalledTimes(1);
-    expect(destroySharedClientSpy).toBeCalledTimes(1);
+    clientDestroySpies.forEach(spy => expect(spy).toBeCalledTimes(1));
   });
 
   test('doesn\'t clean up on unmount if the factory is provided as a prop.', () => {

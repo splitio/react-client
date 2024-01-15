@@ -28,7 +28,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
   }
 
   const [stateFactory, setStateFactory] = React.useState(propFactory || null);
-  const factory = propFactory || stateFactory;
+  const factory = propFactory || (stateFactory && config === (stateFactory as IFactoryWithClients).config ? stateFactory : null);
   const client = factory ? getSplitClient(factory) : null;
 
   React.useEffect(() => {
