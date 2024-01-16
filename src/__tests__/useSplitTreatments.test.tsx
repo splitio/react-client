@@ -11,7 +11,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { CONTROL_WITH_CONFIG } from '../constants';
 
 /** Test target */
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { SplitTreatments } from '../SplitTreatments';
@@ -33,7 +33,7 @@ describe('useSplitTreatments', () => {
     let treatmentsByFlagSets: SplitIO.TreatmentsWithConfig;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
           treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes }).treatments;
@@ -42,7 +42,7 @@ describe('useSplitTreatments', () => {
           expect(useSplitTreatments({}).treatments).toEqual({});
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
@@ -69,14 +69,14 @@ describe('useSplitTreatments', () => {
     let treatments: SplitIO.TreatmentsWithConfig;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
             treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
             return null;
           })}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
@@ -96,7 +96,7 @@ describe('useSplitTreatments', () => {
     let renderTimes = 0;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           const treatments = useSplitTreatments({ names: featureFlagNames, attributes, splitKey: 'user2' }).treatments;
 
@@ -119,7 +119,7 @@ describe('useSplitTreatments', () => {
 
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
@@ -189,7 +189,7 @@ describe('useSplitTreatments', () => {
     }
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <>
           <SplitContext.Consumer>
             {() => countSplitContext++}
@@ -219,7 +219,7 @@ describe('useSplitTreatments', () => {
             return null;
           })}
         </>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));

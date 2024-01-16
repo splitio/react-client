@@ -20,7 +20,7 @@ Below is a simple example that describes the instantiation and most basic usage 
 import React from 'react';
 
 // Import SDK functions
-import { SplitFactory, useSplitTreatments } from '@splitsoftware/splitio-react';
+import { SplitFactoryProvider, useSplitTreatments } from '@splitsoftware/splitio-react';
 
 // Define your config object
 const CONFIG = {
@@ -48,10 +48,10 @@ function MyComponent() {
 
 function MyApp() {
   return (
-    // Use SplitFactory to instantiate the SDK and makes it available to nested components
-    <SplitFactory config={CONFIG} >
+    // Use SplitFactoryProvider to instantiate the SDK and makes it available to nested components
+    <SplitFactoryProvider config={CONFIG} >
       <MyComponent />
-    </SplitFactory>
+    </SplitFactoryProvider>
   );
 }
 ```
