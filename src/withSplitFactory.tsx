@@ -12,7 +12,8 @@ import { SplitFactory } from './SplitFactory';
  *
  * @deprecated Use `SplitFactoryProvider` instead.
  * `SplitFactoryProvider` is a drop-in replacement of `SplitFactory` that properly handles side effects (factory creation and destruction) within the React component lifecycle, avoiding issues with factory recreation and memory leaks.
- * Note: There is a subtle breaking change in `SplitFactoryProvider`. When using the `config` prop, `factory` and `client` properties in the context are `null` in the first render, until the context is updated when the factory is ready. This differs from the previous behavior where `factory` and `client` were immediately available.
+ * Note: There is a subtle breaking change in `SplitFactoryProvider`. When using the `config` prop, `factory` and `client` properties in the context are `null` in the first render, until the context is updated when some event is emitted on
+ * the SDK main client (ready, ready from cache, timeout or update depending on the configuration of the `updateOnXXX` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available.
  */
 export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: SplitIO.IBrowserSDK, attributes?: SplitIO.Attributes) {
 

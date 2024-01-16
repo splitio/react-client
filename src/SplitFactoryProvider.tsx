@@ -7,9 +7,9 @@ import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClie
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
- * SplitFactoryProvider will initialize the Split SDK and its main client when it is mounted, listen for its events in order to update the Split Context,
- * and automatically shutdown and release resources when it is unmounted. SplitFactoryProvider must wrap other library components and functions
- * since they access the Split Context and its elements (factory, clients, etc).
+ * SplitFactoryProvider will initialize the Split SDK and its main client when `config` prop is provided or updated, listen for its events in order to update the Split Context,
+ * and automatically destroy the SDK (shutdown and release resources) when it is unmounted or `config` prop updated. SplitFactoryProvider must wrap other library components and
+ * functions since they access the Split Context and its properties (factory, client, isReady, etc).
  *
  * NOTE: Either pass a factory instance or a config object. If both are passed, the config object will be ignored.
  * Pass the same reference to the config or factory object rather than a new instance on each render, to avoid unnecessary props changes and SDK reinitializations.
