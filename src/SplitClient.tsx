@@ -1,13 +1,12 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
 import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
-import { ERROR_SC_NO_FACTORY } from './constants';
 import { getStatus, getSplitClient, initAttributes, IClientWithContext } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
- * Reused by both SplitFactory (main client) and SplitClient (shared client) components.
+ * Reused by both SplitFactoryProvider (main client) and SplitClient (any client) components.
  */
 export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes, children: any }, ISplitContextValues> {
 
@@ -46,11 +45,6 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   constructor(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
     super(props);
     const { factory, client } = props;
-
-    // Log error if factory is not available
-    if (!factory) {
-      console.error(ERROR_SC_NO_FACTORY);
-    }
 
     this.state = {
       factory,
@@ -129,9 +123,8 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
  * SplitClient will initialize a new SDK client and listen for its events in order to update the Split Context.
  * Children components will have access to the new client when accessing Split Context.
  *
- * Unlike SplitFactory, the underlying SDK client can be changed during the component lifecycle
- * if the component is updated with a different splitKey or trafficType prop. Since the client can change,
- * its release is not handled by SplitClient but by its container SplitFactory component.
+ * The underlying SDK client can be changed during the component lifecycle
+ * if the component is updated with a different splitKey or trafficType prop.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */

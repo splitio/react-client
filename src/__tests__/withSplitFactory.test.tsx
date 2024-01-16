@@ -15,7 +15,7 @@ jest.mock('../SplitFactory');
 import { ISplitFactoryChildProps } from '../types';
 import { withSplitFactory } from '../withSplitFactory';
 
-describe('SplitFactory', () => {
+describe('withSplitFactory', () => {
 
   test('passes no-ready props to the child if initialized with a no ready factory (e.g., using config object).', () => {
     const Component = withSplitFactory(sdkBrowser)(
