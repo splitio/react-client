@@ -1,3 +1,9 @@
+1.11.0 (January 15, 2023)
+ - Added new `SplitFactoryProvider` component as replacement for the now deprecated `SplitFactory` component.
+ This new component is a fixed version of the `SplitFactory` component, which is not handling the SDK initialization side-effects in the `componentDidMount` and `componentDidUpdate` methods (commit phase), causing some issues like the SDK not being reinitialized when component props change (Related to issue #11 and #148).
+ The new component also supports server-side rendering. See our documentation for more details: https://help.split.io/hc/en-us/articles/360038825091-React-SDK#server-side-rendering (Related to issue #11 and #109).
+ - Updated internal code to remove a circular dependency and avoid warning messages with tools like PNPM (Related to issue #176).
+
 1.10.2 (December 12, 2023)
  - Updated @splitsoftware/splitio package to version 10.24.1 that updates localStorage usage to clear cached feature flag definitions before initiating the synchronization process, if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria, to avoid using invalid cached data when the SDK is ready from cache.
 

@@ -11,7 +11,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { getStatus } from '../utils';
 
 /** Test target */
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { useSplitManager } from '../useSplitManager';
 
 describe('useSplitManager', () => {
@@ -20,12 +20,12 @@ describe('useSplitManager', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let hookResult;
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           hookResult = useSplitManager();
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     expect(hookResult).toStrictEqual({

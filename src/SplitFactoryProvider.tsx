@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
+import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus, __factories } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
@@ -27,24 +27,39 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
     config = undefined;
   }
 
-  const [stateFactory, setStateFactory] = React.useState(propFactory || null);
-  const factory = propFactory || stateFactory;
+  const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients | null>(null);
+  const factory = propFactory || (configFactory && config === configFactory.config ? configFactory : null);
   const client = factory ? getSplitClient(factory) : null;
 
+  // Effect to initialize and destroy the factory
   React.useEffect(() => {
     if (config) {
       const factory = getSplitFactory(config);
+
+      return () => {
+        destroySplitFactory(factory);
+      }
+    }
+  }, [config]);
+
+  // Effect to subscribe/unsubscribe to events
+  React.useEffect(() => {
+    const factory = config && __factories.get(config);
+    if (factory) {
       const client = getSplitClient(factory);
       const status = getStatus(client);
 
-      // Update state and unsubscribe from events when first event is emitted
-      const update = () => {
+      // Unsubscribe from events and update state when first event is emitted
+      const update = () => { // eslint-disable-next-line no-use-before-define
+        unsubscribe();
+        setConfigFactory(factory);
+      }
+
+      const unsubscribe = () => {
         client.off(client.Event.SDK_READY, update);
         client.off(client.Event.SDK_READY_FROM_CACHE, update);
         client.off(client.Event.SDK_READY_TIMED_OUT, update);
         client.off(client.Event.SDK_UPDATE, update);
-
-        setStateFactory(factory);
       }
 
       if (updateOnSdkReady) {
@@ -61,10 +76,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
       }
       if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
 
-      return () => {
-        // Factory destroy unsubscribes from events
-        destroySplitFactory(factory as IFactoryWithClients);
-      }
+      return unsubscribe;
     }
   }, [config, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
 

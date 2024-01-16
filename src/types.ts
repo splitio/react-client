@@ -45,12 +45,17 @@ export interface ISplitStatus {
 export interface ISplitContextValues extends ISplitStatus {
 
   /**
-   * Split factory instance
+   * Split factory instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available.
    */
   factory: SplitIO.IBrowserSDK | null;
 
   /**
-   * Split client instance
+   * Split client instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available.
+   *
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
   client: SplitIO.IBrowserClient | null;
@@ -94,14 +99,14 @@ export interface IUpdateProps {
 }
 
 /**
- * SplitFactory Child Props interface. These are the props that the child component receives from the 'SplitFactory' component.
+ * SplitFactoryProvider Child Props interface. These are the props that the child component receives from the 'SplitFactoryProvider' component.
  */
-// @TODO remove next type (breaking-change)
+// @TODO rename/remove next type (breaking-change)
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
- * SplitFactory Props interface. These are the props accepted by SplitFactory component,
+ * SplitFactoryProvider Props interface. These are the props accepted by SplitFactoryProvider component,
  * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
 export interface ISplitFactoryProps extends IUpdateProps {
@@ -114,6 +119,8 @@ export interface ISplitFactoryProps extends IUpdateProps {
 
   /**
    * Split factory instance to use instead of creating a new one with the config object.
+   *
+   * If both `factory` and `config` are provided, the `config` option is ignored.
    */
   factory?: SplitIO.IBrowserSDK;
 
@@ -123,7 +130,7 @@ export interface ISplitFactoryProps extends IUpdateProps {
   attributes?: SplitIO.Attributes;
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitFactoryProvider component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitFactoryChildProps) => ReactNode) | ReactNode;
 }
@@ -165,7 +172,7 @@ export interface ISplitClientChildProps extends ISplitContextValues { }
 export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitClient component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
