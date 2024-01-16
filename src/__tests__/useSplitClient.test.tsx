@@ -11,23 +11,23 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { useSplitClient } from '../useSplitClient';
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 
 describe('useSplitClient', () => {
 
-  test('returns the main client from the context updated by SplitFactory.', () => {
+  test('returns the main client from the context updated by SplitFactoryProvider.', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           client = useSplitClient().client;
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
     expect(client).toBe(outerFactory.client());
   });
@@ -36,14 +36,14 @@ describe('useSplitClient', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
             client = useSplitClient().client;
             return null;
           })}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
     expect(client).toBe(outerFactory.client('user2'));
   });
@@ -52,13 +52,13 @@ describe('useSplitClient', () => {
     const outerFactory = SplitSdk(sdkBrowser);
     let client;
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           (outerFactory.client as jest.Mock).mockClear();
           client = useSplitClient({ splitKey: 'user2', trafficType: 'user' }).client;
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
     expect(outerFactory.client as jest.Mock).toBeCalledWith('user2', 'user');
     expect(outerFactory.client as jest.Mock).toHaveReturnedWith(client);
@@ -89,9 +89,9 @@ describe('useSplitClient', () => {
 
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       return (
-        <SplitFactory factory={factory} attributes={attributesFactory} >
+        <SplitFactoryProvider factory={factory} attributes={attributesFactory} >
           <InnerComponent splitKey={splitKey} attributesClient={attributesClient} testSwitch={testSwitch} />
-        </SplitFactory>
+        </SplitFactoryProvider>
       );
     }
 
@@ -108,13 +108,13 @@ describe('useSplitClient', () => {
     let countNestedComponent = 0;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <>
           <SplitContext.Consumer>
             {() => countSplitContext++}
           </SplitContext.Consumer>
           <SplitClient splitKey={sdkBrowser.core.key} trafficType={sdkBrowser.core.trafficType}
-            /* Disabling update props is ineffective because the wrapping SplitFactory has them enabled: */
+            /* Disabling update props is ineffective because the wrapping SplitFactoryProvider has them enabled: */
             updateOnSdkReady={false} updateOnSdkReadyFromCache={false}
           >
             {() => { countSplitClient++; return null }}
@@ -122,7 +122,7 @@ describe('useSplitClient', () => {
           {React.createElement(() => {
             // Equivalent to
             // - Using config key and traffic type: `const { client } = useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, { att1: 'att1' });`
-            // - Disabling update props, since the wrapping SplitFactory has them enabled: `const { client } = useSplitClient(undefined, undefined, { att1: 'att1' }, { updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
+            // - Disabling update props, since the wrapping SplitFactoryProvider has them enabled: `const { client } = useSplitClient(undefined, undefined, { att1: 'att1' }, { updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
             const { client } = useSplitClient({ attributes: { att1: 'att1' } });
             expect(client).toBe(mainClient); // Assert that the main client was retrieved.
             expect(client!.getAttributes()).toEqual({ att1: 'att1' }); // Assert that the client was retrieved with the provided attributes.
@@ -183,7 +183,7 @@ describe('useSplitClient', () => {
             })}
           </SplitClient>
         </>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
@@ -226,7 +226,7 @@ describe('useSplitClient', () => {
     let count = 0;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           useSplitClient({ splitKey: 'some_user' });
           count++;
@@ -237,7 +237,7 @@ describe('useSplitClient', () => {
 
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     )
 
     expect(count).toEqual(2);
@@ -257,9 +257,9 @@ describe('useSplitClient', () => {
 
     function Component(updateOptions) {
       return (
-        <SplitFactory factory={outerFactory} >
+        <SplitFactoryProvider factory={outerFactory} >
           <InnerComponent {...updateOptions} />
-        </SplitFactory>
+        </SplitFactoryProvider>
       )
     }
 
