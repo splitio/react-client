@@ -336,39 +336,43 @@ describe('SplitFactoryProvider', () => {
     logSpy.mockRestore();
   });
 
-  test('cleans up on update and unmount.', () => {
+  test('cleans up on update and unmount if config prop is provided.', () => {
     let renderTimes = 0;
     const createdFactories = new Set<SplitIO.ISDK>();
     const clientDestroySpies: jest.SpyInstance[] = [];
+    const outerFactory = SplitSdk(sdkBrowser);
 
     const Component = ({ factory, isReady, hasTimedout }: ISplitFactoryChildProps) => {
       renderTimes++;
-      if (factory) createdFactories.add(factory);
 
       switch (renderTimes) {
         case 1:
-        case 3:
+          expect(factory).toBe(outerFactory);
+          return null;
+        case 2:
+        case 5:
           expect(isReady).toBe(false);
           expect(hasTimedout).toBe(false);
           expect(factory).toBe(null);
           return null;
-
-        case 2:
+        case 3:
         case 4:
+        case 6:
           expect(isReady).toBe(true);
           expect(hasTimedout).toBe(true);
-          expect(__factories.size).toBe(1);
-          clientDestroySpies.push(jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy'));
+          expect(factory).not.toBe(null);
+          createdFactories.add(factory!);
+          clientDestroySpies.push(jest.spyOn(factory!.client(), 'destroy'));
           return (
             <SplitClient splitKey='other_key' >
               {({ client }) => {
-                clientDestroySpies.push(jest.spyOn(client as SplitIO.IClient, 'destroy'));
+                clientDestroySpies.push(jest.spyOn(client!, 'destroy'));
                 return null;
               }}
             </SplitClient>
           );
-        case 5:
-          throw new Error('Child must not be rerendered');
+        case 7:
+          throw new Error('Must not rerender');
       }
     };
 
@@ -378,24 +382,41 @@ describe('SplitFactoryProvider', () => {
       factory.client().__emitter__.emit(Event.SDK_READY)
     };
 
-    // 1st render
+    // 1st render: factory provided
     const wrapper = render(
+      <SplitFactoryProvider factory={outerFactory} >
+        {Component}
+      </SplitFactoryProvider>
+    );
+
+    // 2nd render: factory created, not ready (null)
+    wrapper.rerender(
       <SplitFactoryProvider config={sdkBrowser} >
         {Component}
       </SplitFactoryProvider>
     );
 
-    // 2nd render: SDK ready (timeout is ignored due to updateOnSdkTimedout=false)
+    // 3rd render: SDK ready (timeout is ignored due to updateOnSdkTimedout=false)
     act(emitSdkEvents);
 
-    // 3rd render: Update config prop -> factory is recreated
+    // 4th render: same config prop -> factory is not recreated
+    wrapper.rerender(
+      <SplitFactoryProvider config={sdkBrowser} updateOnSdkReady={false} updateOnSdkTimedout={true} >
+        {Component}
+      </SplitFactoryProvider>
+    );
+
+    act(emitSdkEvents); // Emitting events again has no effect
+    expect(createdFactories.size).toBe(1);
+
+    // 5th render: Update config prop -> factory is recreated, not ready yet (null)
     wrapper.rerender(
       <SplitFactoryProvider config={{ ...sdkBrowser }} updateOnSdkReady={false} updateOnSdkTimedout={true} >
         {Component}
       </SplitFactoryProvider>
     );
 
-    // 4th render: SDK timeout (ready is ignored due to updateOnSdkReady=false)
+    // 6th render: SDK timeout (ready is ignored due to updateOnSdkReady=false)
     act(emitSdkEvents);
 
     wrapper.unmount();
@@ -415,11 +436,11 @@ describe('SplitFactoryProvider', () => {
         {({ factory }) => {
           // if factory is provided as a prop, `factories` cache is not modified
           expect(__factories.size).toBe(0);
-          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          destroyMainClientSpy = jest.spyOn(factory!.client(), 'destroy');
           return (
             <SplitClient splitKey='other_key' >
               {({ client }) => {
-                destroySharedClientSpy = jest.spyOn(client as SplitIO.IClient, 'destroy');
+                destroySharedClientSpy = jest.spyOn(client!, 'destroy');
                 return null;
               }}
             </SplitClient>
