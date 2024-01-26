@@ -15,9 +15,17 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  * even if the component is updated with a different config or factory prop.
  *
  * @deprecated Replace with the new `SplitFactoryProvider` component.
- * `SplitFactoryProvider` is a drop-in replacement that properly handles side effects (factory creation and destruction) within the React component lifecycle, avoiding issues with factory recreation and memory leaks.
- * Note: There is a subtle breaking change in `SplitFactoryProvider`. When using the `config` prop, `factory` and `client` properties in the context are `null` in the first render, until the context is updated when some event is emitted on
- * the SDK main client (ready, ready from cache, timeout or update depending on the configuration of the `updateOnXXX` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available.
+ * `SplitFactoryProvider` is a drop-in replacement that properly handles side effects (factory creation and destruction) within
+ * the React component lifecycle, resolving memory leak issues on server-side, React development and strict modes.
+ *
+ * BREAKING CHANGES to consider when migrating:
+ * - `SplitFactoryProvider` utilizes the React Hooks API, requiring React 16.8.0 or later, while `SplitFactory` is compatible with React 16.3.0 or later.
+ * - When using the `config` prop with `SplitFactoryProvider`, `factory` and `client` properties in `SplitContext` are `null` in the first render, until
+ * the context is updated when some event is emitted on the SDK main client (ready, ready from cache, timeout or update depending on the configuration
+ * of the `updateOn<Event>` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available.
+ * - Updating the `config` prop in `SplitFactoryProvider` reinitializes the SDK with the new configuration, while `SplitFactory` does not reinitialize the SDK.
+ * Pass a reference to the configuration object (e.g., via a global variable, `useState`, or `useMemo`) rather than a new instance to avoid unnecessary reinitialization.
+ * - Updating the `factory` prop in `SplitFactoryProvider` replaces the current SDK instance, unlike `SplitFactory` where it is ignored.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
