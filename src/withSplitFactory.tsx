@@ -10,7 +10,8 @@ import { SplitFactory } from './SplitFactory';
  * @param config Config object used to instantiate a Split factory
  * @param factory Split factory instance to use instead of creating a new one with the config object.
  *
- * @deprecated Replace with the new `SplitFactoryProvider` component.
+ * @deprecated `withSplitFactory` will be removed in a future major release. We recommend replacing it with the new `SplitFactoryProvider` component.
+ *
  * `SplitFactoryProvider` is a revised version of `SplitFactory` that properly handles SDK side effects (factory creation and destruction) within the React component lifecycle,
  * resolving memory leak issues in React development mode, strict mode and server-side rendering, and also ensuring that the SDK is updated if `config` or `factory` props change.
  *
