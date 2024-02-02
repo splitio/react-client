@@ -69,7 +69,7 @@ const MyComponent = () => {
 }
 ```
 
-# Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks with the new `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks
+# Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks
 
 Starting from React SDK v1.10.0, the `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks are available and can replace the older `useClient`, `useTreatments`, and `useManager` hooks respectively. The deprecated hooks will continue working, until they are removed in a future major release.
 
