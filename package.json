@@ -8,6 +8,7 @@
   "files": [
     "README.md",
     "CONTRIBUTORS-GUIDE.md",
+    "MIGRATION-GUIDE.md",
     "LICENSE",
     "CHANGES.txt",
     "src",
