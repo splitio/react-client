@@ -16,7 +16,7 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  *
  * @deprecated `SplitFactory` will be removed in a future major release. We recommend replacing it with the new `SplitFactoryProvider` component.
  *
- * `SplitFactoryProvider` is a revised version of `SplitFactory` that properly handles SDK side effects (factory creation and destruction) within the React component lifecycle,
+ * `SplitFactoryProvider` is a revised version of `SplitFactory` that properly handles SDK side effects (i.e., factory creation and destruction) within the React component lifecycle,
  * resolving memory leak issues in React development mode, strict mode and server-side rendering, and also ensuring that the SDK is updated if `config` or `factory` props change.
  *
  * Notable changes to consider when migrating:

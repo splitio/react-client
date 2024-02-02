@@ -2,7 +2,7 @@
 
 The `SplitFactory` and `withSplitFactory` components have been deprecated since React SDK v1.11.0, and will be removed on a future major release.
 
-We recommend migrating to the new `SplitFactoryProvider` component instead. This component is a revised version of `SplitFactory` that properly handles SDK side effects (factory creation and destruction) within the React component lifecycle, resolving memory leak issues in React development mode, strict mode and server-side rendering, and also ensuring that the SDK is updated if `config` or `factory` props change.
+We recommend migrating to the new `SplitFactoryProvider` component instead. This component is a revised version of `SplitFactory` that properly handles SDK side effects (i.e., factory creation and destruction) within the React component lifecycle, resolving memory leak issues in React development mode, strict mode and server-side rendering, and also ensuring that the SDK is updated if `config` or `factory` props change.
 
 Notable changes to consider when migrating:
  - `SplitFactoryProvider` utilizes the React Hooks API, requiring React 16.8.0 or later, while `SplitFactory` is compatible with React 16.3.0 or later.

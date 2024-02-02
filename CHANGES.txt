@@ -1,6 +1,6 @@
 1.11.0 (January 16, 2023)
  - Added new `SplitFactoryProvider` component as a replacement for the now deprecated `SplitFactory` component.
-      - Bugfixing: The new component is a revised version of `SplitFactory` that properly handles SDK side effects (factory creation and destruction) within the React component lifecycle,
+      - Bugfixing: The new component is a revised version of `SplitFactory` that properly handles SDK side effects (i.e., factory creation and destruction) within the React component lifecycle,
            - resolving memory leak issues in React development mode, strict mode and server-side rendering (Related to issues #11 and #109),
            - and also ensuring that the SDK is updated if `config` or `factory` props change (Related to issues #11 and #148).
       - Notable changes when migrating from `SplitFactory` to `SplitFactoryProvider`:
