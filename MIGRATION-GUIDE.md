@@ -1,5 +1,5 @@
 
-# [Migrating to get React SDK v1.11.0 improvements: Replacing the deprecated `SplitFactory` and `withSplitFactory` components](#react-sdk-v1.11.0)
+# Migrating to get React SDK v1.11.0 improvements: Replacing the deprecated `SplitFactory` and `withSplitFactory` components
 
 Starting from React SDK v1.11.0, the `SplitFactoryProvider` component is available and can replace the older `SplitFactory` and `withSplitFactory` components. The deprecated components will continue working, until they are removed in a future major release.
 
@@ -18,7 +18,7 @@ Notable changes to consider when migrating:
 
  - Updating the `factory` prop in `SplitFactoryProvider` replaces the current SDK instance, unlike `SplitFactory` where it is ignored.
 
-# [Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks with the new `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks](#react-sdk-v1.10.0)
+# Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks with the new `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks
 
 The `useClient`, `useTreatments` and `useManager` hooks have been deprecated since React SDK v1.10.0, and will be removed on a future major release.
 
