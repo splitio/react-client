@@ -110,7 +110,7 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
   // With splitKey undefined, mainClient and client refer to the same client instance.
   wrapper = render(<Component splitKey={undefined} attributesFactory={{ at1: 'at1' }} attributesClient={{ at2: 'at2' }} testSwitch={attributesBindingSwitch} factory={factory} />);
 
-  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={undefined} attributesClient={{ at3: 'at3' }} testSwitch={attributesBindingSwitch} factory={factory} />);
-  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={{ at4: 'at4' }} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
-  wrapper.rerender(<Component splitKey={undefined}  attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey={undefined} attributesFactory={undefined} attributesClient={{ at3: 'at3' }} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey={undefined} attributesFactory={{ at4: 'at4' }} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
+  wrapper.rerender(<Component splitKey={undefined} attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
 }
