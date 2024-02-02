@@ -12,11 +12,62 @@ We recommend migrating to the new `SplitFactoryProvider` component instead. This
 Notable changes to consider when migrating:
  - `SplitFactoryProvider` utilizes the React Hooks API, requiring React 16.8.0 or later, while `SplitFactory` is compatible with React 16.3.0 or later.
 
- - When using the `config` prop with `SplitFactoryProvider`, `factory` and `client` properties in `SplitContext` are `null` in the first render, until the context is updated when some event is emitted on the SDK main client (ready, ready from cache, timeout, or update, depending on the configuration of the `updateOn<Event>` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available. Nonetheless, it is not recommended to use the `client` and `factory` properties directly as better alternatives are available. For example, use the `useTrack` and `useSplitTreatments` hooks rather than the client's `track` and `getTreatments` methods.
+ - When using the `config` prop with `SplitFactoryProvider`, the `factory` and `client` properties in `SplitContext` and the `manager` property in `useSplitManager` results are `null` in the first render, until the context is updated when some event is emitted on the SDK main client (ready, ready from cache, timeout, or update, depending on the configuration of the `updateOn<Event>` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available. Nonetheless, it is not recommended to use the `client` and `factory` properties directly as better alternatives are available. For example, use the `useTrack` and `useSplitTreatments` hooks rather than the client's `track` and `getTreatments` methods.
 
  - Updating the `config` prop in `SplitFactoryProvider` reinitializes the SDK with the new configuration, while `SplitFactory` does not reinitialize the SDK. You should pass a reference to the configuration object (e.g., via a global variable, `useState`, or `useMemo`) rather than a new instance on each render, to avoid unnecessary reinitializations.
 
  - Updating the `factory` prop in `SplitFactoryProvider` replaces the current SDK instance, unlike `SplitFactory` where it is ignored.
+
+To migrate your existing code, replace:
+
+```javascript
+const MyApp = () => {
+  return (
+    <SplitFactory config={mySplitConfig}>
+      <MyComponent />
+    </SplitFactory>
+  );
+};
+```
+
+or
+
+```javascript
+const MyApp = withSplitFactory(mySplitConfig)(MyComponent);
+```
+
+with:
+
+```javascript
+const MyApp = () => {
+  return (
+    <SplitFactoryProvider config={mySplitConfig}>
+      <MyComponent />
+    </SplitFactoryProvider>
+  );
+};
+```
+
+and consider that `factory`, `client` and `manager` properties might be `null` until the SDK has emitted some event:
+
+```javascript
+const MyComponent = () => {
+  // factoryFromContext === factory, clientFromContext === client, and they are null until some SDK event is emitted
+  const { factory: factoryFromContext, client: clientFromContext } = useContext(SplitContext);
+  const { factory, client } = useSplitClient();
+
+  // Example to evaluate all your flags when the SDK is ready and re-evaluate on SDK_UPDATE events
+  const { manager } = useSplitManager();
+  const FEATURE_FLAG_NAMES = manager ? manager.names() : [];
+  const { treatments, isReady } = useSplitTreatments({ names: FEATURE_FLAG_NAMES, updateOnSdkUpdate: true }); // updateOnSdkReady is true by default
+
+  return isReady ?
+    treatments['feature-flag-1'].treatment === 'on' ?
+      <FeatureOn /> :
+      <FeatureOff /> :
+    <LoadingPage />
+}
+```
 
 # Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks with the new `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks
 
