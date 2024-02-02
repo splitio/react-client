@@ -14,19 +14,21 @@ Notable changes to consider when migrating:
 
  - When using the `config` prop with `SplitFactoryProvider`, `factory` and `client` properties in `SplitContext` are `null` in the first render, until the context is updated when some event is emitted on the SDK main client (ready, ready from cache, timeout, or update, depending on the configuration of the `updateOn<Event>` props of the component). This differs from the previous behavior where `factory` and `client` were immediately available. Nonetheless, it is not recommended to use the `client` and `factory` properties directly as better alternatives are available. For example, use the `useTrack` and `useSplitTreatments` hooks rather than the client's `track` and `getTreatments` methods.
 
- - Updating the `config` prop in `SplitFactoryProvider` reinitializes the SDK with the new configuration, while `SplitFactory` does not reinitialize the SDK. It is recommended to pass a reference to the configuration object (e.g., via a global variable, `useState`, or `useMemo`) rather than a new instance on each render, to avoid unnecessary reinitializations.
+ - Updating the `config` prop in `SplitFactoryProvider` reinitializes the SDK with the new configuration, while `SplitFactory` does not reinitialize the SDK. You should pass a reference to the configuration object (e.g., via a global variable, `useState`, or `useMemo`) rather than a new instance on each render, to avoid unnecessary reinitializations.
 
  - Updating the `factory` prop in `SplitFactoryProvider` replaces the current SDK instance, unlike `SplitFactory` where it is ignored.
 
 # Migrating to get React SDK v1.10.0 improvements: Replacing the deprecated `useClient`, `useTreatments`, and `useManager` hooks with the new `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks
 
-The `useClient`, `useTreatments` and `useManager` hooks have been deprecated since React SDK v1.10.0, and will be removed on a future major release.
+Starting from React SDK v1.10.0, the `useSplitClient`, `useSplitTreatments`, and `useSplitManager` hooks are available and can replace the older `useClient`, `useTreatments`, and `useManager` hooks respectively. The deprecated hooks will continue working, until they are removed in a future major release.
 
 We recommend migrating to the new versions `useSplitClient`, `useSplitTreatments` and `useSplitManager` respectively, which provide a more flexible API:
 
 - They accept an options object as parameter, instead of a list of parameters as their deprecated counterparts. The options object can contain the same parameters as the old hooks, plus some extra optional parameters: `updateOnSdkReady`, `updateOnSdkReadyFromCache`, `updateOnSdkTimedout` and `updateOnSdkUpdate`, which control when the hook updates the component. For example, you can set `updateOnSdkUpdate` to `true`, which is `false` by default, to update the component when an `SDK_UPDATE` event is emitted. This is useful when you want to avoid unnecessary re-renders of your components.
 
 - They return an object containing the SDK status properties. These properties are described in the ['Subscribe to events and changes' section](https://help.split.io/hc/en-us/articles/360038825091-React-SDK#subscribe-to-events-and-changes) and enable conditional rendering of components based on the SDK status, eliminating the need to access the Split context or use the client's `ready` promise or event listeners. For example, you can show a loading spinner until the SDK is ready, and use the `treatments` result to render the variants of your app once the SDK is ready.
+
+The usage of the new hooks is shown below:
 
 ```js
 const { client, isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: userId, updateOnSdkUpdate: true });
@@ -36,7 +38,7 @@ const { manager, isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplit
 
 
 
-To refactor your existing code, replace:
+To migrate your existing code, replace:
 
 ```javascript
 const client = useClient(optionalSplitKey, optionalTrafficType, optionalAttributes);
