@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitComponent } from './SplitClient';
 import { ISplitFactoryProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus, __factories } from './utils';
+import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
 
 /**
@@ -44,7 +44,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
 
   // Effect to subscribe/unsubscribe to events
   React.useEffect(() => {
-    const factory = config && __factories.get(config);
+    const factory = config && getSplitFactory(config);
     if (factory) {
       const client = getSplitClient(factory);
       const status = getStatus(client);
