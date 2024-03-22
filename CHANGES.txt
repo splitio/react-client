@@ -1,4 +1,7 @@
-1.11.0 (January 16, 2023)
+1.11.1 (XXX XX, 2024)
+ - Bugfixing - Added tslib as an explicit dependency to avoid issues with some package managers that don't install it automatically as a transitive dependency from @splitsoftware/splitio-commons (Related to issue https://github.com/splitio/javascript-client/issues/795).
+
+1.11.0 (January 16, 2024)
  - Added new `SplitFactoryProvider` component as a replacement for the now deprecated `SplitFactory` component.
       - Bugfixing: The new component is a revised version of `SplitFactory` that properly handles SDK side effects (i.e., factory creation and destruction) within the React component lifecycle,
            - resolving memory leak issues in React development mode, strict mode and server-side rendering (Related to issues #11 and #109),
