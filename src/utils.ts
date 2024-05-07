@@ -53,6 +53,10 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
 
   // Handle client lastUpdate
   if (client.lastUpdate === undefined) {
+    // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
+    // Unlike JS SDK, users don't need to use the client directly and so the warning is not relevant.
+    client.setMaxListeners(0);
+
     const updateLastUpdate = () => {
       const lastUpdate = Date.now();
       client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
