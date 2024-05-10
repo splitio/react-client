@@ -3,6 +3,7 @@
       - Added support for targeting rules based on semantic versions (https://semver.org/).
       - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
       - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
+ - Updated internal use of the SDK client to remove EventEmitter memory leak warnings. These warnings were emitted when using multiple hooks and components from the SDK simultaneously, but they do not indicate an actual memory leak and are irrelevant for SDK usage (Related to https://github.com/splitio/react-client/issues/191).
 
 1.11.1 (March 26, 2024)
  - Bugfixing - Added tslib as an explicit dependency to avoid issues with some package managers that don't resolve it automatically as a transitive dependency from @splitsoftware/splitio-commons (Related to issue https://github.com/splitio/javascript-client/issues/795).
