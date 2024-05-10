@@ -1,4 +1,4 @@
-1.12.0 (May 8, 2024)
+1.12.0 (May 10, 2024)
  - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
       - Added support for targeting rules based on semantic versions (https://semver.org/).
       - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
