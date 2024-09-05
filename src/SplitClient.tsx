@@ -86,7 +86,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   }
 
   update = () => {
-    this.setState({ lastUpdate: (this.state.client as IClientWithContext).lastUpdate });
+    this.setState({ lastUpdate: (this.state.client as IClientWithContext).__getStatus().lastUpdate });
   }
 
   componentDidMount() {
