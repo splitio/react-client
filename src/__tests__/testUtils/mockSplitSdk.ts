@@ -9,8 +9,8 @@ export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
   SDK_READY: 'init::ready',
-  SDK_UPDATE: 'state::update',
   SDK_READY_FROM_CACHE: 'init::cache-ready',
+  SDK_UPDATE: 'state::update',
 };
 
 function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {
@@ -89,6 +89,7 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   const __getStatus = () => ({
     isReady,
     isReadyFromCache,
+    isTimedout: hasTimedout && !isReady,
     hasTimedout,
     isDestroyed,
     isOperational: (isReady || isReadyFromCache) && !isDestroyed,

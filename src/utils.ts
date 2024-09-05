@@ -13,9 +13,10 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
-    isOperational: boolean;
+    isTimedout: boolean;
     hasTimedout: boolean;
     isDestroyed: boolean;
+    isOperational: boolean;
     lastUpdate: number;
   };
 }
@@ -75,13 +76,12 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
-  const isReady = status ? status.isReady : false;
-  const hasTimedout = status ? status.hasTimedout : false;
+
   return {
-    isReady,
+    isReady: status ? status.isReady : false,
     isReadyFromCache: status ? status.isReadyFromCache : false,
-    isTimedout: hasTimedout && !isReady,
-    hasTimedout,
+    isTimedout: status ? status.isTimedout : false,
+    hasTimedout: status ? status.hasTimedout : false,
     isDestroyed: status ? status.isDestroyed : false,
     lastUpdate: status ? status.lastUpdate : 0,
   };
