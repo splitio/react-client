@@ -13,11 +13,12 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
-    isOperational: boolean;
+    isTimedout: boolean;
     hasTimedout: boolean;
     isDestroyed: boolean;
+    isOperational: boolean;
+    lastUpdate: number;
   };
-  lastUpdate: number;
 }
 
 /**
@@ -51,23 +52,9 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   // factory.client is an idempotent operation
   const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
 
-  // Handle client lastUpdate
-  if (client.lastUpdate === undefined) {
-    // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
-    // Unlike JS SDK, users can avoid using the client directly, making the warning irrelevant.
-    client.setMaxListeners(0);
-
-    const updateLastUpdate = () => {
-      const lastUpdate = Date.now();
-      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
-    }
-
-    client.lastUpdate = 0;
-    client.on(client.Event.SDK_READY, updateLastUpdate);
-    client.on(client.Event.SDK_READY_FROM_CACHE, updateLastUpdate);
-    client.on(client.Event.SDK_READY_TIMED_OUT, updateLastUpdate);
-    client.on(client.Event.SDK_UPDATE, updateLastUpdate);
-  }
+  // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
+  // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
+  client.setMaxListeners(0);
 
   if ((factory as IFactoryWithClients).clientInstances) {
     (factory as IFactoryWithClients).clientInstances.add(client);
@@ -89,15 +76,14 @@ export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
-  const isReady = status ? status.isReady : false;
-  const hasTimedout = status ? status.hasTimedout : false;
+
   return {
-    isReady,
+    isReady: status ? status.isReady : false,
     isReadyFromCache: status ? status.isReadyFromCache : false,
-    isTimedout: hasTimedout && !isReady,
-    hasTimedout,
+    isTimedout: status ? status.isTimedout : false,
+    hasTimedout: status ? status.hasTimedout : false,
     isDestroyed: status ? status.isDestroyed : false,
-    lastUpdate: client ? (client as IClientWithContext).lastUpdate || 0 : 0,
+    lastUpdate: status ? status.lastUpdate : 0,
   };
 }
 

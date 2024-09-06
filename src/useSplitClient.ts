@@ -45,7 +45,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   React.useEffect(() => {
     if (!client) return;
 
-    const update = () => setLastUpdate(client.lastUpdate);
+    const update = () => setLastUpdate(client.__getStatus().lastUpdate);
 
     // Clients are created on the hook's call, so the status may have changed
     const statusOnEffect = getStatus(client);

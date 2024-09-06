@@ -8,7 +8,7 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-import { getStatus } from '../utils';
+import { getStatus, IClientWithContext } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
 import { CONTROL_WITH_CONFIG } from '../constants';
 
@@ -70,7 +70,7 @@ describe('SplitTreatments', () => {
                   expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
                   expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
                   expect(featureFlagNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
-                  expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
+                  expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate]);
                   return null;
                 }}
               </SplitTreatments>
