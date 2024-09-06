@@ -15,7 +15,7 @@ import { ISplitFactoryChildProps } from '../types';
 import { SplitFactory } from '../SplitFactory';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { __factories } from '../utils';
+import { __factories, IClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY, ERROR_SF_NO_CONFIG_AND_FACTORY } from '../constants';
 
 describe('SplitFactory', () => {
@@ -54,7 +54,7 @@ describe('SplitFactory', () => {
           expect(hasTimedout).toBe(false);
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
-          expect(lastUpdate).toBe(0);
+          expect(lastUpdate).toBe((outerFactory.client() as IClientWithContext).__getStatus().lastUpdate);
           expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}

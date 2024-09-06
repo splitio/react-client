@@ -9,8 +9,8 @@ export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
   SDK_READY: 'init::ready',
-  SDK_UPDATE: 'state::update',
   SDK_READY_FROM_CACHE: 'init::cache-ready',
+  SDK_UPDATE: 'state::update',
 };
 
 function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {
@@ -32,14 +32,22 @@ function buildInstanceId(key: any, trafficType: string | undefined) {
 
 function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   // Readiness
-  let __isReady__: boolean | undefined;
-  let __isReadyFromCache__: boolean | undefined;
-  let __hasTimedout__: boolean | undefined;
-  let __isDestroyed__: boolean | undefined;
+  let isReady = false;
+  let isReadyFromCache = false;
+  let hasTimedout = false;
+  let isDestroyed = false;
+  let lastUpdate = 0;
+
+  function syncLastUpdate() {
+    const dateNow = Date.now();
+    lastUpdate = dateNow > lastUpdate ? dateNow : lastUpdate + 1;
+  }
+
   const __emitter__ = new EventEmitter();
-  __emitter__.on(Event.SDK_READY, () => { __isReady__ = true; });
-  __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
-  __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
+  __emitter__.on(Event.SDK_READY, () => { isReady = true; syncLastUpdate(); });
+  __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { isReadyFromCache = true; syncLastUpdate(); });
+  __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { hasTimedout = true; syncLastUpdate(); });
+  __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
 
   let attributesCache = {};
 
@@ -72,21 +80,24 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
   });
   const ready: jest.Mock = jest.fn(() => {
     return new Promise<void>((res, rej) => {
-      if (__isReady__) res();
+      if (isReady) res();
       else { __emitter__.on(Event.SDK_READY, res); }
-      if (__hasTimedout__) rej();
+      if (hasTimedout) rej();
       else { __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
     });
   });
   const __getStatus = () => ({
-    isReady: __isReady__ || false,
-    isReadyFromCache: __isReadyFromCache__ || false,
-    hasTimedout: __hasTimedout__ || false,
-    isDestroyed: __isDestroyed__ || false,
-    isOperational: ((__isReady__ || __isReadyFromCache__) && !__isDestroyed__) || false,
+    isReady,
+    isReadyFromCache,
+    isTimedout: hasTimedout && !isReady,
+    hasTimedout,
+    isDestroyed,
+    isOperational: (isReady || isReadyFromCache) && !isDestroyed,
+    lastUpdate,
   });
   const destroy: jest.Mock = jest.fn(() => {
-    __isDestroyed__ = true;
+    isDestroyed = true;
+    syncLastUpdate();
     // __emitter__.removeAllListeners();
     return Promise.resolve();
   });
@@ -108,7 +119,8 @@ function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
     // Restore the mock client to its initial NO-READY status.
     // Useful when you want to reuse the same mock between tests after emitting events or destroying the instance.
     __restore() {
-      __isReady__ = __isReadyFromCache__ = __hasTimedout__ = __isDestroyed__ = undefined;
+      isReady = isReadyFromCache = hasTimedout = isDestroyed = false;
+      lastUpdate = 0;
     }
   });
 }

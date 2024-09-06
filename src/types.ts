@@ -19,6 +19,7 @@ export interface ISplitStatus {
 
   /**
    * isTimedout indicates if the Split SDK client has triggered an SDK_READY_TIMED_OUT event and is not ready to be consumed.
+   * In other words, `isTimedout` is equivalent to `hasTimeout && !isReady`.
    */
   isTimedout: boolean;
 

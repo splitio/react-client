@@ -15,6 +15,7 @@ import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { IClientWithContext } from '../utils';
 
 describe('SplitClient', () => {
 
@@ -55,7 +56,7 @@ describe('SplitClient', () => {
             expect(hasTimedout).toBe(false);
             expect(isTimedout).toBe(false);
             expect(isDestroyed).toBe(false);
-            expect(lastUpdate).toBe(0);
+            expect(lastUpdate).toBe((outerFactory.client() as IClientWithContext).__getStatus().lastUpdate);
 
             return null;
           }}
@@ -212,7 +213,7 @@ describe('SplitClient', () => {
             count++;
 
             // side effect in the render phase
-            if (!(client as any).__getStatus().isReady) {
+            if (!(client as IClientWithContext).__getStatus().isReady) {
               console.log('emit');
               (client as any).__emitter__.emit(Event.SDK_READY);
             }

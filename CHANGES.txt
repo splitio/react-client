@@ -1,3 +1,8 @@
+1.13.0 (September 6, 2024)
+ - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
+      - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
+      - Updated some transitive dependencies for vulnerability fixes.
+
 1.12.1 (August 2, 2024)
  - Updated @splitsoftware/splitio package to version 10.27.0 and some transitive dependencies for vulnerability fixes.
 
