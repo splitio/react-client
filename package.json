@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "1.13.0",
+  "version": "1.13.1-rc.0",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -63,7 +63,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "10.28.0",
+    "@splitsoftware/splitio": "10.28.1-rc.2",
     "memoize-one": "^5.1.1",
     "shallowequal": "^1.1.0",
     "tslib": "^2.3.1"
