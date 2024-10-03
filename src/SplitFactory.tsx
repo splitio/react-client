@@ -61,6 +61,7 @@ export class SplitFactory extends React.Component<ISplitFactoryProps, { factory:
         // We use an idempotent variant of the Split factory builder (i.e., given the same config, it returns the same already
         // created instance), since React component constructors is part of render-phase and can be invoked multiple times.
         factory = getSplitFactory(config);
+        factory.init();
       }
     }
     this.isFactoryExternal = propFactory ? true : false;

@@ -29,7 +29,13 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
 
   const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients | null>(null);
   const factory = React.useMemo(() => {
-    return propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+    return propFactory ?
+      propFactory :
+      configFactory && config === configFactory.config ?
+        configFactory :
+        config && config.preloadedData ?
+          getSplitFactory(config) :
+          null;
   }, [config, propFactory, configFactory]);
   const client = factory ? getSplitClient(factory) : null;
 
@@ -37,6 +43,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
   React.useEffect(() => {
     if (config) {
       const factory = getSplitFactory(config);
+      factory.init();
 
       return () => {
         destroySplitFactory(factory);

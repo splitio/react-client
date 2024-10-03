@@ -26,6 +26,7 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
+  init(): void;
 }
 
 // exported for testing purposes
@@ -38,6 +39,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
     const newFactory = SplitSdk(config, (modules) => {
       modules.settings.version = VERSION;
+      modules.isPure = true;
     }) as IFactoryWithClients;
     newFactory.config = config;
     __factories.set(config, newFactory);

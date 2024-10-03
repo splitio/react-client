@@ -37,7 +37,7 @@ export function mockSdk() {
     function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
       // Readiness
       let isReady = false;
-      let isReadyFromCache = false;
+      let isReadyFromCache = config.preloadedData ? true : false;
       let hasTimedout = false;
       let isDestroyed = false;
       let lastUpdate = 0;
@@ -147,6 +147,15 @@ export function mockSdk() {
       return Promise.all(Object.keys(__clients__).map(instanceId => __clients__[instanceId].destroy()));
     });
 
+    // SDK internal modules
+    const modules = {
+      settings: Object.assign({
+        version: jsSdkVersion,
+      }, config),
+      isPure: undefined,
+    }
+    if (__updateModules) __updateModules(modules);
+
     // SDK factory
     const factory = {
       client,
@@ -154,12 +163,9 @@ export function mockSdk() {
       destroy,
       __names__: names,
       __clients__,
-      settings: Object.assign({
-        version: jsSdkVersion,
-      }, config),
+      settings: modules.settings,
+      init: modules.isPure ? jest.fn() : undefined
     };
-
-    if (__updateModules) __updateModules(factory);
 
     return factory;
   });
