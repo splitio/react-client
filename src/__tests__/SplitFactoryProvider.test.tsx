@@ -38,6 +38,30 @@ describe('SplitFactoryProvider', () => {
     );
   });
 
+  test('passes ready from cache props to the child if initialized with a config with preloaded data.', () => {
+    const configWithPreloadedData = { ...sdkBrowser, preloadedData: {} };
+    let internalFactory;
+
+    render(
+      <SplitFactoryProvider config={configWithPreloadedData} >
+        {({ factory, client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
+          internalFactory = factory;
+          expect(factory).toBeDefined();
+          expect(client).toBeDefined();
+          expect(isReady).toBe(false);
+          expect(isReadyFromCache).toBe(true);
+          expect(hasTimedout).toBe(false);
+          expect(isTimedout).toBe(false);
+          expect(isDestroyed).toBe(false);
+          expect(lastUpdate).toBe(0);
+          return null;
+        }}
+      </SplitFactoryProvider>
+    );
+
+    expect(internalFactory.init).toBeCalledTimes(1);
+  });
+
   test('passes ready props to the child if initialized with a ready factory.', async () => {
     const outerFactory = SplitSdk(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
@@ -99,6 +123,7 @@ describe('SplitFactoryProvider', () => {
     );
 
     const innerFactory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+    expect(innerFactory.init).toBeCalledTimes(1);
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
