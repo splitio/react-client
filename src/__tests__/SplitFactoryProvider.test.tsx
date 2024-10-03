@@ -14,7 +14,7 @@ const logSpy = jest.spyOn(console, 'log');
 import { ISplitFactoryChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
-import { SplitContext } from '../SplitContext';
+import { INITIAL_CONTEXT, SplitContext } from '../SplitContext';
 import { __factories, IClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
 
@@ -55,7 +55,7 @@ describe('SplitFactoryProvider', () => {
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe((outerFactory.client() as IClientWithContext).__getStatus().lastUpdate);
-          expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
+          expect((factory as SplitIO.IBrowserSDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}
       </SplitFactoryProvider>
@@ -301,11 +301,7 @@ describe('SplitFactoryProvider', () => {
       return (
         <SplitContext.Consumer>
           {(value) => {
-            expect(value.factory).toBe(null);
-            expect(value.client).toBe(null);
-            expect(value.isReady).toBe(false);
-            expect(value.isTimedout).toBe(false);
-            expect(value.lastUpdate).toBe(0);
+            expect(value).toEqual(INITIAL_CONTEXT);
             done();
             return null;
           }}
@@ -338,7 +334,7 @@ describe('SplitFactoryProvider', () => {
 
   test('cleans up on update and unmount if config prop is provided.', () => {
     let renderTimes = 0;
-    const createdFactories = new Set<SplitIO.ISDK>();
+    const createdFactories = new Set<SplitIO.IBrowserSDK>();
     const clientDestroySpies: jest.SpyInstance[] = [];
     const outerFactory = SplitSdk(sdkBrowser);
 

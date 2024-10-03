@@ -28,7 +28,9 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
   }
 
   const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients | null>(null);
-  const factory = propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+  const factory = React.useMemo(() => {
+    return propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+  }, [config, propFactory, configFactory]);
   const client = factory ? getSplitClient(factory) : null;
 
   // Effect to initialize and destroy the factory

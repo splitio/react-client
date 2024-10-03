@@ -31,7 +31,7 @@ describe('SplitFactory', () => {
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe(0);
-          expect((factory as SplitIO.ISDK).settings.version).toContain('react-');
+          expect((factory as SplitIO.IBrowserSDK).settings.version).toContain('react-');
           return null;
         }}
       </SplitFactory>
@@ -55,7 +55,7 @@ describe('SplitFactory', () => {
           expect(isTimedout).toBe(false);
           expect(isDestroyed).toBe(false);
           expect(lastUpdate).toBe((outerFactory.client() as IClientWithContext).__getStatus().lastUpdate);
-          expect((factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
+          expect((factory as SplitIO.IBrowserSDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}
       </SplitFactory>
@@ -239,7 +239,7 @@ describe('SplitFactory', () => {
       <SplitFactory config={sdkBrowser} >
         {({ factory }) => {
           expect(__factories.size).toBe(1);
-          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          destroyMainClientSpy = jest.spyOn((factory as SplitIO.IBrowserSDK).client(), 'destroy');
           return (
             <SplitClient splitKey='other_key' >
               {({ client }) => {
@@ -267,7 +267,7 @@ describe('SplitFactory', () => {
         {({ factory }) => {
           // if factory is provided as a prop, `factories` cache is not modified
           expect(__factories.size).toBe(0);
-          destroyMainClientSpy = jest.spyOn((factory as SplitIO.ISDK).client(), 'destroy');
+          destroyMainClientSpy = jest.spyOn((factory as SplitIO.IBrowserSDK).client(), 'destroy');
           return (
             <SplitClient splitKey='other_key' >
               {({ client }) => {

@@ -1,3 +1,9 @@
+1.14.0 (September XX, 2024)
+ - Updated @splitsoftware/splitio package to version 10.29.0 that includes minor updates:
+      - Added `factory.destroy()` method, which invokes the `destroy` method on all SDK clients created by the factory.
+      - Added support for targeting rules based on large segments for browsers.
+      - Updated some transitive dependencies for vulnerability fixes.
+
 1.13.0 (September 6, 2024)
  - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
       - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
