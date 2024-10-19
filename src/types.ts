@@ -225,12 +225,10 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component, used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()',
  * depending on whether `names` or `flagSets` props are provided, and to pass the result to the child component.
  */
-// @TODO extend ISplitClientProps, to add splitKey and update options
 export type ISplitTreatmentsProps = GetTreatmentsOptions & {
 
   /**
    * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
    */
-  // @TODO add treatments to context & `children: ((props: ISplitTreatmentsChildProps) => JSX.Element | null) | JSX.Element | null;`
-  children: (props: ISplitTreatmentsChildProps) => ReactNode;
+  children: ((props: ISplitTreatmentsChildProps) => ReactNode);
 }

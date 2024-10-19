@@ -16,23 +16,11 @@ export function SplitTreatments(props: ISplitTreatmentsProps) {
   // SplitTreatments doesn't update on SDK events, since it is inside SplitFactory and/or SplitClient.
   const context = useSplitTreatments({ updateOnSdkReady: false, updateOnSdkTimedout: false, ...props });
 
-  // return children(context);
   return (
     <SplitContext.Provider value={context}>
       {
-        children({ ...context })
+        children(context)
       }
     </SplitContext.Provider>
   );
-
-  // // @TODO eventually update as follows, and remove SplitClient?
-  // return (
-  //   <SplitContext.Provider value={context}>
-  //     {
-  //       typeof children === 'function' ?
-  //         children({ ...context }) :
-  //         children
-  //     }
-  //   </SplitContext.Provider>
-  // );
 }

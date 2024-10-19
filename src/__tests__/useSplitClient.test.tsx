@@ -189,11 +189,8 @@ describe('useSplitClient', () => {
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-
-    // @TODO review
     act(() => mainClient.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_TIMED_OUT));
-
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));

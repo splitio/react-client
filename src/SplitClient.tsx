@@ -20,7 +20,7 @@ export function SplitClient(props: ISplitClientProps) {
     <SplitContext.Provider value={context}>
       {
         typeof children === 'function' ?
-          children({ ...context }) :
+          children(context) :
           children
       }
     </SplitContext.Provider>
