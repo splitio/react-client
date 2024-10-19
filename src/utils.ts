@@ -25,7 +25,6 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
-  clientInstances: Set<IClientWithContext>;
   config: SplitIO.IBrowserSettings;
 }
 
@@ -33,14 +32,13 @@ export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
 export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
 
 // idempotent operation
-export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
+export function getSplitFactory(config: SplitIO.IBrowserSettings) {
   if (!__factories.has(config)) {
     // SplitSDK is not an idempotent operation
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
     const newFactory = SplitSdk(config, (modules) => {
       modules.settings.version = VERSION;
     }) as IFactoryWithClients;
-    newFactory.clientInstances = new Set();
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
@@ -56,20 +54,12 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
   client.setMaxListeners(0);
 
-  if ((factory as IFactoryWithClients).clientInstances) {
-    (factory as IFactoryWithClients).clientInstances.add(client);
-  }
   return client;
 }
 
-export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
-  // call destroy of clients
-  const destroyPromises: Promise<void>[] = [];
-  factory.clientInstances.forEach((client) => destroyPromises.push(client.destroy()));
-  // remove references to release allocated memory
-  factory.clientInstances.clear();
+export function destroySplitFactory(factory: IFactoryWithClients): Promise<void> | undefined {
   __factories.delete(factory.config);
-  return Promise.all(destroyPromises);
+  return factory.destroy();
 }
 
 // Util used to get client status.

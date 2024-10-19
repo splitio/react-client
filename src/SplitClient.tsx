@@ -1,14 +1,16 @@
 import React from 'react';
 import { SplitContext } from './SplitContext';
-import { ISplitClientProps, ISplitContextValues, IUpdateProps } from './types';
+import { ISplitClientProps, ISplitContextValues } from './types';
 import { getStatus, getSplitClient, initAttributes, IClientWithContext } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
+
+type ISplitComponentProps = ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes };
 
 /**
  * Common component used to handle the status and events of a Split client passed as prop.
  * Reused by both SplitFactoryProvider (main client) and SplitClient (any client) components.
  */
-export class SplitComponent extends React.Component<IUpdateProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes, children: any }, ISplitContextValues> {
+export class SplitComponent extends React.Component<ISplitComponentProps, ISplitContextValues> {
 
   static defaultProps = {
     children: null,
@@ -20,7 +22,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
   // Using `getDerivedStateFromProps` since the state depends on the status of the client in props, which might change over time.
   // It could be avoided by removing the client and its status from the component state.
   // But it implies to have another instance property to use instead of the state, because we need a unique reference value for SplitContext.Provider
-  static getDerivedStateFromProps(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }, state: ISplitContextValues) {
+  static getDerivedStateFromProps(props: ISplitComponentProps, state: ISplitContextValues) {
     const { client, factory, attributes } = props;
     // initAttributes can be called in the `render` method too, but it is better here for separation of concerns
     initAttributes(client, attributes);
@@ -42,7 +44,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
 
   readonly state: Readonly<ISplitContextValues>;
 
-  constructor(props: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
+  constructor(props: ISplitComponentProps) {
     super(props);
     const { factory, client } = props;
 
@@ -93,7 +95,7 @@ export class SplitComponent extends React.Component<IUpdateProps & { factory: Sp
     this.subscribeToEvents(this.props.client);
   }
 
-  componentDidUpdate(prevProps: ISplitClientProps & { factory: SplitIO.IBrowserSDK | null, client: SplitIO.IBrowserClient | null }) {
+  componentDidUpdate(prevProps: ISplitComponentProps) {
     if (this.props.client !== prevProps.client) {
       this.unsubscribeFromEvents(prevProps.client);
       this.subscribeToEvents(this.props.client);
