@@ -19,6 +19,7 @@ export interface ISplitStatus {
 
   /**
    * isTimedout indicates if the Split SDK client has triggered an SDK_READY_TIMED_OUT event and is not ready to be consumed.
+   * In other words, `isTimedout` is equivalent to `hasTimeout && !isReady`.
    */
   isTimedout: boolean;
 
@@ -45,12 +46,17 @@ export interface ISplitStatus {
 export interface ISplitContextValues extends ISplitStatus {
 
   /**
-   * Split factory instance
+   * Split factory instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available.
    */
   factory: SplitIO.IBrowserSDK | null;
 
   /**
-   * Split client instance
+   * Split client instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available.
+   *
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
   client: SplitIO.IBrowserClient | null;
@@ -94,17 +100,15 @@ export interface IUpdateProps {
 }
 
 /**
- * SplitFactory Child Props interface. These are the props that the child component receives from the 'SplitFactory' component.
+ * SplitFactoryProvider Child Props interface. These are the props that the child as a function receives from the 'SplitFactoryProvider' component.
  */
-// @TODO remove next type (breaking-change)
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ISplitFactoryChildProps extends ISplitContextValues { }
+export interface ISplitFactoryProviderChildProps extends ISplitContextValues { }
 
 /**
- * SplitFactory Props interface. These are the props accepted by SplitFactory component,
+ * SplitFactoryProvider Props interface. These are the props accepted by SplitFactoryProvider component,
  * used to instantiate a factory and client instance, update the Split context, and listen for SDK events.
  */
-export interface ISplitFactoryProps extends IUpdateProps {
+export interface ISplitFactoryProviderProps extends IUpdateProps {
 
   /**
    * Config object used to instantiate a Split factory
@@ -114,6 +118,8 @@ export interface ISplitFactoryProps extends IUpdateProps {
 
   /**
    * Split factory instance to use instead of creating a new one with the config object.
+   *
+   * If both `factory` and `config` are provided, the `config` option is ignored.
    */
   factory?: SplitIO.IBrowserSDK;
 
@@ -123,9 +129,9 @@ export interface ISplitFactoryProps extends IUpdateProps {
   attributes?: SplitIO.Attributes;
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitFactoryProvider component. It can be a functional component (child as a function) or a React element.
    */
-  children: ((props: ISplitFactoryChildProps) => ReactNode) | ReactNode;
+  children: ((props: ISplitFactoryProviderChildProps) => ReactNode) | ReactNode;
 }
 
 /**
@@ -152,10 +158,8 @@ export interface IUseSplitClientOptions extends IUpdateProps {
 }
 
 /**
- * SplitClient Child Props interface. These are the props that the child component receives from the 'SplitClient' component.
+ * SplitClient Child Props interface. These are the props that the child as a function receives from the 'SplitClient' component.
  */
-// @TODO remove next type (breaking-change)
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ISplitClientChildProps extends ISplitContextValues { }
 
 /**
@@ -165,7 +169,7 @@ export interface ISplitClientChildProps extends ISplitContextValues { }
 export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
-   * Children of the SplitFactory component. It can be a functional component (child as a function) or a React element.
+   * Children of the SplitClient component. It can be a functional component (child as a function) or a React element.
    */
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }

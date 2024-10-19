@@ -2,15 +2,15 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
+import { mockSdk } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
 
@@ -21,19 +21,19 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method bound to the client at Split context updated by SplitFactory.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+  test('returns the track method bound to the client at Split context updated by SplitFactoryProvider.', () => {
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           boundTrack = useTrack();
           trackResult = boundTrack(tt, eventType, value, properties);
           return null;
         })}
-      </SplitFactory>,
+      </SplitFactoryProvider>,
     );
     const track = outerFactory.client().track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
@@ -41,12 +41,12 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
             boundTrack = useTrack();
@@ -54,7 +54,7 @@ describe('useTrack', () => {
             return null;
           })}
         </SplitClient>
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
     const track = outerFactory.client('user2').track as jest.Mock;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
@@ -62,18 +62,18 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to a new client given a splitKey and optional trafficType.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           boundTrack = useTrack('user2', tt);
           trackResult = boundTrack(eventType, value, properties);
           return null;
         })}
-      </SplitFactory>,
+      </SplitFactoryProvider>,
     );
     const track = outerFactory.client('user2', tt).track as jest.Mock;
     expect(track).toBeCalledWith(eventType, value, properties);

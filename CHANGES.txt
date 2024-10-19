@@ -1,5 +1,48 @@
+2.0.0 (October XX, 2024)
+ - Added support for targeting rules based on large segments for browsers.
+ - Updated @splitsoftware/splitio package to version 10.29.0 that includes minor updates, and updated some transitive dependencies for vulnerability fixes.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+ - BREAKING CHANGES:
+      - Removed deprecated modules: `SplitFactory` component, `useClient`, `useTreatments` and `useManager` hooks, and `withSplitFactory`, `withSplitClient` and `withSplitTreatments` high-order components. Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate to the new alternatives.
+      - Renamed TypeScript interfaces `ISplitFactoryProps` to `ISplitFactoryProviderProps`, and `ISplitFactoryChildProps` to `ISplitFactoryProviderChildProps`.
+      - Renamed `SplitSdk` to `SplitFactory` function, which is the underlying Split SDK factory, i.e., `import { SplitFactory } from '@splitsoftware/splitio'`.
+
+1.13.0 (September 6, 2024)
+ - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
+      - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
+      - Updated some transitive dependencies for vulnerability fixes.
+
+1.12.1 (August 2, 2024)
+ - Updated @splitsoftware/splitio package to version 10.27.0 and some transitive dependencies for vulnerability fixes.
+
+1.12.0 (May 10, 2024)
+ - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
+      - Added support for targeting rules based on semantic versions (https://semver.org/).
+      - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
+      - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
+ - Updated internal use of the SDK client to remove EventEmitter memory leak warnings. These warnings were emitted when using multiple hooks and components from the SDK simultaneously, but they do not indicate an actual memory leak and are irrelevant for SDK usage (Related to https://github.com/splitio/react-client/issues/191).
+
+1.11.1 (March 26, 2024)
+ - Bugfixing - Added tslib as an explicit dependency to avoid issues with some package managers that don't resolve it automatically as a transitive dependency from @splitsoftware/splitio-commons (Related to issue https://github.com/splitio/javascript-client/issues/795).
+
+1.11.0 (January 16, 2024)
+ - Added new `SplitFactoryProvider` component as a replacement for the now deprecated `SplitFactory` component.
+      - Bugfixing: The new component is a revised version of `SplitFactory` that properly handles SDK side effects (i.e., factory creation and destruction) within the React component lifecycle,
+           - resolving memory leak issues in React development mode, strict mode and server-side rendering (Related to issues #11 and #109),
+           - and also ensuring that the SDK is updated if `config` or `factory` props change (Related to issues #11 and #148).
+      - Notable changes when migrating from `SplitFactory` to `SplitFactoryProvider`:
+           - `SplitFactoryProvider` utilizes the React Hooks API, requiring React 16.8.0 or later, while `SplitFactory` is compatible with React 16.3.0 or later.
+           - When using the `config` prop with `SplitFactoryProvider`, the `factory` and `client` properties in `SplitContext` and the `manager` property in `useSplitManager` results are `null` in the first render, until the context is updated when some event is emitted on the SDK main client (ready, ready from cache, timeout, or update, depending on the configuration of the `updateOn<Event>` props of the component). This differs from the previous behavior where `factory`, `client`, and `manager` were immediately available.
+           - Updating the `config` prop in `SplitFactoryProvider` reinitializes the SDK with the new configuration, while `SplitFactory` does not reinitialize the SDK. You should pass a reference to the configuration object (e.g., via a global variable, `useState`, or `useMemo`) rather than a new instance on each render, to avoid unnecessary reinitializations.
+           - Updating the `factory` prop in `SplitFactoryProvider` replaces the current SDK instance, unlike `SplitFactory` where it is ignored.
+ - Updated internal code to remove a circular dependency and avoid warning messages with tools like PNPM (Related to issue #176).
+ - Updated @splitsoftware/splitio package to version 10.25.1 for vulnerability fixes.
+
+1.10.2 (December 12, 2023)
+ - Updated @splitsoftware/splitio package to version 10.24.1 that updates localStorage usage to clear cached feature flag definitions before initiating the synchronization process, if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria, to avoid using invalid cached data when the SDK is ready from cache.
+
 1.10.1 (November 21, 2023)
- - Bugfixing - Resolved an issue with `useSplitClient` hook, which was not re-rendering when an SDK client event was emitted between the hook's call and the execution of its internal effect.
+ - Bugfixing - Resolved an issue with `useSplitClient` hook and `SplitClient` component, that were not re-rendering when an SDK client event was emitted between the render and the commit phases of component lifecycle.
 
 1.10.0 (November 16, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
@@ -12,6 +55,7 @@
       - `useSplitTreatments` optimizes feature flag evaluations by using the `useMemo` hook to memoize `getTreatmentsWithConfig` method calls from the SDK. This avoids re-evaluating feature flags when the hook is called with the same options and the feature flag definitions have not changed.
       - They fixed a bug in the deprecated `useClient` and `useTreatments` hooks, which caused them to not re-render and re-evaluate feature flags when they access a different SDK client than the context and its status updates (i.e., when it emits SDK_READY or other event).
  - Added TypeScript types and interfaces to the library index exports, allowing them to be imported from the library index, e.g., `import type { ISplitFactoryProps } from '@splitsoftware/splitio-react'` (Related to issue https://github.com/splitio/react-client/issues/162).
+ - Added `defaultTreatment` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager (Related to issue https://github.com/splitio/javascript-commons/issues/225).
  - Updated type declarations of the library components to not restrict the type of the `children` prop to ReactElement, allowing to pass any valid ReactNode value (Related to issue https://github.com/splitio/react-client/issues/164).
  - Updated linter and other dependencies for vulnerability fixes.
  - Bugfixing - Removed conditional code within hooks to adhere to the rules of hooks and prevent React warnings. Previously, this code checked for the availability of the hooks API (available in React version 16.8.0 or above) and logged an error message. Now, using hooks with React versions below 16.8.0 will throw an error.
@@ -54,7 +98,7 @@
 
 1.6.0 (June 30, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.20.0, which includes:
-      - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
+      - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config `sync.enabled`. Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
       - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
       - Updated submitters logic, to avoid duplicating the post of impressions to Split cloud when the SDK is destroyed while its periodic post of impressions is running.
 

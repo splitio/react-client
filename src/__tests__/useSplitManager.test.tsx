@@ -2,30 +2,30 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 
 /** Mocks */
-import { Event, mockSdk } from './testUtils/mockSplitSdk';
+import { Event, mockSdk } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { getStatus } from '../utils';
 
 /** Test target */
-import { SplitFactory } from '../SplitFactory';
+import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { useSplitManager } from '../useSplitManager';
 
 describe('useSplitManager', () => {
 
   test('returns the factory manager from the Split context, and updates when the context changes.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let hookResult;
     render(
-      <SplitFactory factory={outerFactory} >
+      <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           hookResult = useSplitManager();
           return null;
         })}
-      </SplitFactory>
+      </SplitFactoryProvider>
     );
 
     expect(hookResult).toStrictEqual({

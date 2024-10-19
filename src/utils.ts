@@ -1,7 +1,7 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
-import { VERSION, WARN_NAMES_AND_FLAGSETS, getControlTreatmentsWithConfig } from './constants';
+import { SplitFactory } from '@splitsoftware/splitio/client';
+import { CONTROL_WITH_CONFIG, VERSION, WARN_NAMES_AND_FLAGSETS } from './constants';
 import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -13,18 +13,18 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
-    isOperational: boolean;
+    isTimedout: boolean;
     hasTimedout: boolean;
     isDestroyed: boolean;
+    isOperational: boolean;
+    lastUpdate: number;
   };
-  lastUpdate: number;
 }
 
 /**
  * FactoryWithClientInstances interface.
  */
 export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
-  clientInstances: Set<IClientWithContext>;
   config: SplitIO.IBrowserSettings;
 }
 
@@ -32,14 +32,13 @@ export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
 export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
 
 // idempotent operation
-export function getSplitFactory(config: SplitIO.IBrowserSettings): IFactoryWithClients {
+export function getSplitFactory(config: SplitIO.IBrowserSettings) {
   if (!__factories.has(config)) {
-    // SplitSDK is not an idempotent operation
+    // SplitFactory is not an idempotent operation
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
-    const newFactory = SplitSdk(config, (modules) => {
+    const newFactory = SplitFactory(config, (modules) => {
       modules.settings.version = VERSION;
     }) as IFactoryWithClients;
-    newFactory.clientInstances = new Set();
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
@@ -51,55 +50,43 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   // factory.client is an idempotent operation
   const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
 
-  // Handle client lastUpdate
-  if (client.lastUpdate === undefined) {
-    const updateLastUpdate = () => {
-      const lastUpdate = Date.now();
-      client.lastUpdate = lastUpdate > client.lastUpdate ? lastUpdate : client.lastUpdate + 1;
-    }
+  // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
+  // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
+  client.setMaxListeners(0);
 
-    client.lastUpdate = 0;
-    client.on(client.Event.SDK_READY, updateLastUpdate);
-    client.on(client.Event.SDK_READY_FROM_CACHE, updateLastUpdate);
-    client.on(client.Event.SDK_READY_TIMED_OUT, updateLastUpdate);
-    client.on(client.Event.SDK_UPDATE, updateLastUpdate);
-  }
-
-  if ((factory as IFactoryWithClients).clientInstances) {
-    (factory as IFactoryWithClients).clientInstances.add(client);
-  }
   return client;
 }
 
-export function destroySplitFactory(factory: IFactoryWithClients): Promise<void[]> {
-  // call destroy of clients
-  const destroyPromises: Promise<void>[] = [];
-  factory.clientInstances.forEach((client) => destroyPromises.push(client.destroy()));
-  // remove references to release allocated memory
-  factory.clientInstances.clear();
+export function destroySplitFactory(factory: IFactoryWithClients): Promise<void> | undefined {
   __factories.delete(factory.config);
-  return Promise.all(destroyPromises);
+  return factory.destroy();
 }
 
 // Util used to get client status.
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
-  const isReady = status ? status.isReady : false;
-  const hasTimedout = status ? status.hasTimedout : false;
+
   return {
-    isReady,
+    isReady: status ? status.isReady : false,
     isReadyFromCache: status ? status.isReadyFromCache : false,
-    isTimedout: hasTimedout && !isReady,
-    hasTimedout,
+    isTimedout: status ? status.isTimedout : false,
+    hasTimedout: status ? status.hasTimedout : false,
     isDestroyed: status ? status.isDestroyed : false,
-    lastUpdate: client ? (client as IClientWithContext).lastUpdate || 0 : 0,
+    lastUpdate: status ? status.lastUpdate : 0,
   };
+}
+
+/**
+ * Manage client attributes binding
+ */
+export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
+  if (client && attributes) client.setAttributes(attributes);
 }
 
 // Input validation utils that will be replaced eventually
 
-export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
+function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
   if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
     const validatedArray: string[] = [];
     // Remove invalid values
@@ -114,13 +101,6 @@ export function validateFeatureFlags(maybeFeatureFlags: unknown, listName = 'fea
 
   console.log(`[ERROR] ${listName} must be a non-empty array.`);
   return false;
-}
-
-/**
- * Manage client attributes binding
- */
-export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
-  if (client && attributes) client.setAttributes(attributes);
 }
 
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
@@ -144,6 +124,20 @@ function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'feature flag nam
   }
 
   return false;
+}
+
+export function getControlTreatmentsWithConfig(featureFlagNames: unknown): SplitIO.TreatmentsWithConfig {
+  // validate featureFlags Names
+  const validatedFeatureFlagNames = validateFeatureFlags(featureFlagNames);
+
+  // return empty object if the returned value is false
+  if (!validatedFeatureFlagNames) return {};
+
+  // return control treatments for each validated feature flag name
+  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+    pValue[cValue] = CONTROL_WITH_CONFIG;
+    return pValue;
+  }, {});
 }
 
 /**
