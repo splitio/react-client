@@ -11,7 +11,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
-import { ISplitFactoryChildProps } from '../types';
+import { ISplitFactoryProviderChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { INITIAL_CONTEXT, SplitContext } from '../SplitContext';
@@ -23,7 +23,7 @@ describe('SplitFactoryProvider', () => {
   test('passes no-ready props to the child if initialized with a config.', () => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
-        {({ factory, client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryProviderChildProps) => {
           expect(factory).toBe(null);
           expect(client).toBe(null);
           expect(isReady).toBe(false);
@@ -47,7 +47,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryProviderChildProps) => {
           expect(factory).toBe(outerFactory);
           expect(isReady).toBe(true);
           expect(isReadyFromCache).toBe(true);
@@ -68,7 +68,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider config={sdkBrowser} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -114,7 +114,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider factory={outerFactory} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -158,7 +158,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider config={sdkBrowser} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -197,7 +197,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -234,7 +234,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider config={sdkBrowser} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -269,7 +269,7 @@ describe('SplitFactoryProvider', () => {
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
-        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryChildProps) => {
+        {({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, lastUpdate }: ISplitFactoryProviderChildProps) => {
           const statusProps = [isReady, isReadyFromCache, hasTimedout, isTimedout];
           switch (renderTimes) {
             case 0: // No ready
@@ -338,7 +338,7 @@ describe('SplitFactoryProvider', () => {
     const clientDestroySpies: jest.SpyInstance[] = [];
     const outerFactory = SplitSdk(sdkBrowser);
 
-    const Component = ({ factory, isReady, hasTimedout }: ISplitFactoryChildProps) => {
+    const Component = ({ factory, isReady, hasTimedout }: ISplitFactoryProviderChildProps) => {
       renderTimes++;
 
       switch (renderTimes) {
