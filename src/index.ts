@@ -1,5 +1,5 @@
 // Split SDK factory (Renamed to avoid name conflict with SplitFactory component)
-export { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+export { SplitFactory } from '@splitsoftware/splitio/client';
 
 // Components
 export { SplitTreatments } from './SplitTreatments';

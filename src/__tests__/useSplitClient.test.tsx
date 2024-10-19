@@ -2,11 +2,11 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -19,7 +19,7 @@ import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 describe('useSplitClient', () => {
 
   test('returns the main client from the context updated by SplitFactoryProvider.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -33,7 +33,7 @@ describe('useSplitClient', () => {
   });
 
   test('returns the client from the context updated by SplitClient.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -49,7 +49,7 @@ describe('useSplitClient', () => {
   });
 
   test('returns a new client from the factory at Split context given a splitKey.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -99,7 +99,7 @@ describe('useSplitClient', () => {
   });
 
   test('must update on SDK events', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 
@@ -222,7 +222,7 @@ describe('useSplitClient', () => {
 
   // Remove this test once side effects are moved to the useSplitClient effect.
   test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () =>{
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let count = 0;
 
     render(
@@ -244,7 +244,7 @@ describe('useSplitClient', () => {
   });
 
   test('must support changes in update props', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
 
     let rendersCount = 0;

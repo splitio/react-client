@@ -2,11 +2,11 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
+import { mockSdk } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -22,7 +22,7 @@ describe('useTrack', () => {
   const properties = { prop1: 'prop1' };
 
   test('returns the track method bound to the client at Split context updated by SplitFactoryProvider.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
@@ -41,7 +41,7 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
@@ -62,7 +62,7 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to a new client given a splitKey and optional trafficType.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 

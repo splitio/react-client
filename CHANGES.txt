@@ -5,6 +5,7 @@
  - BREAKING CHANGES:
       - Removed deprecated modules: `SplitFactory` component, `useClient`, `useTreatments` and `useManager` hooks, and `withSplitFactory`, `withSplitClient` and `withSplitTreatments` high-order components. Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate to the new alternatives.
       - Renamed TypeScript interfaces `ISplitFactoryProps` to `ISplitFactoryProviderProps`, and `ISplitFactoryChildProps` to `ISplitFactoryProviderChildProps`.
+      - Renamed `SplitSdk` to `SplitFactory` function, which is the underlying Split SDK factory, i.e., `import { SplitFactory } from '@splitsoftware/splitio'`.
 
 1.13.0 (September 6, 2024)
  - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:

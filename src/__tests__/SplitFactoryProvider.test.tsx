@@ -2,11 +2,11 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 const logSpy = jest.spyOn(console, 'log');
 
@@ -39,7 +39,7 @@ describe('SplitFactoryProvider', () => {
   });
 
   test('passes ready props to the child if initialized with a ready factory.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
@@ -98,7 +98,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
@@ -108,7 +108,7 @@ describe('SplitFactoryProvider', () => {
   });
 
   test('rerenders child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events (factory prop)', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
@@ -182,7 +182,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
@@ -191,7 +191,7 @@ describe('SplitFactoryProvider', () => {
   });
 
   test('rerenders child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY (factory prop)', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
@@ -255,7 +255,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
@@ -263,7 +263,7 @@ describe('SplitFactoryProvider', () => {
   });
 
   test('rerenders child only on SDK_READY and SDK_READY_FROM_CACHE event, as default behaviour (factory prop)', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimes = 0;
     let previousLastUpdate = -1;
 
@@ -317,7 +317,7 @@ describe('SplitFactoryProvider', () => {
   });
 
   test('logs warning if both a config and factory are passed as props.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
 
     render(
       <SplitFactoryProvider config={sdkBrowser} factory={outerFactory} >
@@ -336,7 +336,7 @@ describe('SplitFactoryProvider', () => {
     let renderTimes = 0;
     const createdFactories = new Set<SplitIO.IBrowserSDK>();
     const clientDestroySpies: jest.SpyInstance[] = [];
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
 
     const Component = ({ factory, isReady, hasTimedout }: ISplitFactoryProviderChildProps) => {
       renderTimes++;
@@ -373,7 +373,7 @@ describe('SplitFactoryProvider', () => {
     };
 
     const emitSdkEvents = () => {
-      const factory = (SplitSdk as jest.Mock).mock.results.slice(-1)[0].value;
+      const factory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
       factory.client().__emitter__.emit(Event.SDK_READY_TIMED_OUT)
       factory.client().__emitter__.emit(Event.SDK_READY)
     };
@@ -426,7 +426,7 @@ describe('SplitFactoryProvider', () => {
   test('doesn\'t clean up on unmount if the factory is provided as a prop.', () => {
     let destroyMainClientSpy;
     let destroySharedClientSpy;
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const wrapper = render(
       <SplitFactoryProvider factory={outerFactory}>
         {({ factory }) => {

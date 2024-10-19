@@ -1,12 +1,12 @@
 import {
-  SplitSdk,
+  SplitFactory,
   SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,
 } from './src/index';
 
 export default {
-  SplitSdk,
+  SplitFactory,
   SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,

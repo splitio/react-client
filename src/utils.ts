@@ -1,6 +1,6 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { CONTROL_WITH_CONFIG, VERSION, WARN_NAMES_AND_FLAGSETS } from './constants';
 import { ISplitStatus } from './types';
 
@@ -34,9 +34,9 @@ export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = n
 // idempotent operation
 export function getSplitFactory(config: SplitIO.IBrowserSettings) {
   if (!__factories.has(config)) {
-    // SplitSDK is not an idempotent operation
+    // SplitFactory is not an idempotent operation
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
-    const newFactory = SplitSdk(config, (modules) => {
+    const newFactory = SplitFactory(config, (modules) => {
       modules.settings.version = VERSION;
     }) as IFactoryWithClients;
     newFactory.config = config;
