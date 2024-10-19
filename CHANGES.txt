@@ -1,8 +1,7 @@
-1.14.0 (September XX, 2024)
- - Updated @splitsoftware/splitio package to version 10.29.0 that includes minor updates:
-      - Added `factory.destroy()` method, which invokes the `destroy` method on all SDK clients created by the factory.
-      - Added support for targeting rules based on large segments for browsers.
-      - Updated some transitive dependencies for vulnerability fixes.
+1.14.0 (October XX, 2024)
+ - Added support for targeting rules based on large segments for browsers.
+ - Updated @splitsoftware/splitio package to version 10.29.0 that includes minor updates, and updated some transitive dependencies for vulnerability fixes.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
 
 1.13.0 (September 6, 2024)
  - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
