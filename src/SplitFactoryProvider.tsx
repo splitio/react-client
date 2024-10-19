@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { SplitComponent } from './SplitClient';
+import { SplitClient } from './SplitClient';
 import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
+import { SplitContext } from './SplitContext';
 
 /**
  * SplitFactoryProvider will initialize the Split SDK and its main client when `config` prop is provided or updated, listen for its events in order to update the Split Context,
@@ -83,6 +84,10 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
 
   return (
-    <SplitComponent {...props} factory={factory} client={client} />
+    <SplitContext.Provider value={{
+      factory, client, ...getStatus(client)
+    }} >
+      <SplitClient {...props} />
+    </SplitContext.Provider>
   );
 }

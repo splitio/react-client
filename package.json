@@ -99,7 +99,7 @@
     "webpack-merge": "^5.8.0"
   },
   "peerDependencies": {
-    "react": ">=16.3.0"
+    "react": ">=16.8.0"
   },
   "husky": {
     "hooks": {
