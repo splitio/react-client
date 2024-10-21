@@ -117,8 +117,8 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
 }
 
 export const INITIAL_CONTEXT: ISplitContextValues = {
-  client: null,
-  factory: null,
+  client: undefined,
+  factory: undefined,
   isReady: false,
   isReadyFromCache: false,
   isTimedout: false,
