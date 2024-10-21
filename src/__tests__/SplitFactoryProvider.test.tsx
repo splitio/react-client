@@ -14,9 +14,10 @@ const logSpy = jest.spyOn(console, 'log');
 import { ISplitFactoryProviderChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
-import { INITIAL_CONTEXT, SplitContext } from '../SplitContext';
+import { SplitContext } from '../SplitContext';
 import { __factories, IClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
+import { INITIAL_CONTEXT } from './testUtils/utils';
 
 describe('SplitFactoryProvider', () => {
 
