@@ -46,7 +46,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK<SplitIO.IEventEmitter>, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
   const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
 
@@ -174,7 +174,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient<SplitIO.IEventEmitter> | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
   return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?

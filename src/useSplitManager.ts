@@ -14,7 +14,7 @@ import { ISplitContextValues } from './types';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
-export function useSplitManager(): ISplitContextValues & { manager?: SplitIO.IManager } {
+export function useSplitManager(): ISplitContextValues & { manager?: SplitIO.IManager<SplitIO.IEventEmitter> } {
   // Update options are not supported, because updates can be controlled at the SplitFactoryProvider component.
   const context = useSplitContext();
   return {
