@@ -344,7 +344,7 @@ describe('SplitClient', () => {
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       return (
         <SplitFactoryProvider factory={factory} attributes={attributesFactory} >
-          <SplitClient splitKey={splitKey} attributes={attributesClient} trafficType='user' >
+          <SplitClient splitKey={splitKey} attributes={attributesClient} >
             {() => {
               testSwitch(done, splitKey);
               return null;

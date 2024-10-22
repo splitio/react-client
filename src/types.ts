@@ -146,12 +146,6 @@ export interface IUseSplitClientOptions extends IUpdateProps {
   splitKey?: SplitIO.SplitKey;
 
   /**
-   * Traffic type associated with the customer identifier.
-   * If no provided here or at the config object, it will be required on the client.track() calls.
-   */
-  trafficType?: string;
-
-  /**
    * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
