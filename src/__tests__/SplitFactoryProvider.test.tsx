@@ -329,7 +329,7 @@ describe('SplitFactoryProvider', () => {
 
   test('cleans up on update and unmount if config prop is provided.', () => {
     let renderTimes = 0;
-    const createdFactories = new Set<SplitIO.IBrowserSDK>();
+    const createdFactories = new Set<SplitIO.IBrowserSDK<SplitIO.IEventEmitter>>();
     const clientDestroySpies: jest.SpyInstance[] = [];
     const outerFactory = SplitFactory(sdkBrowser);
 

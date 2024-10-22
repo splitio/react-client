@@ -1,5 +1,6 @@
 2.0.0 (October XX, 2024)
  - Added support for targeting rules based on large segments for browsers.
+ - Update the `SplitFactoryProvider` component to accept a factory instance of the [React Native SDK](https://help.split.io/hc/en-us/articles/4406066357901-React-Native-SDK), to be used in React Native applications.
  - Updated @splitsoftware/splitio package to version 11.0.0 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
  - BREAKING CHANGES:
