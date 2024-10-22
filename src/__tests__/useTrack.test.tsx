@@ -62,22 +62,21 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method bound to a new client given a splitKey and optional trafficType.', () => {
+  test('returns the track method bound to a new client given a splitKey.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
-    let boundTrack;
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          boundTrack = useTrack('user2', tt);
-          trackResult = boundTrack(eventType, value, properties);
+          const boundTrack = useTrack('user2');
+          trackResult = boundTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactoryProvider>,
     );
-    const track = outerFactory.client('user2', tt).track as jest.Mock;
-    expect(track).toBeCalledWith(eventType, value, properties);
+    const track = outerFactory.client('user2').track as jest.Mock;
+    expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
 
@@ -85,8 +84,8 @@ describe('useTrack', () => {
     expect(() => {
       render(
         React.createElement(() => {
-          const track = useTrack('user2', tt);
-          track(eventType, value, properties);
+          const track = useTrack('user2');
+          track(tt, eventType, value, properties);
           return null;
         }),
       );

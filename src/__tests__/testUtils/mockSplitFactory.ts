@@ -26,7 +26,7 @@ function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {
     };
   }
 }
-function buildInstanceId(key: any, trafficType: string | undefined) {
+function buildInstanceId(key: any, trafficType?: string) {
   return `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 }
 
@@ -34,7 +34,7 @@ export function mockSdk() {
 
   return jest.fn((config: SplitIO.IBrowserSettings, __updateModules) => {
 
-    function mockClient(_key: SplitIO.SplitKey, _trafficType?: string) {
+    function mockClient(_key: SplitIO.SplitKey) {
       // Readiness
       let isReady = false;
       let isReadyFromCache = false;
@@ -135,11 +135,10 @@ export function mockSdk() {
 
     // Cache of clients
     const __clients__: { [instanceId: string]: any } = {};
-    const client = jest.fn((key?: string, trafficType?: string) => {
+    const client = jest.fn((key?: string) => {
       const clientKey = key || parseKey(config.core.key);
-      const clientTT = trafficType || config.core.trafficType;
-      const instanceId = buildInstanceId(clientKey, clientTT);
-      return __clients__[instanceId] || (__clients__[instanceId] = mockClient(clientKey, clientTT));
+      const instanceId = buildInstanceId(clientKey);
+      return __clients__[instanceId] || (__clients__[instanceId] = mockClient(clientKey));
     });
 
     // Factory destroy

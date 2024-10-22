@@ -11,7 +11,7 @@ export const DEFAULT_UPDATE_OPTIONS = {
 };
 
 /**
- * 'useSplitClient' is a hook that returns an Split Context object with the client and its status corresponding to the provided key and trafficType.
+ * 'useSplitClient' is a hook that returns an Split Context object with the client and its status corresponding to the provided key.
  * It uses the 'useContext' hook to access the context, which is updated by SplitFactoryProvider and SplitClient components in the hierarchy of components.
  *
  * @returns A Split Context object
@@ -25,7 +25,7 @@ export const DEFAULT_UPDATE_OPTIONS = {
  */
 export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
   const {
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, trafficType, attributes
+    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
   } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
   const context = useSplitContext();
@@ -34,7 +34,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   let client = contextClient as IClientWithContext;
   if (splitKey && factory) {
     // @TODO `getSplitClient` starts client sync. Move side effects to useEffect
-    client = getSplitClient(factory, splitKey, trafficType);
+    client = getSplitClient(factory, splitKey);
   }
   initAttributes(client, attributes);
 

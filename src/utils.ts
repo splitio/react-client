@@ -46,13 +46,13 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+  const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
 
   // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
   // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
-  client.setMaxListeners(0);
+  client.setMaxListeners && client.setMaxListeners(0);
 
   return client;
 }
