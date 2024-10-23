@@ -2,7 +2,7 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks and test utils */
-import { mockSdk, Event } from './testUtils/mockSplitFactory';
+import { mockSdk, Event, getLastInstance } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -14,7 +14,7 @@ import { ISplitClientChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { INITIAL_CONTEXT, testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { INITIAL_STATUS, testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { IClientWithContext } from '../utils';
 import { EXCEPTION_NO_SFP } from '../constants';
 
@@ -25,7 +25,11 @@ describe('SplitClient', () => {
       <SplitFactoryProvider config={sdkBrowser} >
         <SplitClient splitKey='user1' >
           {(childProps: ISplitClientChildProps) => {
-            expect(childProps).toEqual(INITIAL_CONTEXT);
+            expect(childProps).toEqual({
+              ...INITIAL_STATUS,
+              factory: getLastInstance(SplitFactory),
+              client: getLastInstance(SplitFactory).client('user1'),
+            });
 
             return null;
           }}
@@ -47,7 +51,7 @@ describe('SplitClient', () => {
         <SplitClient splitKey={sdkBrowser.core.key} >
           {(childProps: ISplitClientChildProps) => {
             expect(childProps).toEqual({
-              ...INITIAL_CONTEXT,
+              ...INITIAL_STATUS,
               factory : outerFactory,
               client: outerFactory.client(),
               isReady: true,
@@ -232,7 +236,7 @@ describe('SplitClient', () => {
         <SplitContext.Consumer>
           {(value) => {
             expect(value).toEqual({
-              ...INITIAL_CONTEXT,
+              ...INITIAL_STATUS,
               factory: outerFactory,
               client: outerFactory.client('user2'),
             });

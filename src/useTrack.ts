@@ -14,5 +14,5 @@ const noOpFalse = () => false;
 export function useTrack(splitKey?: SplitIO.SplitKey): SplitIO.IBrowserClient['track'] {
   // All update options are false to avoid re-renders. The track method doesn't need the client to be operational.
   const { client } = useSplitClient({ splitKey, updateOnSdkReady: false, updateOnSdkReadyFromCache: false });
-  return client ? client.track.bind(client) : noOpFalse;
+  return client ? client.track : noOpFalse;
 }

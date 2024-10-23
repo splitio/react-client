@@ -164,3 +164,7 @@ export function mockSdk() {
   });
 
 }
+
+export function getLastInstance(SplitFactoryMock: any) {
+  return SplitFactoryMock.mock.results.slice(-1)[0].value;
+}

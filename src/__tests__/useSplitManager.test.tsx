@@ -14,6 +14,7 @@ import { getStatus } from '../utils';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { useSplitManager } from '../useSplitManager';
 import { EXCEPTION_NO_SFP } from '../constants';
+import { INITIAL_STATUS } from './testUtils/utils';
 
 describe('useSplitManager', () => {
 
@@ -33,12 +34,7 @@ describe('useSplitManager', () => {
       manager: outerFactory.manager(),
       client: outerFactory.client(),
       factory: outerFactory,
-      hasTimedout: false,
-      isDestroyed: false,
-      isReady: false,
-      isReadyFromCache: false,
-      isTimedout: false,
-      lastUpdate: 0,
+      ...INITIAL_STATUS,
     });
 
     act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));

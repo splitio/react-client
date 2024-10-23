@@ -22,36 +22,37 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method bound to the client at Split context updated by SplitFactoryProvider.', () => {
+  test('returns the track method of the client at Split context updated by SplitFactoryProvider.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
-    let boundTrack;
+    let clientTrack;
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          boundTrack = useTrack();
-          trackResult = boundTrack(tt, eventType, value, properties);
+          clientTrack = useTrack();
+          trackResult = clientTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactoryProvider>,
     );
     const track = outerFactory.client().track as jest.Mock;
+    expect(track).toBe(clientTrack);
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
+  test('returns the track method of the client at Split context updated by SplitClient.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
-    let boundTrack;
+    let clientTrack;
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
-            boundTrack = useTrack();
-            trackResult = boundTrack(tt, eventType, value, properties);
+            clientTrack = useTrack();
+            trackResult = clientTrack(tt, eventType, value, properties);
             return null;
           })}
         </SplitClient>
@@ -62,15 +63,15 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method bound to a new client given a splitKey.', () => {
+  test('returns the track method of a new client given a splitKey.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          const boundTrack = useTrack('user2');
-          trackResult = boundTrack(tt, eventType, value, properties);
+          const clientTrack = useTrack('user2');
+          trackResult = clientTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactoryProvider>,
