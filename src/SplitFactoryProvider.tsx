@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { SplitComponent } from './SplitClient';
-import { ISplitFactoryProps } from './types';
+import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
@@ -16,7 +16,7 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
-export function SplitFactoryProvider(props: ISplitFactoryProps) {
+export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   let {
     config, factory: propFactory,
     updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
