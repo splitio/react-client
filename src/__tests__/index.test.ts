@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   SplitContext as ExportedSplitContext,
-  SplitSdk as ExportedSplitSdk,
+  SplitFactory as ExportedSplitFactory,
   SplitFactoryProvider as ExportedSplitFactoryProvider,
   SplitClient as ExportedSplitClient,
   SplitTreatments as ExportedSplitTreatments,
@@ -24,7 +24,7 @@ import {
   IUseSplitTreatmentsOptions,
 } from '../index';
 import { SplitContext } from '../SplitContext';
-import { SplitFactory as SplitioEntrypoint } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitTreatments } from '../SplitTreatments';
@@ -52,8 +52,8 @@ describe('index', () => {
     expect(ExportedSplitContext).toBe(SplitContext);
   });
 
-  it('should export Splitio entrypoint', () => {
-    expect(ExportedSplitSdk).toBe(SplitioEntrypoint);
+  it('should export SplitFactory', () => {
+    expect(ExportedSplitFactory).toBe(SplitFactory);
   });
 
 });

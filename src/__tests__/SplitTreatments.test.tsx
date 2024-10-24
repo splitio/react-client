@@ -2,11 +2,11 @@ import React from 'react';
 import { render, RenderResult, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { getStatus, IClientWithContext } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
@@ -54,7 +54,7 @@ describe('SplitTreatments', () => {
   });
 
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig(ByFlagSets)" if the SDK is ready.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
     render(
@@ -184,7 +184,7 @@ describe.each([
     return null;
   }
 ])('SplitTreatments & useSplitTreatments optimization', (InnerComponent) => {
-  let outerFactory = SplitSdk(sdkBrowser);
+  let outerFactory = SplitFactory(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
   function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
@@ -301,7 +301,7 @@ describe.each([
 
   it('rerenders and re-evaluate feature flags when Split context changes (in both SplitFactoryProvider and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimesComp1 = 0;
     let renderTimesComp2 = 0;
 

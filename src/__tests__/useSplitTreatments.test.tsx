@@ -2,11 +2,11 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { CONTROL_WITH_CONFIG } from '../constants';
 
@@ -27,7 +27,7 @@ describe('useSplitTreatments', () => {
   const attributes = { att1: 'att1' };
 
   test('returns the treatments evaluated by the client at Split context, or control if the client is not operational.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const client: any = outerFactory.client();
     let treatments: SplitIO.TreatmentsWithConfig;
     let treatmentsByFlagSets: SplitIO.TreatmentsWithConfig;
@@ -64,7 +64,7 @@ describe('useSplitTreatments', () => {
   });
 
   test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const client: any = outerFactory.client('user2');
     let treatments: SplitIO.TreatmentsWithConfig;
 
@@ -91,7 +91,7 @@ describe('useSplitTreatments', () => {
   });
 
   test('returns the treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const client: any = outerFactory.client('user2');
     let renderTimes = 0;
 
@@ -164,7 +164,7 @@ describe('useSplitTreatments', () => {
   });
 
   test('useSplitTreatments must update on SDK events', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 

@@ -2,11 +2,11 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks and test utils */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -39,7 +39,7 @@ describe('SplitClient', () => {
   });
 
   test('passes ready props to the child if client is ready.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
@@ -66,7 +66,7 @@ describe('SplitClient', () => {
   });
 
   test('rerender child on SDK_READY_TIMEDOUT, SDK_READY_FROM_CACHE, SDK_READY and SDK_UPDATE events.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
 
@@ -118,7 +118,7 @@ describe('SplitClient', () => {
   });
 
   test('rerender child on SDK_READY_TIMED_OUT and SDK_UPDATE events, but not on SDK_READY.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
 
@@ -162,7 +162,7 @@ describe('SplitClient', () => {
   });
 
   test('rerender child only on SDK_READY event, as default behaviour.', async () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
 
@@ -203,7 +203,7 @@ describe('SplitClient', () => {
   });
 
   test('must update on SDK events between the render and commit phases', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let count = 0;
 
     render(
@@ -228,7 +228,7 @@ describe('SplitClient', () => {
   });
 
   test('renders a passed JSX.Element with a new SplitContext value.', (done) => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
 
     const Component = () => {
       return (
@@ -270,7 +270,7 @@ describe('SplitClient', () => {
 
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimes = 0;
 
     class InnerComponent extends React.Component<any, { splitKey: string }> {
