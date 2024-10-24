@@ -11,9 +11,7 @@ export { useTrack } from './useTrack';
 export { useSplitClient } from './useSplitClient';
 export { useSplitTreatments } from './useSplitTreatments';
 export { useSplitManager } from './useSplitManager';
-
-// SplitContext
-export { SplitContext } from './SplitContext';
+export { useSplitContext } from './SplitContext';
 
 // Types
 export type {

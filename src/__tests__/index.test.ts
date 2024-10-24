@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  SplitContext as ExportedSplitContext,
   SplitFactory as ExportedSplitFactory,
   SplitFactoryProvider as ExportedSplitFactoryProvider,
   SplitClient as ExportedSplitClient,
@@ -9,6 +8,7 @@ import {
   useSplitClient as exportedUseSplitClient,
   useSplitTreatments as exportedUseSplitTreatments,
   useSplitManager as exportedUseSplitManager,
+  useSplitContext as exportedUseSplitContext,
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
   GetTreatmentsOptions,
   ISplitClientChildProps,
@@ -23,7 +23,6 @@ import {
   IUseSplitClientOptions,
   IUseSplitTreatmentsOptions,
 } from '../index';
-import { SplitContext } from '../SplitContext';
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
@@ -32,6 +31,7 @@ import { useTrack } from '../useTrack';
 import { useSplitClient } from '../useSplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { useSplitManager } from '../useSplitManager';
+import { useSplitContext } from '../SplitContext';
 
 describe('index', () => {
 
@@ -46,10 +46,7 @@ describe('index', () => {
     expect(exportedUseSplitClient).toBe(useSplitClient);
     expect(exportedUseSplitTreatments).toBe(useSplitTreatments);
     expect(exportedUseSplitManager).toBe(useSplitManager);
-  });
-
-  it('should export SplitContext', () => {
-    expect(ExportedSplitContext).toBe(SplitContext);
+    expect(exportedUseSplitContext).toBe(useSplitContext);
   });
 
   it('should export SplitFactory', () => {
