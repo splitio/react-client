@@ -2,7 +2,7 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitFactory';
+import { mockSdk, Event, getLastInstance } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -17,7 +17,7 @@ import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { __factories, IClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
-import { INITIAL_CONTEXT } from './testUtils/utils';
+import { INITIAL_STATUS } from './testUtils/utils';
 
 describe('SplitFactoryProvider', () => {
 
@@ -25,7 +25,11 @@ describe('SplitFactoryProvider', () => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
         {(childProps: ISplitFactoryProviderChildProps) => {
-          expect(childProps).toEqual(INITIAL_CONTEXT);
+          expect(childProps).toEqual({
+            ...INITIAL_STATUS,
+            factory: getLastInstance(SplitFactory),
+            client: getLastInstance(SplitFactory).client(),
+          });
           return null;
         }}
       </SplitFactoryProvider>
@@ -43,7 +47,7 @@ describe('SplitFactoryProvider', () => {
       <SplitFactoryProvider factory={outerFactory} >
         {(childProps: ISplitFactoryProviderChildProps) => {
           expect(childProps).toEqual({
-            ...INITIAL_CONTEXT,
+            ...INITIAL_STATUS,
             factory: outerFactory,
             client: outerFactory.client(),
             isReady: true,
@@ -84,7 +88,7 @@ describe('SplitFactoryProvider', () => {
             default:
               fail('Child must not be rerendered');
           } // eslint-disable-next-line no-use-before-define
-          if (factory) expect(factory).toBe(innerFactory);
+          expect(factory).toBe(innerFactory || getLastInstance(SplitFactory));
           expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
           renderTimes++;
           previousLastUpdate = lastUpdate;
@@ -93,7 +97,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = getLastInstance(SplitFactory);
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
@@ -168,7 +172,7 @@ describe('SplitFactoryProvider', () => {
             default:
               fail('Child must not be rerendered');
           } // eslint-disable-next-line no-use-before-define
-          if (factory) expect(factory).toBe(innerFactory);
+          expect(factory).toBe(innerFactory || getLastInstance(SplitFactory));
           expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
           renderTimes++;
           previousLastUpdate = lastUpdate;
@@ -177,7 +181,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = getLastInstance(SplitFactory);
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
@@ -241,7 +245,7 @@ describe('SplitFactoryProvider', () => {
             default:
               fail('Child must not be rerendered');
           } // eslint-disable-next-line no-use-before-define
-          if (factory) expect(factory).toBe(innerFactory);
+          expect(factory).toBe(innerFactory || getLastInstance(SplitFactory));
           expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
           renderTimes++;
           previousLastUpdate = lastUpdate;
@@ -250,7 +254,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    const innerFactory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
+    const innerFactory = getLastInstance(SplitFactory);
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_READY));
     act(() => (innerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
@@ -296,7 +300,11 @@ describe('SplitFactoryProvider', () => {
       return (
         <SplitContext.Consumer>
           {(value) => {
-            expect(value).toEqual(INITIAL_CONTEXT);
+            expect(value).toEqual({
+              ...INITIAL_STATUS,
+              factory: getLastInstance(SplitFactory),
+              client: getLastInstance(SplitFactory).client(),
+            });
             done();
             return null;
           }}
@@ -344,14 +352,14 @@ describe('SplitFactoryProvider', () => {
         case 5:
           expect(isReady).toBe(false);
           expect(hasTimedout).toBe(false);
-          expect(factory).toBe(undefined);
+          expect(factory).toBe(getLastInstance(SplitFactory));
           return null;
         case 3:
         case 4:
         case 6:
           expect(isReady).toBe(true);
           expect(hasTimedout).toBe(true);
-          expect(factory).not.toBe(undefined);
+          expect(factory).toBe(getLastInstance(SplitFactory));
           createdFactories.add(factory!);
           clientDestroySpies.push(jest.spyOn(factory!.client(), 'destroy'));
           return (
@@ -368,7 +376,7 @@ describe('SplitFactoryProvider', () => {
     };
 
     const emitSdkEvents = () => {
-      const factory = (SplitFactory as jest.Mock).mock.results.slice(-1)[0].value;
+      const factory = getLastInstance(SplitFactory);
       factory.client().__emitter__.emit(Event.SDK_READY_TIMED_OUT)
       factory.client().__emitter__.emit(Event.SDK_READY)
     };

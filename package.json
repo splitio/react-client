@@ -26,7 +26,7 @@
     "check": "npm run check:lint && npm run check:types",
     "check:lint": "eslint 'src/**/*.ts*'",
     "check:types": "tsc --noEmit",
-    "test": "jest src",
+    "test": "jest src --silent",
     "test:watch": "npm test -- --watch",
     "test:coverage": "jest src --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",

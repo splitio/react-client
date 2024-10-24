@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { SplitContext } from '../SplitContext';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
-import { INITIAL_CONTEXT } from './testUtils/utils';
+import { INITIAL_STATUS } from './testUtils/utils';
 
 /**
  * Test default SplitContext value
@@ -23,7 +23,11 @@ test('SplitContext.Consumer shows value when wrapped in a SplitFactoryProvider',
     <SplitFactoryProvider >
       <SplitContext.Consumer>
         {(value) => {
-          expect(value).toEqual(INITIAL_CONTEXT);
+          expect(value).toEqual({
+            ...INITIAL_STATUS,
+            factory: undefined,
+            client: undefined
+          });
           return null;
         }}
       </SplitContext.Consumer>
