@@ -37,7 +37,7 @@ describe('useTrack', () => {
         })}
       </SplitFactoryProvider>,
     );
-    const track = outerFactory.client().track as jest.Mock;
+    const track = outerFactory.client().track;
     expect(track).toBe(clientTrack);
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
@@ -59,7 +59,7 @@ describe('useTrack', () => {
         </SplitClient>
       </SplitFactoryProvider>
     );
-    const track = outerFactory.client('user2').track as jest.Mock;
+    const track = outerFactory.client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -77,7 +77,7 @@ describe('useTrack', () => {
         })}
       </SplitFactoryProvider>,
     );
-    const track = outerFactory.client('user2').track as jest.Mock;
+    const track = outerFactory.client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -119,13 +119,33 @@ describe('useTrack', () => {
     splitKey = 'user2'; // `clientTrack` dependency changed
     act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_UPDATE));
 
-    let track = getLastInstance(SplitFactory).client().track as jest.Mock;
+    let track = getLastInstance(SplitFactory).client().track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toBeCalledTimes(4); // 3 from render + 1 from useEffect
 
-    track = getLastInstance(SplitFactory).client('user2').track as jest.Mock;
+    track = getLastInstance(SplitFactory).client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toBeCalledTimes(2); // 1 from render + 1 from useEffect (`clientTrack` dependency changed)
+  });
+
+  test('does not re-render on SDK events', () => {
+    render(
+      <SplitFactoryProvider config={sdkBrowser} updateOnSdkReady={false} updateOnSdkReadyFromCache={false} >
+        {React.createElement(() => {
+          const clientTrack = useTrack();
+          clientTrack(tt, eventType, value, properties);
+
+          return null;
+        })}
+      </SplitFactoryProvider>,
+    );
+
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_UPDATE));
+
+    expect(getLastInstance(SplitFactory).client().track).toBeCalledTimes(1);
   });
 
 });
