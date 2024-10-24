@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { SplitComponent } from './SplitClient';
-import { ISplitFactoryProps } from './types';
+import { SplitClient } from './SplitClient';
+import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
 import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
+import { SplitContext } from './SplitContext';
 
 /**
  * SplitFactoryProvider will initialize the Split SDK and its main client when `config` prop is provided or updated, listen for its events in order to update the Split Context,
@@ -16,7 +17,7 @@ import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
-export function SplitFactoryProvider(props: ISplitFactoryProps) {
+export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   let {
     config, factory: propFactory,
     updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
@@ -28,7 +29,9 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
   }
 
   const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients | null>(null);
-  const factory = propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+  const factory = React.useMemo(() => {
+    return propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+  }, [config, propFactory, configFactory]);
   const client = factory ? getSplitClient(factory) : null;
 
   // Effect to initialize and destroy the factory
@@ -81,6 +84,10 @@ export function SplitFactoryProvider(props: ISplitFactoryProps) {
   }, [config, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
 
   return (
-    <SplitComponent {...props} factory={factory} client={client} />
+    <SplitContext.Provider value={{
+      factory, client, ...getStatus(client)
+    }} >
+      <SplitClient {...props} />
+    </SplitContext.Provider>
   );
 }

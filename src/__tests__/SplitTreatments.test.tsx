@@ -2,15 +2,15 @@ import React from 'react';
 import { render, RenderResult, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { getStatus, IClientWithContext } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
-import { CONTROL_WITH_CONFIG } from '../constants';
+import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
 import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
@@ -54,7 +54,7 @@ describe('SplitTreatments', () => {
   });
 
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig(ByFlagSets)" if the SDK is ready.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
     render(
@@ -90,19 +90,15 @@ describe('SplitTreatments', () => {
     );
   });
 
-  // @TODO Update test in breaking change, following common practice in React libraries, like React-redux and React-query: use a falsy value as default context value, and throw an error – instead of logging it – if components are not wrapped in a SplitContext.Provider, i.e., if the context is falsy.
-  // it('logs error and passes control treatments if rendered outside an SplitProvider component.', () => {
-  //   render(
-  //     <SplitTreatments names={featureFlagNames} >
-  //       {({ treatments }: ISplitTreatmentsChildProps) => {
-  //         expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
-  //         return null;
-  //       }}
-  //     </SplitTreatments>
-  //   );
-
-  //   expect(logSpy).toBeCalledWith(WARN_ST_NO_CLIENT);
-  // });
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        <SplitTreatments names={featureFlagNames} >
+          {() => null}
+        </SplitTreatments>
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
+  });
 
   /**
    * Input validation. Passing invalid feature flag names or attributes while the Sdk
@@ -149,13 +145,15 @@ describe('SplitTreatments', () => {
 
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
     render(
-      // @ts-expect-error flagSets and names are mutually exclusive
-      <SplitTreatments names={featureFlagNames} flagSets={flagSets} >
-        {({ treatments }) => {
-          expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
-          return null;
-        }}
-      </SplitTreatments>
+      <SplitFactoryProvider >
+        {/* @ts-expect-error flagSets and names are mutually exclusive */}
+        <SplitTreatments names={featureFlagNames} flagSets={flagSets} >
+          {({ treatments }) => {
+            expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
+            return null;
+          }}
+        </SplitTreatments>
+      </SplitFactoryProvider>
     );
 
     expect(logSpy).toBeCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
@@ -184,7 +182,7 @@ describe.each([
     return null;
   }
 ])('SplitTreatments & useSplitTreatments optimization', (InnerComponent) => {
-  let outerFactory = SplitSdk(sdkBrowser);
+  let outerFactory = SplitFactory(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
   function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
@@ -301,7 +299,7 @@ describe.each([
 
   it('rerenders and re-evaluate feature flags when Split context changes (in both SplitFactoryProvider and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimesComp1 = 0;
     let renderTimesComp2 = 0;
 

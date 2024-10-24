@@ -2,11 +2,11 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
@@ -15,11 +15,12 @@ import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useSplitClient', () => {
 
   test('returns the main client from the context updated by SplitFactoryProvider.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -33,7 +34,7 @@ describe('useSplitClient', () => {
   });
 
   test('returns the client from the context updated by SplitClient.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -49,7 +50,7 @@ describe('useSplitClient', () => {
   });
 
   test('returns a new client from the factory at Split context given a splitKey.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let client;
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -64,18 +65,16 @@ describe('useSplitClient', () => {
     expect(outerFactory.client as jest.Mock).toHaveReturnedWith(client);
   });
 
-  test('returns null if invoked outside Split context.', () => {
-    let client;
-    let sharedClient;
-    render(
-      React.createElement(() => {
-        client = useSplitClient().client;
-        sharedClient = useSplitClient({ splitKey: 'user2', trafficType: 'user' }).client;
-        return null;
-      })
-    );
-    expect(client).toBe(null);
-    expect(sharedClient).toBe(null);
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        React.createElement(() => {
+          useSplitClient();
+          useSplitClient({ splitKey: 'user2', trafficType: 'user' });
+          return null;
+        })
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
   });
 
   test('attributes binding test with utility', (done) => {
@@ -99,7 +98,7 @@ describe('useSplitClient', () => {
   });
 
   test('must update on SDK events', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 
@@ -163,18 +162,19 @@ describe('useSplitClient', () => {
               countNestedComponent++;
               switch (countNestedComponent) {
                 case 1:
+                case 2:
                   expect(status.isReady).toBe(false);
                   expect(status.isReadyFromCache).toBe(false);
                   break;
-                case 2:
+                case 3:
+                case 4:
                   expect(status.isReady).toBe(false);
                   expect(status.isReadyFromCache).toBe(true);
                   break;
-                case 3:
+                case 5:
+                case 6:
                   expect(status.isReady).toBe(true);
                   expect(status.isReadyFromCache).toBe(true);
-                  break;
-                case 4:
                   break;
                 default:
                   throw new Error('Unexpected render');
@@ -187,11 +187,11 @@ describe('useSplitClient', () => {
     );
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-    act(() => mainClient.__emitter__.emit(Event.SDK_READY));
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
     // SplitContext renders 3 times: initially, when ready from cache, and when ready.
@@ -217,12 +217,13 @@ describe('useSplitClient', () => {
     expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
     expect(countUseSplitClientUser2WithTimeout).toEqual(countSplitContext + 3);
 
-    expect(countNestedComponent).toEqual(4);
+    // A component using useSplitClient inside SplitClient, renders twice per SDK event
+    expect(countNestedComponent).toEqual(6);
   });
 
   // Remove this test once side effects are moved to the useSplitClient effect.
-  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () =>{
-    const outerFactory = SplitSdk(sdkBrowser);
+  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () => {
+    const outerFactory = SplitFactory(sdkBrowser);
     let count = 0;
 
     render(
@@ -244,7 +245,7 @@ describe('useSplitClient', () => {
   });
 
   test('must support changes in update props', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
 
     let rendersCount = 0;

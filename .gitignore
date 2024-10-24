@@ -1,8 +1,8 @@
 .DS_Store
 /.vscode
 /node_modules
-/lib
-/es
+/cjs
+/esm
 /umd
 /types
 /coverage

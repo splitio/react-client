@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { ISplitContextValues } from '../../types';
 const { SplitFactory: originalSplitFactory } = jest.requireActual('@splitsoftware/splitio/client');
 
 export interface TestComponentProps {
@@ -113,4 +114,15 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
   wrapper.rerender(<Component splitKey={undefined} attributesFactory={undefined} attributesClient={{ at3: 'at3' }} testSwitch={attributesBindingSwitch} factory={factory} />);
   wrapper.rerender(<Component splitKey={undefined} attributesFactory={{ at4: 'at4' }} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
   wrapper.rerender(<Component splitKey={undefined} attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
+}
+
+export const INITIAL_CONTEXT: ISplitContextValues = {
+  client: null,
+  factory: null,
+  isReady: false,
+  isReadyFromCache: false,
+  isTimedout: false,
+  hasTimedout: false,
+  lastUpdate: 0,
+  isDestroyed: false,
 }

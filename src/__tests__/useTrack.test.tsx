@@ -2,17 +2,18 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
+import { mockSdk } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
+import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useTrack', () => {
 
@@ -22,7 +23,7 @@ describe('useTrack', () => {
   const properties = { prop1: 'prop1' };
 
   test('returns the track method bound to the client at Split context updated by SplitFactoryProvider.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
@@ -41,7 +42,7 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
@@ -62,7 +63,7 @@ describe('useTrack', () => {
   });
 
   test('returns the track method bound to a new client given a splitKey and optional trafficType.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let boundTrack;
     let trackResult;
 
@@ -80,17 +81,16 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
-  test('returns a false function (`() => false`) if invoked outside Split context.', () => {
-    let trackResult;
-    render(
-      React.createElement(() => {
-        const track = useTrack('user2', tt);
-        trackResult = track(eventType, value, properties);
-        return null;
-      }),
-    );
-    expect(trackResult).toBe(false);
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        React.createElement(() => {
+          const track = useTrack('user2', tt);
+          track(eventType, value, properties);
+          return null;
+        }),
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
   });
 
 });

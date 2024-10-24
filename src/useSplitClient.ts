@@ -1,5 +1,5 @@
 import React from 'react';
-import { SplitContext } from './SplitContext';
+import { useSplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
@@ -28,7 +28,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
     updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, trafficType, attributes
   } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
-  const context = React.useContext(SplitContext);
+  const context = useSplitContext();
   const { client: contextClient, factory } = context;
 
   let client = contextClient as IClientWithContext;
