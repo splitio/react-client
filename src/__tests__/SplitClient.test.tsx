@@ -14,7 +14,7 @@ import { ISplitClientChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { INITIAL_CONTEXT, testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { IClientWithContext } from '../utils';
 import { EXCEPTION_NO_SFP } from '../constants';
 
@@ -24,13 +24,8 @@ describe('SplitClient', () => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
         <SplitClient splitKey='user1' >
-          {({ isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
-            expect(isReady).toBe(false);
-            expect(isReadyFromCache).toBe(false);
-            expect(hasTimedout).toBe(false);
-            expect(isTimedout).toBe(false);
-            expect(isDestroyed).toBe(false);
-            expect(lastUpdate).toBe(0);
+          {(childProps: ISplitClientChildProps) => {
+            expect(childProps).toEqual(INITIAL_CONTEXT);
 
             return null;
           }}
@@ -50,14 +45,15 @@ describe('SplitClient', () => {
       <SplitFactoryProvider factory={outerFactory} >
         {/* Equivalent to <SplitClient splitKey={undefined} > */}
         <SplitClient splitKey={sdkBrowser.core.key} >
-          {({ client, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitClientChildProps) => {
-            expect(client).toBe(outerFactory.client());
-            expect(isReady).toBe(true);
-            expect(isReadyFromCache).toBe(true);
-            expect(hasTimedout).toBe(false);
-            expect(isTimedout).toBe(false);
-            expect(isDestroyed).toBe(false);
-            expect(lastUpdate).toBe((outerFactory.client() as IClientWithContext).__getStatus().lastUpdate);
+          {(childProps: ISplitClientChildProps) => {
+            expect(childProps).toEqual({
+              ...INITIAL_CONTEXT,
+              factory : outerFactory,
+              client: outerFactory.client(),
+              isReady: true,
+              isReadyFromCache: true,
+              lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
+            });
 
             return null;
           }}
@@ -162,7 +158,7 @@ describe('SplitClient', () => {
     expect(renderTimes).toBe(3);
   });
 
-  test('rerender child only on SDK_READY event, as default behaviour.', async () => {
+  test('rerender child only on SDK_READY event, as default behavior.', async () => {
     const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
@@ -228,18 +224,19 @@ describe('SplitClient', () => {
     expect(count).toEqual(2);
   });
 
-  test('renders a passed JSX.Element with a new SplitContext value.', (done) => {
+  test('renders a passed JSX.Element with a new SplitContext value.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
 
     const Component = () => {
       return (
         <SplitContext.Consumer>
           {(value) => {
-            expect(value.client).toBe(outerFactory.client('user2'));
-            expect(value.isReady).toBe(false);
-            expect(value.isTimedout).toBe(false);
-            expect(value.lastUpdate).toBe(0);
-            done();
+            expect(value).toEqual({
+              ...INITIAL_CONTEXT,
+              factory: outerFactory,
+              client: outerFactory.client('user2'),
+            });
+
             return null;
           }}
         </SplitContext.Consumer>

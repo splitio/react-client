@@ -28,11 +28,11 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
     config = undefined;
   }
 
-  const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients | null>(null);
+  const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients>();
   const factory = React.useMemo(() => {
-    return propFactory || (configFactory && config === configFactory.config ? configFactory : null);
+    return propFactory || (configFactory && config === configFactory.config ? configFactory : undefined);
   }, [config, propFactory, configFactory]);
-  const client = factory ? getSplitClient(factory) : null;
+  const client = factory ? getSplitClient(factory) : undefined;
 
   // Effect to initialize and destroy the factory
   React.useEffect(() => {
