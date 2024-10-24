@@ -14,7 +14,7 @@ import { useSplitTreatments } from './useSplitTreatments';
 export function SplitTreatments(props: ISplitTreatmentsProps) {
   const { children } = props;
   // SplitTreatments doesn't update on SDK events, since it is inside SplitFactory and/or SplitClient.
-  const context = useSplitTreatments({ updateOnSdkReady: false, updateOnSdkReadyFromCache: false, ...props });
+  const context = useSplitTreatments({ ...props, updateOnSdkReady: false, updateOnSdkReadyFromCache: false });
 
   return (
     <SplitContext.Provider value={context}>
