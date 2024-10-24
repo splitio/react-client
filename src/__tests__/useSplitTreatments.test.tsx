@@ -8,7 +8,7 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-import { CONTROL_WITH_CONFIG } from '../constants';
+import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
@@ -128,18 +128,16 @@ describe('useSplitTreatments', () => {
     expect(client.getTreatmentsWithConfig).toBeCalledTimes(2);
   });
 
-  // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
-  test('returns control treatments (empty object if flagSets is provided) if invoked outside Split context.', () => {
-    render(
-      React.createElement(() => {
-        const treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
-        expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
-
-        const treatmentsByFlagSets = useSplitTreatments({ flagSets: featureFlagNames }).treatments;
-        expect(treatmentsByFlagSets).toEqual({});
-        return null;
-      })
-    );
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        React.createElement(() => {
+          useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+          useSplitTreatments({ flagSets: featureFlagNames }).treatments;
+          return null;
+        })
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
   });
 
   /**
@@ -148,16 +146,20 @@ describe('useSplitTreatments', () => {
    */
   test('Input validation: invalid "names" and "attributes" params in useSplitTreatments.', () => {
     render(
-      React.createElement(() => {
-        // @ts-expect-error Test error handling
-        let treatments = useSplitTreatments('split1').treatments;
-        expect(treatments).toEqual({});
-        // @ts-expect-error Test error handling
-        treatments = useSplitTreatments({ names: [true] }).treatments;
-        expect(treatments).toEqual({});
+      <SplitFactoryProvider >
+        {
+          React.createElement(() => {
+            // @ts-expect-error Test error handling
+            let treatments = useSplitTreatments('split1').treatments;
+            expect(treatments).toEqual({});
+            // @ts-expect-error Test error handling
+            treatments = useSplitTreatments({ names: [true] }).treatments;
+            expect(treatments).toEqual({});
 
-        return null;
-      })
+            return null;
+          })
+        }
+      </SplitFactoryProvider>
     );
     expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
     expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid feature flag name, feature flag name must be a non-empty string.');
@@ -254,12 +256,16 @@ describe('useSplitTreatments', () => {
 
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
     render(
-      React.createElement(() => {
-        // @ts-expect-error names and flagSets are mutually exclusive
-        const treatments = useSplitTreatments({ names: featureFlagNames, flagSets, attributes }).treatments;
-        expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
-        return null;
-      })
+      <SplitFactoryProvider >
+        {
+          React.createElement(() => {
+            // @ts-expect-error names and flagSets are mutually exclusive
+            const treatments = useSplitTreatments({ names: featureFlagNames, flagSets, attributes }).treatments;
+            expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
+            return null;
+          })
+        }
+      </SplitFactoryProvider>
     );
 
     expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');

@@ -13,6 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
+import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useTrack', () => {
 
@@ -80,17 +81,16 @@ describe('useTrack', () => {
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  // THE FOLLOWING TEST WILL PROBABLE BE CHANGED BY 'return a null value or throw an error if it is not inside an SplitProvider'
-  test('returns a false function (`() => false`) if invoked outside Split context.', () => {
-    let trackResult;
-    render(
-      React.createElement(() => {
-        const track = useTrack('user2', tt);
-        trackResult = track(eventType, value, properties);
-        return null;
-      }),
-    );
-    expect(trackResult).toBe(false);
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        React.createElement(() => {
+          const track = useTrack('user2', tt);
+          track(eventType, value, properties);
+          return null;
+        }),
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
   });
 
 });

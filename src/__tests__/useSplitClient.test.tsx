@@ -15,6 +15,7 @@ import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useSplitClient', () => {
 
@@ -64,18 +65,16 @@ describe('useSplitClient', () => {
     expect(outerFactory.client as jest.Mock).toHaveReturnedWith(client);
   });
 
-  test('returns null if invoked outside Split context.', () => {
-    let client;
-    let sharedClient;
-    render(
-      React.createElement(() => {
-        client = useSplitClient().client;
-        sharedClient = useSplitClient({ splitKey: 'user2', trafficType: 'user' }).client;
-        return null;
-      })
-    );
-    expect(client).toBe(null);
-    expect(sharedClient).toBe(null);
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        React.createElement(() => {
+          useSplitClient();
+          useSplitClient({ splitKey: 'user2', trafficType: 'user' });
+          return null;
+        })
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
   });
 
   test('attributes binding test with utility', (done) => {
@@ -223,7 +222,7 @@ describe('useSplitClient', () => {
   });
 
   // Remove this test once side effects are moved to the useSplitClient effect.
-  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () =>{
+  test('must update on SDK events between the render phase (hook call) and commit phase (effect call)', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let count = 0;
 

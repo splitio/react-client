@@ -16,6 +16,7 @@ import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { IClientWithContext } from '../utils';
+import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('SplitClient', () => {
 
@@ -254,19 +255,15 @@ describe('SplitClient', () => {
     );
   });
 
-  // @TODO Update test in breaking change, following common practice in React libraries, like React-redux and React-query: use a falsy value as default context value, and throw an error – instead of logging it – if components are not wrapped in a SplitContext.Provider, i.e., if the context is falsy.
-  // test('logs error and passes null client if rendered outside an SplitProvider component.', () => {
-  //   const errorSpy = jest.spyOn(console, 'error');
-  //   render(
-  //     <SplitClient splitKey='user2' >
-  //       {({ client }) => {
-  //         expect(client).toBe(null);
-  //         return null;
-  //       }}
-  //     </SplitClient>
-  //   );
-  //   expect(errorSpy).toBeCalledWith(ERROR_SC_NO_FACTORY);
-  // });
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        <SplitClient splitKey='user2' >
+          {() => null}
+        </SplitClient>
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
+  });
 
   test(`passes a new client if re-rendered with a different splitKey.
         Only updates the state if the new client triggers an event, but not the previous one.`, (done) => {
