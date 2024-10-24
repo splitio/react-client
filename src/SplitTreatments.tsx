@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { SplitContext } from './SplitContext';
-import { ISplitTreatmentsProps, ISplitContextValues } from './types';
-import { memoizeGetTreatmentsWithConfig } from './utils';
+import { ISplitTreatmentsProps } from './types';
+import { useSplitTreatments } from './useSplitTreatments';
 
 /**
  * SplitTreatments accepts a list of feature flag names and optional attributes. It accesses the client at SplitContext to
@@ -10,28 +11,16 @@ import { memoizeGetTreatmentsWithConfig } from './utils';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export class SplitTreatments extends React.Component<ISplitTreatmentsProps> {
+export function SplitTreatments(props: ISplitTreatmentsProps) {
+  const { children } = props;
+  // SplitTreatments doesn't update on SDK events, since it is inside SplitFactory and/or SplitClient.
+  const context = useSplitTreatments({ ...props, updateOnSdkReady: false, updateOnSdkReadyFromCache: false });
 
-  private logWarning?: boolean;
-
-  // Using a memoized `client.getTreatmentsWithConfig` function to avoid duplicated impressions
-  private evaluateFeatureFlags = memoizeGetTreatmentsWithConfig();
-
-  render() {
-    const { names, flagSets, children, attributes } = this.props;
-
-    return (
-      <SplitContext.Consumer>
-        {(splitContext: ISplitContextValues) => {
-          const { client, lastUpdate } = splitContext;
-          const treatments = this.evaluateFeatureFlags(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets);
-
-          // SplitTreatments only accepts a function as a child, not a React Element (JSX)
-          return children({
-            ...splitContext, treatments,
-          });
-        }}
-      </SplitContext.Consumer>
-    );
-  }
+  return (
+    <SplitContext.Provider value={context}>
+      {
+        children(context)
+      }
+    </SplitContext.Provider>
+  );
 }

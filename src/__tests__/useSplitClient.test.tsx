@@ -163,18 +163,19 @@ describe('useSplitClient', () => {
               countNestedComponent++;
               switch (countNestedComponent) {
                 case 1:
+                case 2:
                   expect(status.isReady).toBe(false);
                   expect(status.isReadyFromCache).toBe(false);
                   break;
-                case 2:
+                case 3:
+                case 4:
                   expect(status.isReady).toBe(false);
                   expect(status.isReadyFromCache).toBe(true);
                   break;
-                case 3:
+                case 5:
+                case 6:
                   expect(status.isReady).toBe(true);
                   expect(status.isReadyFromCache).toBe(true);
-                  break;
-                case 4:
                   break;
                 default:
                   throw new Error('Unexpected render');
@@ -187,11 +188,11 @@ describe('useSplitClient', () => {
     );
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
-    act(() => mainClient.__emitter__.emit(Event.SDK_READY));
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY_TIMED_OUT));
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
     // SplitContext renders 3 times: initially, when ready from cache, and when ready.
@@ -217,7 +218,8 @@ describe('useSplitClient', () => {
     expect(countSplitClientUser2WithUpdate).toEqual(countSplitContext + 3);
     expect(countUseSplitClientUser2WithTimeout).toEqual(countSplitContext + 3);
 
-    expect(countNestedComponent).toEqual(4);
+    // A component using useSplitClient inside SplitClient, renders twice per SDK event
+    expect(countNestedComponent).toEqual(6);
   });
 
   // Remove this test once side effects are moved to the useSplitClient effect.
