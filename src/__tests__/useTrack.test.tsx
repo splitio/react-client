@@ -1,8 +1,8 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import React, { useEffect } from 'react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitFactory';
+import { mockSdk, Event, getLastInstance } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -13,6 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
+import { useSplitClient } from '../useSplitClient';
 import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useTrack', () => {
@@ -22,7 +23,34 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method of the client at Split context updated by SplitFactoryProvider.', () => {
+  test('returns the track method of the client at Split context updated by SplitFactoryProvider (config prop).', () => {
+    render(
+      <SplitFactoryProvider config={sdkBrowser} >
+        {React.createElement(() => {
+          const clientTrack = useTrack();
+
+          const { client } = useSplitClient();
+          expect(clientTrack).toBe(client!.track);
+
+          clientTrack(tt, eventType, value, properties);
+
+          useEffect(() => {
+            clientTrack(tt, eventType, value, properties);
+          }, [clientTrack]);
+          return null;
+        })}
+      </SplitFactoryProvider>,
+    );
+
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY));
+
+    const track = getLastInstance(SplitFactory).client().track as jest.Mock;
+    expect(track).toBeCalledWith(tt, eventType, value, properties);
+    expect(track).toBeCalledTimes(4); // 3 from render + 1 from useEffect (`clientTrack` dependency doesn't change)
+  });
+
+  test('returns the track method of the client at Split context updated by SplitFactoryProvider (factory prop).', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let clientTrack;
     let trackResult;

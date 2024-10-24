@@ -214,8 +214,7 @@ describe('SplitClient', () => {
             count++;
 
             // side effect in the render phase
-            if (!(client as IClientWithContext).__getStatus().isReady) {
-              console.log('emit');
+            if (!(client as any).__getStatus().isReady) {
               (client as any).__emitter__.emit(Event.SDK_READY);
             }
 

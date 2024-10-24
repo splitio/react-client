@@ -2,6 +2,7 @@
  - Added support for targeting rules based on large segments for browsers.
  - Updated @splitsoftware/splitio package to version 11.0.0 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+ - Bugfixing - When the `config` prop is provided, the `SplitFactoryProvider` now makes the SDK factory and client instances available in the context immediately during the initial render, instead of waiting for the first SDK event. This change fixes a bug in the `useTrack` hook, which was not retrieving the client's `track` method during the initial render but rather a no-op function.
  - BREAKING CHANGES:
       - Updated error handling: using the library modules without wrapping them in a `SplitFactoryProvider` component will now throw an error instead of logging it, as the modules requires the `SplitContext` to work properly.
       - Removed the `core.trafficType` configuration option and the `trafficType` parameter from the SDK `client()` method, `useSplitClient`, `useTrack`, and `SplitClient` component. This is because traffic types can no longer be bound to SDK clients in JavaScript SDK v11.0.0, and so the traffic type must be provided as first argument in the `track` method calls.
