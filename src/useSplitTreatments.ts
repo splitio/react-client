@@ -1,6 +1,6 @@
 import React from 'react';
 import { memoizeGetTreatmentsWithConfig } from './utils';
-import { IUseSplitTreatmentsResult, IUseSplitTreatmentsOptions } from './types';
+import { IUseSplitClientResult, IUseSplitTreatmentsOptions } from './types';
 import { useSplitClient } from './useSplitClient';
 
 /**
@@ -17,7 +17,21 @@ import { useSplitClient } from './useSplitClient';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export function useSplitTreatments(options: IUseSplitTreatmentsOptions): IUseSplitTreatmentsResult {
+export function useSplitTreatments(options: IUseSplitTreatmentsOptions): IUseSplitClientResult & {
+
+  /**
+   * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
+   * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
+   *
+   * ```js
+   *   {
+   *     feature1: { treatment: 'on', config: null },
+   *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
+   *   }
+   * ```
+   */
+  treatments: SplitIO.TreatmentsWithConfig;
+} {
   const context = useSplitClient({ ...options, attributes: undefined });
   const { client, lastUpdate } = context;
   const { names, flagSets, attributes } = options;

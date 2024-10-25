@@ -21,7 +21,6 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   const factory = React.useMemo(() => {
     return propFactory || (config ? getSplitFactory(config) : undefined);
   }, [config, propFactory]);
-  const client = factory ? getSplitClient(factory) : undefined;
 
   // Effect to initialize and destroy the factory
   React.useEffect(() => {
@@ -41,9 +40,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, propFactory]);
 
   return (
-    <SplitContext.Provider value={{
-      factory, client, ...getStatus(client)
-    }} >
+    <SplitContext.Provider value={{ factory }} >
       {props.children}
     </SplitContext.Provider>
   );

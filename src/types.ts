@@ -43,7 +43,7 @@ export interface ISplitStatus {
 /**
  * Split Context Value interface. It is used to define the value types of Split Context
  */
-export interface ISplitContextValues extends ISplitStatus {
+export interface ISplitContextValues {
 
   /**
    * Split factory instance.
@@ -51,15 +51,6 @@ export interface ISplitContextValues extends ISplitStatus {
    * NOTE: This property is not recommended for direct use, as better alternatives are available.
    */
   factory?: SplitIO.IBrowserSDK;
-
-  /**
-   * Split client instance.
-   *
-   * NOTE: This property is not recommended for direct use, as better alternatives are available.
-   *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
-   */
-  client?: SplitIO.IBrowserClient;
 }
 
 /**
@@ -151,6 +142,18 @@ export interface IUseSplitClientOptions extends IUpdateProps {
   attributes?: SplitIO.Attributes;
 }
 
+export interface IUseSplitClientResult extends ISplitContextValues, ISplitStatus {
+
+  /**
+   * Split client instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available.
+   *
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+   */
+  client?: SplitIO.IBrowserClient;
+}
+
 export type GetTreatmentsOptions = ({
 
   /**
@@ -182,7 +185,7 @@ export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientO
 /**
  * useSplitTreatments hook result.
  */
-export interface IUseSplitTreatmentsResult extends ISplitContextValues {
+export interface IUseSplitTreatmentsResult extends IUseSplitClientResult {
 
   /**
    * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().

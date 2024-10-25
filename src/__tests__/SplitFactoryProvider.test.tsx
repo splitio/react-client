@@ -26,11 +26,7 @@ describe('SplitFactoryProvider', () => {
         {React.createElement(() => {
           const context = useSplitContext();
 
-          expect(context).toEqual({
-            ...INITIAL_STATUS,
-            factory: getLastInstance(SplitFactory),
-            client: getLastInstance(SplitFactory).client(),
-          });
+          expect(context).toEqual({ factory: getLastInstance(SplitFactory) });
           return null;
         })}
       </SplitFactoryProvider>
