@@ -54,7 +54,7 @@ describe('SplitFactoryProvider', () => {
             isReadyFromCache: true,
             lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
           });
-          expect((childProps.factory as SplitIO.IBrowserSDK).settings.version).toBe(outerFactory.settings.version);
+          expect((childProps.factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}
       </SplitFactoryProvider>
@@ -337,7 +337,7 @@ describe('SplitFactoryProvider', () => {
 
   test('cleans up on update and unmount if config prop is provided.', () => {
     let renderTimes = 0;
-    const createdFactories = new Set<SplitIO.IBrowserSDK>();
+    const createdFactories = new Set<SplitIO.ISDK>();
     const clientDestroySpies: jest.SpyInstance[] = [];
     const outerFactory = SplitFactory(sdkBrowser);
 

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
+import SplitIO from '@splitsoftware/splitio-commons/types/splitio';
 import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
 import reactSdkPackageJson from '../../../package.json';
 

@@ -1,4 +1,4 @@
-import SplitIO from '@splitsoftware/splitio/types/splitio';
+import SplitIO from '@splitsoftware/splitio-commons/types/splitio';
 import type { ReactNode } from 'react';
 
 /**
@@ -50,7 +50,7 @@ export interface ISplitContextValues extends ISplitStatus {
    *
    * NOTE: This property is not recommended for direct use, as better alternatives are available.
    */
-  factory?: SplitIO.IBrowserSDK;
+  factory?: SplitIO.ISDK;
 
   /**
    * Split client instance.
@@ -59,7 +59,7 @@ export interface ISplitContextValues extends ISplitStatus {
    *
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
-  client?: SplitIO.IBrowserClient;
+  client?: SplitIO.IClient;
 }
 
 /**
@@ -121,7 +121,7 @@ export interface ISplitFactoryProviderProps extends IUpdateProps {
    *
    * If both `factory` and `config` are provided, the `config` option is ignored.
    */
-  factory?: SplitIO.IBrowserSDK;
+  factory?: SplitIO.ISDK;
 
   /**
    * An object of type Attributes used to evaluate the feature flags.
