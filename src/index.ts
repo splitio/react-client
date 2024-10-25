@@ -2,8 +2,6 @@
 export { SplitFactory } from '@splitsoftware/splitio/client';
 
 // Components
-export { SplitTreatments } from './SplitTreatments';
-export { SplitClient } from './SplitClient';
 export { SplitFactoryProvider } from './SplitFactoryProvider';
 
 // Hooks
@@ -18,14 +16,11 @@ export { SplitContext } from './SplitContext';
 // Types
 export type {
   GetTreatmentsOptions,
-  ISplitClientChildProps,
-  ISplitClientProps,
   ISplitContextValues,
   ISplitFactoryProviderChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
-  ISplitTreatmentsChildProps,
-  ISplitTreatmentsProps,
+  IUseSplitTreatmentsResult,
   IUpdateProps,
   IUseSplitClientOptions,
   IUseSplitTreatmentsOptions

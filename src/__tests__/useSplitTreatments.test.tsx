@@ -12,11 +12,11 @@ import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
-import { SplitClient } from '../SplitClient';
+// import { SplitClient } from '../SplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
-import { SplitTreatments } from '../SplitTreatments';
+// import { SplitTreatments } from '../SplitTreatments';
 import { SplitContext } from '../SplitContext';
-import { ISplitTreatmentsChildProps } from '../types';
+import { IUseSplitTreatmentsResult } from '../types';
 
 const logSpy = jest.spyOn(console, 'log');
 
@@ -63,32 +63,32 @@ describe('useSplitTreatments', () => {
     expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
   });
 
-  test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
-    const outerFactory = SplitFactory(sdkBrowser);
-    const client: any = outerFactory.client('user2');
-    let treatments: SplitIO.TreatmentsWithConfig;
+  // test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
+  //   const outerFactory = SplitFactory(sdkBrowser);
+  //   const client: any = outerFactory.client('user2');
+  //   let treatments: SplitIO.TreatmentsWithConfig;
 
-    render(
-      <SplitFactoryProvider factory={outerFactory} >
-        <SplitClient splitKey='user2' >
-          {React.createElement(() => {
-            treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
-            return null;
-          })}
-        </SplitClient>
-      </SplitFactoryProvider>
-    );
+  //   render(
+  //     <SplitFactoryProvider factory={outerFactory} >
+  //       <SplitClient splitKey='user2' >
+  //         {React.createElement(() => {
+  //           treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+  //           return null;
+  //         })}
+  //       </SplitClient>
+  //     </SplitFactoryProvider>
+  //   );
 
-    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
-    expect(client.getTreatmentsWithConfig).not.toBeCalled();
-    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
+  //   // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
+  //   expect(client.getTreatmentsWithConfig).not.toBeCalled();
+  //   expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG });
 
-    // once operational (SDK_READY_FROM_CACHE), it evaluates feature flags
-    act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+  //   // once operational (SDK_READY_FROM_CACHE), it evaluates feature flags
+  //   act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
-    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
-  });
+  //   expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
+  //   expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+  // });
 
   test('returns the treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
@@ -170,11 +170,11 @@ describe('useSplitTreatments', () => {
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 
-    let countSplitContext = 0, countSplitTreatments = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0, countUseSplitTreatmentsUser2WithUpdate = 0;
+    let countSplitContext = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0, countUseSplitTreatmentsUser2WithUpdate = 0;
     const lastUpdateSetUser2 = new Set<number>();
     const lastUpdateSetUser2WithUpdate = new Set<number>();
 
-    function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTreatmentsChildProps) {
+    function validateTreatments({ treatments, isReady, isReadyFromCache }: IUseSplitTreatmentsResult) {
       if (isReady || isReadyFromCache) {
         expect(treatments).toEqual({
           split_test: {
@@ -198,9 +198,6 @@ describe('useSplitTreatments', () => {
           <SplitContext.Consumer>
             {() => countSplitContext++}
           </SplitContext.Consumer>
-          <SplitTreatments names={['split_test']}>
-            {() => { countSplitTreatments++; return null }}
-          </SplitTreatments>
           {React.createElement(() => {
             const context = useSplitTreatments({ names: ['split_test'], attributes: { att1: 'att1' } });
             expect(context.client).toBe(mainClient); // Assert that the main client was retrieved.
@@ -235,13 +232,12 @@ describe('useSplitTreatments', () => {
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
-    // SplitContext renders 3 times: initially, when ready from cache, and when ready.
-    expect(countSplitContext).toEqual(3);
+    // SplitContext renders 1 time
+    expect(countSplitContext).toEqual(1);
 
-    // SplitTreatments and useSplitTreatments render when the context renders.
-    expect(countSplitTreatments).toEqual(countSplitContext);
-    expect(countUseSplitTreatments).toEqual(countSplitContext);
-    expect(mainClient.getTreatmentsWithConfig).toHaveBeenCalledTimes(4);
+    // useSplitTreatments render when the context renders.
+    expect(countUseSplitTreatments).toEqual(3);
+    expect(mainClient.getTreatmentsWithConfig).toHaveBeenCalledTimes(2); // when ready and ready from cache
     expect(mainClient.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], { att1: 'att1' });
 
     // If useSplitTreatments uses a different client than the context one, it renders when the context renders and when the new client is ready and ready from cache.

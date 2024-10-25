@@ -1,4 +1,4 @@
-import { useSplitContext } from './SplitContext';
+import { useSplitClient } from './useSplitClient';
 import { ISplitContextValues } from './types';
 
 /**
@@ -16,7 +16,7 @@ import { ISplitContextValues } from './types';
  */
 export function useSplitManager(): ISplitContextValues & { manager?: SplitIO.IManager } {
   // Update options are not supported, because updates can be controlled at the SplitFactoryProvider component.
-  const context = useSplitContext();
+  const context = useSplitClient();
   return {
     ...context,
     manager: context.factory ? context.factory.manager() : undefined

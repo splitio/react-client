@@ -3,22 +3,17 @@ import {
   SplitContext as ExportedSplitContext,
   SplitFactory as ExportedSplitFactory,
   SplitFactoryProvider as ExportedSplitFactoryProvider,
-  SplitClient as ExportedSplitClient,
-  SplitTreatments as ExportedSplitTreatments,
   useTrack as exportedUseTrack,
   useSplitClient as exportedUseSplitClient,
   useSplitTreatments as exportedUseSplitTreatments,
   useSplitManager as exportedUseSplitManager,
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
   GetTreatmentsOptions,
-  ISplitClientChildProps,
-  ISplitClientProps,
   ISplitContextValues,
   ISplitFactoryProviderChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
-  ISplitTreatmentsChildProps,
-  ISplitTreatmentsProps,
+  IUseSplitTreatmentsResult,
   IUpdateProps,
   IUseSplitClientOptions,
   IUseSplitTreatmentsOptions,
@@ -26,8 +21,6 @@ import {
 import { SplitContext } from '../SplitContext';
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
-import { SplitClient } from '../SplitClient';
-import { SplitTreatments } from '../SplitTreatments';
 import { useTrack } from '../useTrack';
 import { useSplitClient } from '../useSplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
@@ -37,8 +30,6 @@ describe('index', () => {
 
   it('should export components', () => {
     expect(ExportedSplitFactoryProvider).toBe(SplitFactoryProvider);
-    expect(ExportedSplitClient).toBe(SplitClient);
-    expect(ExportedSplitTreatments).toBe(SplitTreatments);
   });
 
   it('should export hooks', () => {

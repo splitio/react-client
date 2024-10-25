@@ -11,7 +11,6 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
-import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
 import { useSplitClient } from '../useSplitClient';
 import { EXCEPTION_NO_SFP } from '../constants';
@@ -39,27 +38,6 @@ describe('useTrack', () => {
     );
     const track = outerFactory.client().track;
     expect(track).toBe(clientTrack);
-    expect(track).toBeCalledWith(tt, eventType, value, properties);
-    expect(track).toHaveReturnedWith(trackResult);
-  });
-
-  test('returns the track method of the client at Split context updated by SplitClient.', () => {
-    const outerFactory = SplitFactory(sdkBrowser);
-    let clientTrack;
-    let trackResult;
-
-    render(
-      <SplitFactoryProvider factory={outerFactory} >
-        <SplitClient splitKey='user2' >
-          {React.createElement(() => {
-            clientTrack = useTrack();
-            trackResult = clientTrack(tt, eventType, value, properties);
-            return null;
-          })}
-        </SplitClient>
-      </SplitFactoryProvider>
-    );
-    const track = outerFactory.client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -95,28 +73,31 @@ describe('useTrack', () => {
   });
 
   test('returns the track method of the client at Split context updated by SplitFactoryProvider (config prop).', () => {
-    let splitKey: string | undefined = undefined;
-    render(
-      <SplitFactoryProvider config={sdkBrowser} updateOnSdkUpdate={true} >
-        {React.createElement(() => {
-          const clientTrack = useTrack(splitKey);
+    const InnerComponent = ({ splitKey }: { splitKey?: string }) => {
+      const clientTrack = useTrack(splitKey);
 
-          const { client } = useSplitClient({ splitKey });
-          expect(clientTrack).toBe(client!.track);
+      const { client } = useSplitClient({ splitKey });
+      expect(clientTrack).toBe(client!.track);
 
-          clientTrack(tt, eventType, value, properties);
+      clientTrack(tt, eventType, value, properties);
 
-          useEffect(() => {
-            clientTrack(tt, eventType, value, properties);
-          }, [clientTrack]);
-          return null;
-        })}
-      </SplitFactoryProvider>,
-    );
+      useEffect(() => {
+        clientTrack(tt, eventType, value, properties);
+      }, [clientTrack]);
+      return null;
+    }
+    const App = ({ splitKey }: { splitKey?: string }) => {
+      return (<SplitFactoryProvider config={sdkBrowser} >
+        <InnerComponent splitKey={splitKey} />
+      </SplitFactoryProvider>)
+    };
+    const wrapper = render(<App />);
 
     act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
     act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY));
-    splitKey = 'user2'; // `clientTrack` dependency changed
+
+    wrapper.rerender(<App splitKey="user2" />); // `clientTrack` dependency changed
+
     act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_UPDATE));
 
     let track = getLastInstance(SplitFactory).client().track;

@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { SplitClient } from './SplitClient';
 import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
 import { getSplitFactory, destroySplitFactory, getSplitClient, getStatus } from './utils';
@@ -45,7 +44,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
     <SplitContext.Provider value={{
       factory, client, ...getStatus(client)
     }} >
-      <SplitClient {...props} />
+      {props.children}
     </SplitContext.Provider>
   );
 }
