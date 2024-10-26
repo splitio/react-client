@@ -1,6 +1,5 @@
 import { CONTROL_WITH_CONFIG } from '../constants';
 import { getControlTreatmentsWithConfig } from '../utils';
-import SplitIO from '@splitsoftware/splitio-commons/types/splitio';
 
 describe('getControlTreatmentsWithConfig', () => {
 

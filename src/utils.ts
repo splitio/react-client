@@ -3,7 +3,6 @@ import shallowEqual from 'shallowequal';
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { CONTROL_WITH_CONFIG, VERSION, WARN_NAMES_AND_FLAGSETS } from './constants';
 import { ISplitStatus } from './types';
-import SplitIO from '@splitsoftware/splitio-commons/types/splitio';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 

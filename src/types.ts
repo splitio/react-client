@@ -1,4 +1,3 @@
-import SplitIO from '@splitsoftware/splitio-commons/types/splitio';
 import type { ReactNode } from 'react';
 
 /**
