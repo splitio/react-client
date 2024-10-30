@@ -2,7 +2,7 @@
  - Added support for targeting rules based on large segments.
  - Added support for passing factory instances to the `factory` prop of the `SplitFactoryProvider` component from other SDK packages that extends the `SplitIO.ISDK` interface, such as `@splitsoftware/splitio-react-native`, `@splitsoftware/splitio-browserjs` and `@splitsoftware/browser-suite` packages.
  - Updated @splitsoftware/splitio package to version 11.0.0 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
- - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - Bugfixing - When the `config` prop is provided, the `SplitFactoryProvider` now makes the SDK factory and client instances available in the context immediately during the initial render, instead of waiting for the first SDK event (Related to https://github.com/splitio/react-client/issues/198). This change fixes a bug in the `useTrack` hook, which was not retrieving the client's `track` method during the initial render.
  - BREAKING CHANGES:
       - Updated error handling: using the library modules without wrapping them in a `SplitFactoryProvider` component will now throw an error instead of logging it, as the modules requires the `SplitContext` to work properly.
