@@ -11,7 +11,6 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 const logSpy = jest.spyOn(console, 'log');
 
 /** Test target */
-import { ISplitFactoryProviderChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitContext, useSplitContext } from '../SplitContext';
 import { __factories, IClientWithContext } from '../utils';

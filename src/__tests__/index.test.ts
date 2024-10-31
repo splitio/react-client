@@ -10,7 +10,6 @@ import {
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
   GetTreatmentsOptions,
   ISplitContextValues,
-  ISplitFactoryProviderChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
   IUseSplitTreatmentsResult,

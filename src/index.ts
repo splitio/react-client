@@ -17,7 +17,6 @@ export { SplitContext } from './SplitContext';
 export type {
   GetTreatmentsOptions,
   ISplitContextValues,
-  ISplitFactoryProviderChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
   IUseSplitTreatmentsResult,

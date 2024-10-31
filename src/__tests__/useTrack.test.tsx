@@ -111,7 +111,7 @@ describe('useTrack', () => {
 
   test('does not re-render on SDK events', () => {
     render(
-      <SplitFactoryProvider config={sdkBrowser} updateOnSdkReady={false} updateOnSdkReadyFromCache={false} >
+      <SplitFactoryProvider config={sdkBrowser} >
         {React.createElement(() => {
           const clientTrack = useTrack();
           clientTrack(tt, eventType, value, properties);

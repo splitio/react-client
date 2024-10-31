@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSplitContext } from './SplitContext';
-import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
+import { getSplitClient, initAttributes, getStatus } from './utils';
 import { IUseSplitClientResult, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
@@ -11,14 +11,14 @@ export const DEFAULT_UPDATE_OPTIONS = {
 };
 
 /**
- * 'useSplitClient' is a hook that returns an Split Context object with the client and its status corresponding to the provided key.
- * It uses the 'useContext' hook to access the context, which is updated by SplitFactoryProvider and SplitClient components in the hierarchy of components.
+ * 'useSplitClient' is a hook that returns the Split Context object with the client and its status corresponding to the provided key.
  *
- * @returns A Split Context object
+ * @param options - An options object with an optional `splitKey` to retrieve the client, optional `attributes` to configure the client, and update options to control on which SDK events the hook should update.
+ * @returns A Split Context object merged with the client and its status.
  *
  * @example
  * ```js
- * const { factory, client, isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: 'user_id' });
+ * const { client, isReady, isReadyFromCache, lastUpdate, ... } = useSplitClient({ splitKey: 'user_id' });
  * ```
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
