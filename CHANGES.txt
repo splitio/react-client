@@ -1,4 +1,4 @@
-2.0.0 (October XX, 2024)
+2.0.0 (November XX, 2024)
  - Added support for targeting rules based on large segments.
  - Added support for passing factory instances to the `factory` prop of the `SplitFactoryProvider` component from other SDK packages that extends the `SplitIO.IBrowserSDK` interface, such as `@splitsoftware/splitio-react-native`, `@splitsoftware/splitio-browserjs` and `@splitsoftware/browser-suite` packages.
  - Updated @splitsoftware/splitio package to version 11.0.0 that includes major updates, and updated some transitive dependencies for vulnerability fixes.

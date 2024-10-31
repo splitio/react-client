@@ -15,7 +15,7 @@ import { ISplitFactoryProviderChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { __factories, IBrowserClientWithContext } from '../utils';
+import { __factories, IClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
 import { INITIAL_STATUS } from './testUtils/utils';
 
@@ -52,7 +52,7 @@ describe('SplitFactoryProvider', () => {
             client: outerFactory.client(),
             isReady: true,
             isReadyFromCache: true,
-            lastUpdate: (outerFactory.client() as IBrowserClientWithContext).__getStatus().lastUpdate
+            lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
           });
           expect((childProps.factory as SplitIO.IBrowserSDK).settings.version).toBe(outerFactory.settings.version);
           return null;

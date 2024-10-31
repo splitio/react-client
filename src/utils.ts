@@ -9,7 +9,7 @@ import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
-export interface IBrowserClientWithContext extends SplitIO.IBrowserClient {
+export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
@@ -48,9 +48,9 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IBrowserClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key !== undefined ? factory.client(key) : factory.client()) as IBrowserClientWithContext;
+  const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
 
   // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
   // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
@@ -67,7 +67,7 @@ export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void
 // Util used to get client status.
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
 export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
-  const status = client && (client as IBrowserClientWithContext).__getStatus();
+  const status = client && (client as IClientWithContext).__getStatus();
 
   return {
     isReady: status ? status.isReady : false,
@@ -179,7 +179,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
 function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
-  return client && (client as IBrowserClientWithContext).__getStatus().isOperational && (names || flagSets) ?
+  return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
     names ?
       client.getTreatmentsWithConfig(names, attributes) :
       client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :
