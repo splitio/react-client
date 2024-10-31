@@ -9,7 +9,7 @@ import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
-export interface IClientWithContext extends SplitIO.IClient {
+export interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
@@ -21,7 +21,7 @@ export interface IClientWithContext extends SplitIO.IClient {
   };
 }
 
-export interface IFactoryWithLazyInit extends SplitIO.ISDK {
+export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
   init(): void;
 }
@@ -45,7 +45,7 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.ISDK, key?: SplitIO.SplitKey): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
   const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
 
@@ -63,7 +63,7 @@ export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void
 
 // Util used to get client status.
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
-export function getStatus(client?: SplitIO.IClient): ISplitStatus {
+export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
 
   return {
@@ -79,7 +79,7 @@ export function getStatus(client?: SplitIO.IClient): ISplitStatus {
 /**
  * Manage client attributes binding
  */
-export function initAttributes(client?: SplitIO.IClient, attributes?: SplitIO.Attributes) {
+export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
   if (client && attributes) client.setAttributes(attributes);
 }
 
@@ -173,7 +173,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
   return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?

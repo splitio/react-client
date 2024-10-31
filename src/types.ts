@@ -52,7 +52,7 @@ export interface ISplitContextValues {
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#logging}),
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
    */
-  factory?: SplitIO.ISDK;
+  factory?: SplitIO.IBrowserSDK;
 }
 
 /**
@@ -103,7 +103,7 @@ export interface ISplitFactoryProviderProps {
    * Split factory instance to use instead of creating a new one with the `config` object.
    * If both `factory` and `config` are provided, the `config` prop is ignored.
    */
-  factory?: SplitIO.ISDK;
+  factory?: SplitIO.IBrowserSDK;
 
   /**
    * Children of the `SplitFactoryProvider` component.
@@ -138,7 +138,7 @@ export interface IUseSplitClientResult extends ISplitContextValues, ISplitStatus
    *
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
-  client?: SplitIO.IClient;
+  client?: SplitIO.IBrowserClient;
 }
 
 export interface IUseSplitManagerResult extends ISplitContextValues, ISplitStatus {
