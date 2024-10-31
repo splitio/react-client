@@ -106,6 +106,11 @@ export interface ISplitFactoryProviderProps {
   factory?: SplitIO.IBrowserSDK;
 
   /**
+   * An object of type Attributes used to evaluate the feature flags.
+   */
+  attributes?: SplitIO.Attributes;
+
+  /**
    * Children of the `SplitFactoryProvider` component.
    */
   children: ReactNode;

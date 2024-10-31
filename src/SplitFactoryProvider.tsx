@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory } from './utils';
+import { getSplitFactory, destroySplitFactory, initAttributes } from './utils';
 import { SplitContext } from './SplitContext';
 
 /**
@@ -15,11 +15,13 @@ import { SplitContext } from './SplitContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
 export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
-  const { config, factory: propFactory } = props;
+  const { config, factory: propFactory, attributes } = props;
 
   const factory = React.useMemo(() => {
-    return propFactory || (config ? getSplitFactory(config) : undefined);
-  }, [config, propFactory]);
+    const factory = propFactory || (config ? getSplitFactory(config) : undefined);
+    initAttributes(factory && factory.client(), attributes);
+    return factory;
+  }, [config, propFactory, attributes]);
 
   // Effect to initialize and destroy the factory when config is provided
   React.useEffect(() => {

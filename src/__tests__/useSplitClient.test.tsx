@@ -60,25 +60,25 @@ describe('useSplitClient', () => {
     }).toThrow(EXCEPTION_NO_SFP);
   });
 
-  // test('attributes binding test with utility', (done) => {
+  test('attributes binding test with utility', (done) => {
 
-  //   // eslint-disable-next-line react/prop-types
-  //   const InnerComponent = ({ splitKey, attributesClient, testSwitch }) => {
-  //     useSplitClient({ splitKey, attributes: attributesClient });
-  //     testSwitch(done, splitKey);
-  //     return null;
-  //   };
+    // eslint-disable-next-line react/prop-types
+    const InnerComponent = ({ splitKey, attributesClient, testSwitch }) => {
+      useSplitClient({ splitKey, attributes: attributesClient });
+      testSwitch(done, splitKey);
+      return null;
+    };
 
-  //   function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
-  //     return (
-  //       <SplitFactoryProvider factory={factory} attributes={attributesFactory} >
-  //         <InnerComponent splitKey={splitKey} attributesClient={attributesClient} testSwitch={testSwitch} />
-  //       </SplitFactoryProvider>
-  //     );
-  //   }
+    function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
+      return (
+        <SplitFactoryProvider factory={factory} attributes={attributesFactory} >
+          <InnerComponent splitKey={splitKey} attributesClient={attributesClient} testSwitch={testSwitch} />
+        </SplitFactoryProvider>
+      );
+    }
 
-  //   testAttributesBinding(Component);
-  // });
+    testAttributesBinding(Component);
+  });
 
   test('must update on SDK events', () => {
     const outerFactory = SplitFactory(sdkBrowser);
@@ -86,7 +86,7 @@ describe('useSplitClient', () => {
     const user2Client = outerFactory.client('user_2') as any;
 
     let countSplitContext = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
-    let countUseSplitClientWithUpdate = 0, countUseSplitClientUser2WithTimeout = 0;
+    let countUseSplitClientWithoutUpdate = 0, countUseSplitClientUser2WithoutTimeout = 0;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
@@ -105,19 +105,39 @@ describe('useSplitClient', () => {
             return null;
           })}
           {React.createElement(() => {
-            const { client } = useSplitClient({ splitKey: 'user_2' });
+            const { client, isReady, isReadyFromCache, hasTimedout } = useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
             expect(client).toBe(user2Client);
+
             countUseSplitClientUser2++;
+            switch (countUseSplitClientUser2) {
+              case 1: // initial render
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, false, false]);
+                break;
+              case 2: // SDK_READY_FROM_CACHE
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, true, false]);
+                break;
+              case 3: // SDK_READY_TIMED_OUT
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, true, true]);
+                break;
+              case 4: // SDK_READY
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, true]);
+                break;
+              case 5: // SDK_UPDATE
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, true]);
+                break;
+              default:
+                throw new Error('Unexpected render');
+            }
             return null;
           })}
           {React.createElement(() => {
-            useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: true }).client;
-            countUseSplitClientWithUpdate++;
+            useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: false }).client;
+            countUseSplitClientWithoutUpdate++;
             return null;
           })}
           {React.createElement(() => {
-            useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: true });
-            countUseSplitClientUser2WithTimeout++;
+            useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: false });
+            countUseSplitClientUser2WithoutTimeout++;
             return null;
           })}
         </>
@@ -132,24 +152,20 @@ describe('useSplitClient', () => {
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
 
-    // SplitContext renders once
+    // SplitFactoryProvider renders once
     expect(countSplitContext).toEqual(1);
 
-    // If SplitClient and useSplitClient retrieve the same client than the context and have default update options,
-    // they render when the context renders.
-    expect(countUseSplitClient).toEqual(3);
+    // If useSplitClient retrieves the main client and have default update options, it re-renders for each main client event.
+    expect(countUseSplitClient).toEqual(4);
 
-    // If SplitClient and useSplitClient retrieve a different client than the context and have default update options,
-    // they render when the context renders and when the new client is ready and ready from cache.
-    expect(countUseSplitClientUser2).toEqual(countSplitContext + 2);
+    // If useSplitClient retrieves a different client and have default update options, it re-renders for each event of the new client.
+    expect(countUseSplitClientUser2).toEqual(5);
 
-    // If SplitClient and useSplitClient retrieve the same client than the context and have updateOnSdkUpdate = true,
-    // they render when the context renders and when the client updates.
-    expect(countUseSplitClientWithUpdate).toEqual(3 + 1);
+    // If useSplitClient retrieves the main client and have updateOnSdkUpdate = false, it doesn't render when the main client updates.
+    expect(countUseSplitClientWithoutUpdate).toEqual(3);
 
-    // If SplitClient and useSplitClient retrieve a different client than the context and have updateOnSdkUpdate = true,
-    // they render when the context renders and when the new client is ready, ready from cache and updates.
-    expect(countUseSplitClientUser2WithTimeout).toEqual(countSplitContext + 3);
+    // If useSplitClient retrieves a different client and have updateOnSdkTimedout = false, it doesn't render when the the new client times out.
+    expect(countUseSplitClientUser2WithoutTimeout).toEqual(4);
   });
 
   // Remove this test once side effects are moved to the useSplitClient effect.
@@ -195,13 +211,13 @@ describe('useSplitClient', () => {
       )
     }
 
-    const wrapper = render(<Component />);
+    const wrapper = render(<Component updateOnSdkUpdate={false} />);
     expect(rendersCount).toBe(1);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
     expect(rendersCount).toBe(2);
 
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false by default
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
     expect(rendersCount).toBe(2);
 
     wrapper.rerender(<Component updateOnSdkUpdate={true} />); // trigger re-render

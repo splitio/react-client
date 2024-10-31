@@ -4,8 +4,8 @@ import { getSplitClient, initAttributes, getStatus } from './utils';
 import { IUseSplitClientResult, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
-  updateOnSdkUpdate: false,
-  updateOnSdkTimedout: false,
+  updateOnSdkUpdate: true,
+  updateOnSdkTimedout: true,
   updateOnSdkReady: true,
   updateOnSdkReadyFromCache: true,
 };

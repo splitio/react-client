@@ -22,7 +22,7 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method of the client at Split context updated by SplitFactoryProvider.', () => {
+  test('returns the track method of the main client of the factory at Split context provided by SplitFactoryProvider.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let clientTrack;
     let trackResult;
@@ -32,6 +32,9 @@ describe('useTrack', () => {
         {React.createElement(() => {
           clientTrack = useTrack();
           trackResult = clientTrack(tt, eventType, value, properties);
+
+          const sameTrack = useTrack(sdkBrowser.core.key);
+          expect(clientTrack).toBe(sameTrack);
           return null;
         })}
       </SplitFactoryProvider>,
