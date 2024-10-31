@@ -1,4 +1,3 @@
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 import type { ReactNode } from 'react';
 
 /**
@@ -144,12 +143,6 @@ export interface IUseSplitClientOptions extends IUpdateProps {
    * The customer identifier.
    */
   splitKey?: SplitIO.SplitKey;
-
-  /**
-   * Traffic type associated with the customer identifier.
-   * If no provided here or at the config object, it will be required on the client.track() calls.
-   */
-  trafficType?: string;
 
   /**
    * An object of type Attributes used to evaluate the feature flags.

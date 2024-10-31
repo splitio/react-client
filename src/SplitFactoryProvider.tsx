@@ -3,8 +3,7 @@ import React from 'react';
 import { SplitClient } from './SplitClient';
 import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, IFactoryWithClients, getSplitClient, getStatus } from './utils';
-import { DEFAULT_UPDATE_OPTIONS } from './useSplitClient';
+import { getSplitFactory, destroySplitFactory, getSplitClient, getStatus } from './utils';
 import { SplitContext } from './SplitContext';
 
 /**
@@ -18,70 +17,29 @@ import { SplitContext } from './SplitContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
 export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
-  let {
-    config, factory: propFactory,
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
-  } = { ...DEFAULT_UPDATE_OPTIONS, ...props };
+  const { config, factory: propFactory } = props;
 
-  if (config && propFactory) {
-    console.log(WARN_SF_CONFIG_AND_FACTORY);
-    config = undefined;
-  }
-
-  const [configFactory, setConfigFactory] = React.useState<IFactoryWithClients>();
   const factory = React.useMemo(() => {
-    return propFactory || (configFactory && config === configFactory.config ? configFactory : undefined);
-  }, [config, propFactory, configFactory]);
+    return propFactory || (config ? getSplitFactory(config) : undefined);
+  }, [config, propFactory]);
   const client = factory ? getSplitClient(factory) : undefined;
 
   // Effect to initialize and destroy the factory
   React.useEffect(() => {
+    if (propFactory) {
+      if (config) console.log(WARN_SF_CONFIG_AND_FACTORY);
+      return;
+    }
+
     if (config) {
       const factory = getSplitFactory(config);
+      factory.init && factory.init();
 
       return () => {
         destroySplitFactory(factory);
       }
     }
-  }, [config]);
-
-  // Effect to subscribe/unsubscribe to events
-  React.useEffect(() => {
-    const factory = config && getSplitFactory(config);
-    if (factory) {
-      const client = getSplitClient(factory);
-      const status = getStatus(client);
-
-      // Unsubscribe from events and update state when first event is emitted
-      const update = () => { // eslint-disable-next-line no-use-before-define
-        unsubscribe();
-        setConfigFactory(factory);
-      }
-
-      const unsubscribe = () => {
-        client.off(client.Event.SDK_READY, update);
-        client.off(client.Event.SDK_READY_FROM_CACHE, update);
-        client.off(client.Event.SDK_READY_TIMED_OUT, update);
-        client.off(client.Event.SDK_UPDATE, update);
-      }
-
-      if (updateOnSdkReady) {
-        if (status.isReady) update();
-        else client.once(client.Event.SDK_READY, update);
-      }
-      if (updateOnSdkReadyFromCache) {
-        if (status.isReadyFromCache) update();
-        else client.once(client.Event.SDK_READY_FROM_CACHE, update);
-      }
-      if (updateOnSdkTimedout) {
-        if (status.hasTimedout) update();
-        else client.once(client.Event.SDK_READY_TIMED_OUT, update);
-      }
-      if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
-
-      return unsubscribe;
-    }
-  }, [config, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate]);
+  }, [config, propFactory]);
 
   return (
     <SplitContext.Provider value={{

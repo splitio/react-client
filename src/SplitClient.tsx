@@ -8,7 +8,7 @@ import { useSplitClient } from './useSplitClient';
  * Children components will have access to the new client when accessing Split Context.
  *
  * The underlying SDK client can be changed during the component lifecycle
- * if the component is updated with a different splitKey or trafficType prop.
+ * if the component is updated with a different splitKey prop.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
