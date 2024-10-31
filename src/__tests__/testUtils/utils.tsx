@@ -8,7 +8,7 @@ export interface TestComponentProps {
   attributesClient: SplitIO.Attributes,
   splitKey: SplitIO.SplitKey,
   testSwitch: (done: jest.DoneCallback, splitKey?: SplitIO.SplitKey) => void,
-  factory: SplitIO.ISDK
+  factory: SplitIO.IBrowserSDK
 }
 
 export function newSplitFactoryLocalhostInstance() {

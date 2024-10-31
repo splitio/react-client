@@ -9,7 +9,7 @@ import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
-export interface IClientWithContext extends SplitIO.IClient {
+export interface IBrowserClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
@@ -24,13 +24,13 @@ export interface IClientWithContext extends SplitIO.IClient {
 /**
  * FactoryWithClientInstances interface.
  */
-export interface IFactoryWithClients extends SplitIO.ISDK {
+export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
   init(): void;
 }
 
 // exported for testing purposes
-export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
+export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithLazyInit> = new Map();
 
 // idempotent operation
 export function getSplitFactory(config: SplitIO.IBrowserSettings) {
@@ -40,17 +40,17 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
     const newFactory = SplitFactory(config, (modules) => {
       modules.settings.version = VERSION;
       modules.lazyInit = true;
-    }) as IFactoryWithClients;
+    }) as IFactoryWithLazyInit;
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
-  return __factories.get(config) as IFactoryWithClients;
+  return __factories.get(config) as IFactoryWithLazyInit;
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.ISDK, key?: SplitIO.SplitKey): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IBrowserClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
+  const client = (key !== undefined ? factory.client(key) : factory.client()) as IBrowserClientWithContext;
 
   // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
   // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
@@ -59,15 +59,15 @@ export function getSplitClient(factory: SplitIO.ISDK, key?: SplitIO.SplitKey): I
   return client;
 }
 
-export function destroySplitFactory(factory: IFactoryWithClients): Promise<void> | undefined {
+export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void> | undefined {
   __factories.delete(factory.config);
   return factory.destroy();
 }
 
 // Util used to get client status.
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
-export function getStatus(client?: SplitIO.IClient): ISplitStatus {
-  const status = client && (client as IClientWithContext).__getStatus();
+export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
+  const status = client && (client as IBrowserClientWithContext).__getStatus();
 
   return {
     isReady: status ? status.isReady : false,
@@ -82,7 +82,7 @@ export function getStatus(client?: SplitIO.IClient): ISplitStatus {
 /**
  * Manage client attributes binding
  */
-export function initAttributes(client?: SplitIO.IClient, attributes?: SplitIO.Attributes) {
+export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
   if (client && attributes) client.setAttributes(attributes);
 }
 
@@ -176,10 +176,10 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
-  return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
+  return client && (client as IBrowserClientWithContext).__getStatus().isOperational && (names || flagSets) ?
     names ?
       client.getTreatmentsWithConfig(names, attributes) :
       client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :

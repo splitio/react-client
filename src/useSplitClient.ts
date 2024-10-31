@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSplitContext } from './SplitContext';
-import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
+import { getSplitClient, initAttributes, IBrowserClientWithContext, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
@@ -31,7 +31,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
 
-  let client = contextClient as IClientWithContext;
+  let client = contextClient as IBrowserClientWithContext;
   if (splitKey && factory) {
     // @TODO `getSplitClient` starts client sync. Move side effects to useEffect
     client = getSplitClient(factory, splitKey);

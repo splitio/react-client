@@ -15,7 +15,7 @@ import { ISplitFactoryProviderChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
-import { __factories, IClientWithContext } from '../utils';
+import { __factories, IBrowserClientWithContext } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
 import { INITIAL_STATUS } from './testUtils/utils';
 
@@ -52,9 +52,9 @@ describe('SplitFactoryProvider', () => {
             client: outerFactory.client(),
             isReady: true,
             isReadyFromCache: true,
-            lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
+            lastUpdate: (outerFactory.client() as IBrowserClientWithContext).__getStatus().lastUpdate
           });
-          expect((childProps.factory as SplitIO.ISDK).settings.version).toBe(outerFactory.settings.version);
+          expect((childProps.factory as SplitIO.IBrowserSDK).settings.version).toBe(outerFactory.settings.version);
           return null;
         }}
       </SplitFactoryProvider>
@@ -337,7 +337,7 @@ describe('SplitFactoryProvider', () => {
 
   test('cleans up on update and unmount if config prop is provided.', () => {
     let renderTimes = 0;
-    const createdFactories = new Set<SplitIO.ISDK>();
+    const createdFactories = new Set<SplitIO.IBrowserSDK>();
     const clientDestroySpies: jest.SpyInstance[] = [];
     const outerFactory = SplitFactory(sdkBrowser);
 
