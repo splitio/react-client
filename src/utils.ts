@@ -24,12 +24,13 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
 /**
  * FactoryWithClientInstances interface.
  */
-export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
+export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
+  init(): void;
 }
 
 // exported for testing purposes
-export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
+export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithLazyInit> = new Map();
 
 // idempotent operation
 export function getSplitFactory(config: SplitIO.IBrowserSettings) {
@@ -38,33 +39,34 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
     const newFactory = SplitFactory(config, (modules) => {
       modules.settings.version = VERSION;
-    }) as IFactoryWithClients;
+      modules.lazyInit = true;
+    }) as IFactoryWithLazyInit;
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
-  return __factories.get(config) as IFactoryWithClients;
+  return __factories.get(config) as IFactoryWithLazyInit;
 }
 
 // idempotent operation
-export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey, trafficType?: string): IClientWithContext {
+export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
-  const client = (key !== undefined ? factory.client(key, trafficType) : factory.client()) as IClientWithContext;
+  const client = (key !== undefined ? factory.client(key) : factory.client()) as IClientWithContext;
 
   // Remove EventEmitter warning emitted when using multiple SDK hooks or components.
   // Unlike JS SDK, users don't need to access the client directly, making the warning irrelevant.
-  client.setMaxListeners(0);
+  client.setMaxListeners && client.setMaxListeners(0);
 
   return client;
 }
 
-export function destroySplitFactory(factory: IFactoryWithClients): Promise<void> | undefined {
+export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void> | undefined {
   __factories.delete(factory.config);
   return factory.destroy();
 }
 
 // Util used to get client status.
 // It might be removed in the future, if the JS SDK extends its public API with a `getStatus` method
-export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
+export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
   const status = client && (client as IClientWithContext).__getStatus();
 
   return {
@@ -80,7 +82,7 @@ export function getStatus(client: SplitIO.IBrowserClient | null): ISplitStatus {
 /**
  * Manage client attributes binding
  */
-export function initAttributes(client: SplitIO.IBrowserClient | null, attributes?: SplitIO.Attributes) {
+export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
   if (client && attributes) client.setAttributes(attributes);
 }
 
@@ -174,7 +176,7 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient | null, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
   return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?

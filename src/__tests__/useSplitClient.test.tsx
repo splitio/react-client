@@ -56,12 +56,12 @@ describe('useSplitClient', () => {
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
           (outerFactory.client as jest.Mock).mockClear();
-          client = useSplitClient({ splitKey: 'user2', trafficType: 'user' }).client;
+          client = useSplitClient({ splitKey: 'user2' }).client;
           return null;
         })}
       </SplitFactoryProvider>
     );
-    expect(outerFactory.client as jest.Mock).toBeCalledWith('user2', 'user');
+    expect(outerFactory.client as jest.Mock).toBeCalledWith('user2');
     expect(outerFactory.client as jest.Mock).toHaveReturnedWith(client);
   });
 
@@ -70,7 +70,7 @@ describe('useSplitClient', () => {
       render(
         React.createElement(() => {
           useSplitClient();
-          useSplitClient({ splitKey: 'user2', trafficType: 'user' });
+          useSplitClient({ splitKey: 'user2' });
           return null;
         })
       );
@@ -81,7 +81,7 @@ describe('useSplitClient', () => {
 
     // eslint-disable-next-line react/prop-types
     const InnerComponent = ({ splitKey, attributesClient, testSwitch }) => {
-      useSplitClient({ splitKey, trafficType: 'user', attributes: attributesClient });
+      useSplitClient({ splitKey, attributes: attributesClient });
       testSwitch(done, splitKey);
       return null;
     };
@@ -112,7 +112,7 @@ describe('useSplitClient', () => {
           <SplitContext.Consumer>
             {() => countSplitContext++}
           </SplitContext.Consumer>
-          <SplitClient splitKey={sdkBrowser.core.key} trafficType={sdkBrowser.core.trafficType}
+          <SplitClient splitKey={sdkBrowser.core.key}
             /* Disabling update props is ineffective because the wrapping SplitFactoryProvider has them enabled: */
             updateOnSdkReady={false} updateOnSdkReadyFromCache={false}
           >
@@ -120,8 +120,8 @@ describe('useSplitClient', () => {
           </SplitClient>
           {React.createElement(() => {
             // Equivalent to
-            // - Using config key and traffic type: `const { client } = useSplitClient(sdkBrowser.core.key, sdkBrowser.core.trafficType, { att1: 'att1' });`
-            // - Disabling update props, since the wrapping SplitFactoryProvider has them enabled: `const { client } = useSplitClient(undefined, undefined, { att1: 'att1' }, { updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
+            // - Using config key: `const { client } = useSplitClient({ splitKey: sdkBrowser.core.key, attributes: { att1: 'att1' } });`
+            // - Disabling update props, since the wrapping SplitFactoryProvider has them enabled: `const { client } = useSplitClient({ attributes: { att1: 'att1' }, updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
             const { client } = useSplitClient({ attributes: { att1: 'att1' } });
             expect(client).toBe(mainClient); // Assert that the main client was retrieved.
             expect(client!.getAttributes()).toEqual({ att1: 'att1' }); // Assert that the client was retrieved with the provided attributes.
@@ -141,7 +141,7 @@ describe('useSplitClient', () => {
             {() => { countSplitClientWithUpdate++; return null }}
           </SplitClient>
           {React.createElement(() => {
-            useSplitClient({ splitKey: sdkBrowser.core.key, trafficType: sdkBrowser.core.trafficType, updateOnSdkUpdate: true }).client;
+            useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: true }).client;
             countUseSplitClientWithUpdate++;
             return null;
           })}
