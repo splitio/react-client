@@ -1,8 +1,8 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import React, { useEffect } from 'react';
+import { render, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitFactory';
+import { mockSdk, Event, getLastInstance } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -13,6 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { useTrack } from '../useTrack';
+import { useSplitClient } from '../useSplitClient';
 import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useTrack', () => {
@@ -22,60 +23,61 @@ describe('useTrack', () => {
   const value = 10;
   const properties = { prop1: 'prop1' };
 
-  test('returns the track method bound to the client at Split context updated by SplitFactoryProvider.', () => {
+  test('returns the track method of the client at Split context updated by SplitFactoryProvider.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
-    let boundTrack;
+    let clientTrack;
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          boundTrack = useTrack();
-          trackResult = boundTrack(tt, eventType, value, properties);
+          clientTrack = useTrack();
+          trackResult = clientTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactoryProvider>,
     );
-    const track = outerFactory.client().track as jest.Mock;
+    const track = outerFactory.client().track;
+    expect(track).toBe(clientTrack);
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method bound to the client at Split context updated by SplitClient.', () => {
+  test('returns the track method of the client at Split context updated by SplitClient.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
-    let boundTrack;
+    let clientTrack;
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey='user2' >
           {React.createElement(() => {
-            boundTrack = useTrack();
-            trackResult = boundTrack(tt, eventType, value, properties);
+            clientTrack = useTrack();
+            trackResult = clientTrack(tt, eventType, value, properties);
             return null;
           })}
         </SplitClient>
       </SplitFactoryProvider>
     );
-    const track = outerFactory.client('user2').track as jest.Mock;
+    const track = outerFactory.client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
 
-  test('returns the track method bound to a new client given a splitKey.', () => {
+  test('returns the track method of a new client given a splitKey.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let trackResult;
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          const boundTrack = useTrack('user2');
-          trackResult = boundTrack(tt, eventType, value, properties);
+          const clientTrack = useTrack('user2');
+          trackResult = clientTrack(tt, eventType, value, properties);
           return null;
         })}
       </SplitFactoryProvider>,
     );
-    const track = outerFactory.client('user2').track as jest.Mock;
+    const track = outerFactory.client('user2').track;
     expect(track).toBeCalledWith(tt, eventType, value, properties);
     expect(track).toHaveReturnedWith(trackResult);
   });
@@ -90,6 +92,60 @@ describe('useTrack', () => {
         }),
       );
     }).toThrow(EXCEPTION_NO_SFP);
+  });
+
+  test('returns the track method of the client at Split context updated by SplitFactoryProvider (config prop).', () => {
+    let splitKey: string | undefined = undefined;
+    render(
+      <SplitFactoryProvider config={sdkBrowser} updateOnSdkUpdate={true} >
+        {React.createElement(() => {
+          const clientTrack = useTrack(splitKey);
+
+          const { client } = useSplitClient({ splitKey });
+          expect(clientTrack).toBe(client!.track);
+
+          clientTrack(tt, eventType, value, properties);
+
+          useEffect(() => {
+            clientTrack(tt, eventType, value, properties);
+          }, [clientTrack]);
+          return null;
+        })}
+      </SplitFactoryProvider>,
+    );
+
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY));
+    splitKey = 'user2'; // `clientTrack` dependency changed
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_UPDATE));
+
+    let track = getLastInstance(SplitFactory).client().track;
+    expect(track).toBeCalledWith(tt, eventType, value, properties);
+    expect(track).toBeCalledTimes(4); // 3 from render + 1 from useEffect
+
+    track = getLastInstance(SplitFactory).client('user2').track;
+    expect(track).toBeCalledWith(tt, eventType, value, properties);
+    expect(track).toBeCalledTimes(2); // 1 from render + 1 from useEffect (`clientTrack` dependency changed)
+  });
+
+  test('does not re-render on SDK events', () => {
+    render(
+      <SplitFactoryProvider config={sdkBrowser} updateOnSdkReady={false} updateOnSdkReadyFromCache={false} >
+        {React.createElement(() => {
+          const clientTrack = useTrack();
+          clientTrack(tt, eventType, value, properties);
+
+          return null;
+        })}
+      </SplitFactoryProvider>,
+    );
+
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_READY));
+    act(() => getLastInstance(SplitFactory).client().__emitter__.emit(Event.SDK_UPDATE));
+
+    expect(getLastInstance(SplitFactory).client().track).toBeCalledTimes(1);
   });
 
 });

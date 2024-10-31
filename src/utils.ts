@@ -24,12 +24,13 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
 /**
  * FactoryWithClientInstances interface.
  */
-export interface IFactoryWithClients extends SplitIO.IBrowserSDK {
+export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
+  init(): void;
 }
 
 // exported for testing purposes
-export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithClients> = new Map();
+export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithLazyInit> = new Map();
 
 // idempotent operation
 export function getSplitFactory(config: SplitIO.IBrowserSettings) {
@@ -38,11 +39,12 @@ export function getSplitFactory(config: SplitIO.IBrowserSettings) {
     // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
     const newFactory = SplitFactory(config, (modules) => {
       modules.settings.version = VERSION;
-    }) as IFactoryWithClients;
+      modules.lazyInit = true;
+    }) as IFactoryWithLazyInit;
     newFactory.config = config;
     __factories.set(config, newFactory);
   }
-  return __factories.get(config) as IFactoryWithClients;
+  return __factories.get(config) as IFactoryWithLazyInit;
 }
 
 // idempotent operation
@@ -57,7 +59,7 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   return client;
 }
 
-export function destroySplitFactory(factory: IFactoryWithClients): Promise<void> | undefined {
+export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void> | undefined {
   __factories.delete(factory.config);
   return factory.destroy();
 }
