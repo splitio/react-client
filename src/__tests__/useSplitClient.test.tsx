@@ -95,9 +95,7 @@ describe('useSplitClient', () => {
             {() => countSplitContext++}
           </SplitContext.Consumer>
           {React.createElement(() => {
-            // Equivalent to
-            // - Using config key: `const { client } = useSplitClient({ splitKey: sdkBrowser.core.key, attributes: { att1: 'att1' } });`
-            // - Disabling update props, since the wrapping SplitFactoryProvider has them enabled: `const { client } = useSplitClient({ attributes: { att1: 'att1' }, updateOnSdkReady: false, updateOnSdkReadyFromCache: false });`
+            // Equivalent to using config key: `const { client } = useSplitClient({ splitKey: sdkBrowser.core.key, attributes: { att1: 'att1' } });`
             const { client } = useSplitClient({ attributes: { att1: 'att1' } });
             expect(client).toBe(mainClient); // Assert that the main client was retrieved.
             expect(client!.getAttributes()).toEqual({ att1: 'att1' }); // Assert that the client was retrieved with the provided attributes.

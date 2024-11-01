@@ -95,14 +95,16 @@ export interface IUpdateProps {
   /**
    * `updateOnSdkReadyFromCache` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_FROM_CACHE` event.
    * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_FROM_CACHE`.
-   * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
+   * This params is only relevant when using `'LOCALSTORAGE'` as storage type, since otherwise the event is never emitted.
    * It's value is `true` by default.
    */
   updateOnSdkReadyFromCache?: boolean;
 }
 
 /**
- * SplitFactoryProvider Child Props interface. These are the props that the child component receives from the 'withSplitFactory' HOC.
+ * Props interface for components wrapped by the `withSplitFactory` HOC. These props are provided by the HOC to the wrapped component.
+ *
+ * @deprecated `withSplitFactory` will be removed in a future major release. We recommend replacing it with the `SplitFactoryProvider` component.
  */
 export interface ISplitFactoryChildProps extends ISplitContextValues { }
 

@@ -17,6 +17,7 @@ import {
   ISplitClientChildProps,
   ISplitClientProps,
   ISplitContextValues,
+  ISplitFactoryChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
   ISplitTreatmentsChildProps,
