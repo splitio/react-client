@@ -208,4 +208,31 @@ describe('SplitFactoryProvider', () => {
     expect(destroySpy).not.toBeCalled();
   });
 
+  test('passes attributes to the main client if provided.', () => {
+    (SplitFactory as jest.Mock).mockClear();
+    let client;
+
+    const Component = () => {
+      client = useSplitContext().client;
+      return null;
+    }
+
+    const wrapper = render(
+      <SplitFactoryProvider config={sdkBrowser} attributes={{ attr1: 'value1' }} >
+        <Component />
+      </SplitFactoryProvider>
+    );
+
+    expect(client.getAttributes()).toEqual({ attr1: 'value1' });
+
+    wrapper.rerender(
+      <SplitFactoryProvider config={sdkBrowser} attributes={{ attr1: 'value2' }} >
+        <Component />
+      </SplitFactoryProvider>
+    );
+
+    expect(client.getAttributes()).toEqual({ attr1: 'value2' });
+    expect(SplitFactory).toBeCalledTimes(1);
+  });
+
 });
