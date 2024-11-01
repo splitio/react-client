@@ -47,7 +47,7 @@ export interface ISplitContextValues extends ISplitStatus {
   /**
    * Split factory instance.
    *
-   * NOTE: This property is available for accessing factory methods not covered by the hooks,
+   * NOTE: This property is available for accessing factory methods not covered by the library hooks,
    * such as Logging configuration and User Consent.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#logging}),
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
@@ -110,7 +110,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactoryProvider Props interface. These are the props accepted by the `SplitFactoryProvider` component,
- * used to instantiate a factory instance and provide it to the Split Context.
+ * used to instantiate a factory and provide it to the Split Context.
  */
 export interface ISplitFactoryProviderProps {
 
@@ -122,6 +122,7 @@ export interface ISplitFactoryProviderProps {
 
   /**
    * Split factory instance to use instead of creating a new one with the `config` object.
+   *
    * If both `factory` and `config` are provided, the `config` prop is ignored.
    */
   factory?: SplitIO.IBrowserSDK;
@@ -143,7 +144,8 @@ export interface ISplitFactoryProviderProps {
 export interface IUseSplitClientOptions extends IUpdateProps {
 
   /**
-   * The customer identifier. If not provided, the hook will use the default client (i.e., `factory.client()`), which `key` was provided in the factory configuration object.
+   * The customer identifier. If not provided, the hook will use the client available in the Split context, which is the default client by default (i.e., `factory.client()`),
+   * except the hook is wrapped by a `SplitClient` component, in which case the Split context might be updated with a different client.
    */
   splitKey?: SplitIO.SplitKey;
 

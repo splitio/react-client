@@ -4,7 +4,7 @@ import { SplitFactoryProvider } from './SplitFactoryProvider';
 import { SplitClient } from './SplitClient';
 
 /**
- * High-Order Component for SplitFactoryProvider.
+ * High-Order Component for `SplitFactoryProvider`.
  * The wrapped component receives all the props of the container,
  * along with the passed props from the Split context (see `ISplitFactoryChildProps`).
  *

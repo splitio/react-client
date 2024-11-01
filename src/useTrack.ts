@@ -4,7 +4,7 @@ import { useSplitClient } from './useSplitClient';
 const noOpFalse = () => false;
 
 /**
- * 'useTrack' is a hook that retrieves the track method from a Split client.
+ * `useTrack` is a hook that retrieves the track method from a Split client.
  *
  * @returns The track method of the Split client for the provided user key. If the client is not available, the result is a no-op function that returns false.
  *

@@ -1,13 +1,15 @@
 import {
   SplitFactory,
-  SplitFactoryProvider,
+  withSplitFactory, withSplitClient, withSplitTreatments,
+  SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,
 } from './src/index';
 
 export default {
   SplitFactory,
-  SplitFactoryProvider,
+  withSplitFactory, withSplitClient, withSplitTreatments,
+  SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,
 };

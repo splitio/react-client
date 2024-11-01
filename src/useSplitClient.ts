@@ -11,7 +11,7 @@ export const DEFAULT_UPDATE_OPTIONS = {
 };
 
 /**
- * 'useSplitClient' is a hook that returns the Split Context object with the client and its status corresponding to the provided key.
+ * `useSplitClient` is a hook that returns an Split Context object with the client and its status corresponding to the provided key.
  *
  * @param options - An options object with an optional `splitKey` to retrieve the client, optional `attributes` to configure the client, and update options to control on which SDK events the hook should update.
  * @returns A Split Context object merged with the client and its status.

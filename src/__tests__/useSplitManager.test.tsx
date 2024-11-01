@@ -12,13 +12,14 @@ import { getStatus } from '../utils';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
+import { SplitClient } from '../SplitClient';
 import { useSplitManager } from '../useSplitManager';
 import { EXCEPTION_NO_SFP } from '../constants';
 import { INITIAL_STATUS } from './testUtils/utils';
 
 describe('useSplitManager', () => {
 
-  test('returns the factory manager from the Split context, and updates on SDK events.', () => {
+  test('returns the factory manager and its status, and updates on SDK events.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let hookResult;
     render(
@@ -61,6 +62,44 @@ describe('useSplitManager', () => {
         })
       );
     }).toThrow(EXCEPTION_NO_SFP);
+  });
+
+  // @TODO remove next test case when `SplitClient` is removed.
+  test('returns the factory manager and its status, even if the Split context was updated by an SplitClient component', () => {
+    const outerFactory = SplitFactory(sdkBrowser);
+    let hookResult;
+    render(
+      <SplitFactoryProvider factory={outerFactory} >
+        <SplitClient splitKey={'other-user'} >
+          {React.createElement(() => {
+            hookResult = useSplitManager();
+            return null;
+          })}
+        </SplitClient>
+      </SplitFactoryProvider >
+    );
+
+    expect(hookResult).toStrictEqual({
+      manager: outerFactory.manager(),
+      client: outerFactory.client(),
+      factory: outerFactory,
+      ...INITIAL_STATUS,
+    });
+
+    act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));
+    // act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));
+
+    expect(hookResult).toStrictEqual({
+      manager: outerFactory.manager(),
+      client: outerFactory.client(),
+      factory: outerFactory,
+      hasTimedout: false,
+      isDestroyed: false,
+      isReady: true,
+      isReadyFromCache: false,
+      isTimedout: false,
+      lastUpdate: getStatus(outerFactory.client()).lastUpdate,
+    });
   });
 
 });
