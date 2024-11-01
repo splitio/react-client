@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "2.0.0-rc.2",
+  "version": "2.0.0-rc.3",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "cjs/index.js",
   "module": "esm/index.js",
