@@ -25,8 +25,11 @@ describe('SplitFactoryProvider', () => {
       <SplitFactoryProvider config={sdkBrowser} >
         {React.createElement(() => {
           const context = useSplitContext();
-
-          expect(context).toEqual({ factory: getLastInstance(SplitFactory) });
+          expect(context).toEqual({
+            ...INITIAL_STATUS,
+            factory: getLastInstance(SplitFactory),
+            client: getLastInstance(SplitFactory).client(),
+          });
           return null;
         })}
       </SplitFactoryProvider>
@@ -64,7 +67,11 @@ describe('SplitFactoryProvider', () => {
       return (
         <SplitContext.Consumer>
           {(value) => {
-            expect(value).toEqual({ factory: getLastInstance(SplitFactory) });
+            expect(value).toEqual({
+              ...INITIAL_STATUS,
+              factory: getLastInstance(SplitFactory),
+              client: getLastInstance(SplitFactory).client(),
+            });
             done();
             return null;
           }}

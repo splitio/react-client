@@ -18,7 +18,7 @@ import { INITIAL_STATUS } from './testUtils/utils';
 
 describe('useSplitManager', () => {
 
-  test('returns the factory manager from the Split context, and updates when the context changes.', () => {
+  test('returns the factory manager from the Split context, and updates on SDK events.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
     let hookResult;
     render(

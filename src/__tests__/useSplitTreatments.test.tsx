@@ -14,7 +14,7 @@ import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { SplitContext } from '../SplitContext';
-import { IUseSplitTreatmentsResult } from '../types';
+import { ISplitTreatmentsChildProps } from '../types';
 
 const logSpy = jest.spyOn(console, 'log');
 
@@ -145,7 +145,7 @@ describe('useSplitTreatments', () => {
     const lastUpdateSetUser2 = new Set<number>();
     const lastUpdateSetUser2WithUpdate = new Set<number>();
 
-    function validateTreatments({ treatments, isReady, isReadyFromCache }: IUseSplitTreatmentsResult) {
+    function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTreatmentsChildProps) {
       if (isReady || isReadyFromCache) {
         expect(treatments).toEqual({
           split_test: {

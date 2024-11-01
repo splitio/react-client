@@ -42,7 +42,7 @@ export interface ISplitStatus {
 /**
  * Split Context Value interface. It is used to define the value types of Split Context
  */
-export interface ISplitContextValues {
+export interface ISplitContextValues extends ISplitStatus {
 
   /**
    * Split factory instance.
@@ -53,6 +53,17 @@ export interface ISplitContextValues {
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
    */
   factory?: SplitIO.IBrowserSDK;
+
+  /**
+   * Split client instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available:
+   * - `useSplitTreatments` hook to evaluate feature flags.
+   * - `useTrack` hook to track events.
+   *
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+   */
+  client?: SplitIO.IBrowserClient;
 }
 
 /**
@@ -62,30 +73,38 @@ export interface IUpdateProps {
 
   /**
    * `updateOnSdkUpdate` indicates if the component will update (i.e., re-render) in case of an `SDK_UPDATE` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on SDK_UPDATE.
+   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_UPDATE`.
    * It's value is `true` by default.
    */
   updateOnSdkUpdate?: boolean;
 
   /**
    * `updateOnSdkTimedout` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_TIMED_OUT` event.
+   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_TIMED_OUT`.
    * It's value is `true` by default.
    */
   updateOnSdkTimedout?: boolean;
 
   /**
    * `updateOnSdkReady` indicates if the component will update (i.e., re-render) in case of a `SDK_READY` event.
+   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY`.
    * It's value is `true` by default.
    */
   updateOnSdkReady?: boolean;
 
   /**
    * `updateOnSdkReadyFromCache` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_FROM_CACHE` event.
+   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_FROM_CACHE`.
    * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
    * It's value is `true` by default.
    */
   updateOnSdkReadyFromCache?: boolean;
 }
+
+/**
+ * SplitFactoryProvider Child Props interface. These are the props that the child component receives from the 'withSplitFactory' HOC.
+ */
+export interface ISplitFactoryChildProps extends ISplitContextValues { }
 
 /**
  * SplitFactoryProvider Props interface. These are the props accepted by the `SplitFactoryProvider` component,
@@ -127,26 +146,29 @@ export interface IUseSplitClientOptions extends IUpdateProps {
   splitKey?: SplitIO.SplitKey;
 
   /**
-   * An object of type Attributes used to evaluate feature flags.
+   * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
 }
 
-export interface IUseSplitClientResult extends ISplitContextValues, ISplitStatus {
+/**
+ * SplitClient Child Props interface. These are the props that the child as a function receives from the 'SplitClient' component.
+ */
+export interface ISplitClientChildProps extends ISplitContextValues { }
+
+/**
+ * SplitClient Props interface. These are the props accepted by SplitClient component,
+ * used to instantiate a new client instance, update the Split context, and listen for SDK events.
+ */
+export interface ISplitClientProps extends IUseSplitClientOptions {
 
   /**
-   * Split client instance.
-   *
-   * NOTE: This property is not recommended for direct use, as better alternatives are available:
-   * - `useSplitTreatments` hook to evaluate feature flags.
-   * - `useTrack` hook to track events.
-   *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+   * Children of the SplitClient component. It can be a functional component (child as a function) or a React element.
    */
-  client?: SplitIO.IBrowserClient;
+  children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
 
-export interface IUseSplitManagerResult extends ISplitContextValues, ISplitStatus {
+export interface IUseSplitManagerResult extends ISplitContextValues {
   /**
    * Split manager instance.
    *
@@ -184,9 +206,9 @@ export type GetTreatmentsOptions = ({
 export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientOptions;
 
 /**
- * useSplitTreatments hook result.
+ * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
  */
-export interface IUseSplitTreatmentsResult extends IUseSplitClientResult {
+export interface ISplitTreatmentsChildProps extends ISplitContextValues {
 
   /**
    * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig().
@@ -200,4 +222,16 @@ export interface IUseSplitTreatmentsResult extends IUseSplitClientResult {
    * ```
    */
   treatments: SplitIO.TreatmentsWithConfig;
+}
+
+/**
+ * SplitTreatments Props interface. These are the props accepted by SplitTreatments component, used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()',
+ * depending on whether `names` or `flagSets` props are provided, and to pass the result to the child component.
+ */
+export type ISplitTreatmentsProps = IUseSplitTreatmentsOptions & {
+
+  /**
+   * Children of the SplitTreatments component. It must be a functional component (child as a function) you want to show.
+   */
+  children: ((props: ISplitTreatmentsChildProps) => ReactNode);
 }

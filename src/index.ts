@@ -1,7 +1,14 @@
 // Split SDK factory (Renamed to avoid name conflict with SplitFactory component)
 export { SplitFactory } from '@splitsoftware/splitio/client';
 
+// HOC functions
+export { withSplitFactory } from './withSplitFactory';
+export { withSplitClient } from './withSplitClient';
+export { withSplitTreatments } from './withSplitTreatments';
+
 // Components
+export { SplitTreatments } from './SplitTreatments';
+export { SplitClient } from './SplitClient';
 export { SplitFactoryProvider } from './SplitFactoryProvider';
 
 // Hooks
@@ -16,11 +23,16 @@ export { SplitContext } from './SplitContext';
 // Types
 export type {
   GetTreatmentsOptions,
+  ISplitClientChildProps,
+  ISplitClientProps,
   ISplitContextValues,
+  ISplitFactoryChildProps,
   ISplitFactoryProviderProps,
   ISplitStatus,
-  IUseSplitTreatmentsResult,
+  ISplitTreatmentsChildProps,
+  ISplitTreatmentsProps,
   IUpdateProps,
   IUseSplitClientOptions,
-  IUseSplitTreatmentsOptions
+  IUseSplitTreatmentsOptions,
+  IUseSplitManagerResult
 } from './types';
