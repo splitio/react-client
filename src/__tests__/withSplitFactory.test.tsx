@@ -2,14 +2,14 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
-import { SplitFactory } from '../SplitFactory';
-jest.mock('../SplitFactory');
+import { SplitClient } from '../SplitClient';
+jest.mock('../SplitClient');
 
 /** Test target */
 import { ISplitFactoryChildProps } from '../types';
@@ -29,7 +29,7 @@ describe('withSplitFactory', () => {
   });
 
   test('passes ready props to the child if initialized with a ready factory.', (done) => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
     (outerFactory.manager().names as jest.Mock).mockReturnValue(['split1']);
     outerFactory.client().ready().then(() => {
@@ -69,7 +69,7 @@ describe('withSplitFactory', () => {
 
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 
-    expect(SplitFactory).toHaveBeenLastCalledWith(
+    expect(SplitClient).toHaveBeenLastCalledWith(
       expect.objectContaining({
         updateOnSdkUpdate,
         updateOnSdkTimedout,

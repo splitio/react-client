@@ -1,20 +1,20 @@
 import React from 'react';
-import { SplitContext } from './SplitContext';
+import { useSplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
-  updateOnSdkUpdate: false,
-  updateOnSdkTimedout: false,
+  updateOnSdkUpdate: true,
+  updateOnSdkTimedout: true,
   updateOnSdkReady: true,
   updateOnSdkReadyFromCache: true,
 };
 
 /**
- * 'useSplitClient' is a hook that returns an Split Context object with the client and its status corresponding to the provided key and trafficType.
- * It uses the 'useContext' hook to access the context, which is updated by SplitFactoryProvider and SplitClient components in the hierarchy of components.
+ * `useSplitClient` is a hook that returns an Split Context object with the client and its status corresponding to the provided key.
  *
- * @returns A Split Context object
+ * @param options - An options object with an optional `splitKey` to retrieve the client, optional `attributes` to configure the client, and update options to control on which SDK events the hook should update.
+ * @returns A Split Context object merged with the client and its status.
  *
  * @example
  * ```js
@@ -25,17 +25,16 @@ export const DEFAULT_UPDATE_OPTIONS = {
  */
 export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
   const {
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, trafficType, attributes
+    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
   } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
-  const context = React.useContext(SplitContext);
+  const context = useSplitContext();
   const { client: contextClient, factory } = context;
 
-  let client = contextClient as IClientWithContext;
-  if (splitKey && factory) {
-    // @TODO `getSplitClient` starts client sync. Move side effects to useEffect
-    client = getSplitClient(factory, splitKey, trafficType);
-  }
+  // @TODO Move `getSplitClient` side effects
+  // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
+  const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient as IClientWithContext;
+
   initAttributes(client, attributes);
 
   const status = getStatus(client);

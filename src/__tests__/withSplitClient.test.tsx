@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
@@ -16,7 +16,7 @@ import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { withSplitFactory } from '../withSplitFactory';
 import { withSplitClient } from '../withSplitClient';
 
-describe('SplitClient', () => {
+describe('withSplitClient', () => {
 
   test('passes no-ready props to the child if client is not ready.', () => {
     const Component = withSplitFactory(sdkBrowser)(
@@ -70,8 +70,10 @@ describe('SplitClient', () => {
     const updateOnSdkTimedout = false;
     const updateOnSdkReady = true;
     const updateOnSdkReadyFromCache = false;
-    const Component = withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
-      () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache
+    const Component = withSplitFactory(sdkBrowser)(
+      withSplitClient('user1')<{ outerProp1: string, outerProp2: number }>(
+        () => null, updateOnSdkUpdate, updateOnSdkTimedout, updateOnSdkReady, updateOnSdkReadyFromCache
+      )
     );
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 
@@ -91,7 +93,7 @@ describe('SplitClient', () => {
     function Component({ attributesFactory, attributesClient, splitKey, testSwitch, factory }: TestComponentProps) {
       const FactoryComponent = withSplitFactory(undefined, factory, attributesFactory)<{ attributesClient: SplitIO.Attributes, splitKey: any }>(
         ({ attributesClient, splitKey }) => {
-          const ClientComponent = withSplitClient(splitKey, 'user', attributesClient)(
+          const ClientComponent = withSplitClient(splitKey, attributesClient)(
             () => {
               testSwitch(done, splitKey);
               return null;

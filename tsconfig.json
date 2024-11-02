@@ -7,7 +7,7 @@
     "jsx": "react",                           /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
     "declaration": false,                     /* Generates corresponding '.d.ts' file. */
     "sourceMap": false,                       /* Generates corresponding '.map' file. */
-    "outDir": "./es",                         /* Redirect output structure to the directory. */
+    "outDir": "./esm",                         /* Redirect output structure to the directory. */
     "resolveJsonModule": true,                /* Include modules imported with .json extension. */
     "importHelpers": true,                    /* Import emit helpers from 'tslib'. */
 

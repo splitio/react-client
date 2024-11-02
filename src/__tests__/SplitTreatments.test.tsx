@@ -2,15 +2,15 @@ import React from 'react';
 import { render, RenderResult, act } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk, Event } from './testUtils/mockSplitSdk';
+import { mockSdk, Event } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
-import { SplitFactory as SplitSdk } from '@splitsoftware/splitio/client';
+import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { getStatus, IClientWithContext } from '../utils';
 import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
-import { CONTROL_WITH_CONFIG } from '../constants';
+import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
 import { ISplitTreatmentsChildProps, ISplitTreatmentsProps, ISplitClientProps } from '../types';
@@ -31,78 +31,78 @@ describe('SplitTreatments', () => {
   it('passes control treatments (empty object if flagSets is provided) if the SDK is not operational.', () => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
-        {() => {
-          return (
-            <SplitClient splitKey='user1' >
-              <SplitTreatments names={featureFlagNames} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
-                  return null;
-                }}
-              </SplitTreatments>
-              <SplitTreatments flagSets={flagSets} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  expect(treatments).toEqual({});
-                  return null;
-                }}
-              </SplitTreatments>
-            </SplitClient>
-          );
-        }}
+        <SplitClient splitKey='user1' >
+          {() => {
+            return (
+              <div>
+                <SplitTreatments names={featureFlagNames} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
+                    return null;
+                  }}
+                </SplitTreatments>
+                <SplitTreatments flagSets={flagSets} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    expect(treatments).toEqual({});
+                    return null;
+                  }}
+                </SplitTreatments>
+              </div>
+            );
+          }}
+        </SplitClient>
       </SplitFactoryProvider>
     );
   });
 
   it('passes as treatments prop the value returned by the method "client.getTreatmentsWithConfig(ByFlagSets)" if the SDK is ready.', () => {
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
     render(
       <SplitFactoryProvider factory={outerFactory} >
-        {({ factory, isReady }) => {
-          expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
-          expect(isReady).toBe(true);
-          return (
-            <>
-              <SplitTreatments names={featureFlagNames} >
-                {({ treatments, isReady: isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitTreatmentsChildProps) => {
-                  const clientMock: any = factory?.client();
-                  expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
-                  expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
-                  expect(featureFlagNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
-                  expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate]);
-                  return null;
-                }}
-              </SplitTreatments>
-              <SplitTreatments flagSets={flagSets} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  const clientMock: any = factory?.client();
-                  expect(clientMock.getTreatmentsWithConfigByFlagSets.mock.calls.length).toBe(1);
-                  expect(treatments).toBe(clientMock.getTreatmentsWithConfigByFlagSets.mock.results[0].value);
-                  expect(flagSets).toBe(clientMock.getTreatmentsWithConfigByFlagSets.mock.calls[0][0]);
-                  return null;
-                }}
-              </SplitTreatments>
-            </>
-          );
-        }}
+        <SplitClient>
+          {({ factory, isReady }) => {
+            expect(getStatus(outerFactory.client()).isReady).toBe(isReady);
+            expect(isReady).toBe(true);
+            return (
+              <>
+                <SplitTreatments names={featureFlagNames} >
+                  {({ treatments, isReady: isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitTreatmentsChildProps) => {
+                    const clientMock: any = factory?.client();
+                    expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
+                    expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
+                    expect(featureFlagNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
+                    expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate]);
+                    return null;
+                  }}
+                </SplitTreatments>
+                <SplitTreatments flagSets={flagSets} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    const clientMock: any = factory?.client();
+                    expect(clientMock.getTreatmentsWithConfigByFlagSets.mock.calls.length).toBe(1);
+                    expect(treatments).toBe(clientMock.getTreatmentsWithConfigByFlagSets.mock.results[0].value);
+                    expect(flagSets).toBe(clientMock.getTreatmentsWithConfigByFlagSets.mock.calls[0][0]);
+                    return null;
+                  }}
+                </SplitTreatments>
+              </>
+            );
+          }}
+        </SplitClient>
       </SplitFactoryProvider>
     );
   });
 
-  // @TODO Update test in breaking change, following common practice in React libraries, like React-redux and React-query: use a falsy value as default context value, and throw an error – instead of logging it – if components are not wrapped in a SplitContext.Provider, i.e., if the context is falsy.
-  // it('logs error and passes control treatments if rendered outside an SplitProvider component.', () => {
-  //   render(
-  //     <SplitTreatments names={featureFlagNames} >
-  //       {({ treatments }: ISplitTreatmentsChildProps) => {
-  //         expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
-  //         return null;
-  //       }}
-  //     </SplitTreatments>
-  //   );
-
-  //   expect(logSpy).toBeCalledWith(WARN_ST_NO_CLIENT);
-  // });
+  test('throws error if invoked outside of SplitFactoryProvider.', () => {
+    expect(() => {
+      render(
+        <SplitTreatments names={featureFlagNames} >
+          {() => null}
+        </SplitTreatments>
+      );
+    }).toThrow(EXCEPTION_NO_SFP);
+  });
 
   /**
    * Input validation. Passing invalid feature flag names or attributes while the Sdk
@@ -111,33 +111,35 @@ describe('SplitTreatments', () => {
   it('Input validation: invalid "names" and "attributes" props in SplitTreatments.', (done) => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
-        {() => {
-          return (
-            <>
-              {/* @ts-expect-error Test error handling */}
-              <SplitTreatments split_names={featureFlagNames} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  expect(treatments).toEqual({});
-                  return null;
-                }}
-              </SplitTreatments>
-              {/* @ts-expect-error Test error handling */}
-              <SplitTreatments names={featureFlagNames[0]} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  expect(treatments).toEqual({});
-                  return null;
-                }}
-              </SplitTreatments>
-              {/* @ts-expect-error Test error handling */}
-              <SplitTreatments names={[true]} attributes={'invalid'} >
-                {({ treatments }: ISplitTreatmentsChildProps) => {
-                  expect(treatments).toEqual({});
-                  return null;
-                }}
-              </SplitTreatments>
-            </>
-          );
-        }}
+        <SplitClient>
+          {() => {
+            return (
+              <>
+                {/* @ts-expect-error Test error handling */}
+                <SplitTreatments split_names={featureFlagNames} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    expect(treatments).toEqual({});
+                    return null;
+                  }}
+                </SplitTreatments>
+                {/* @ts-expect-error Test error handling */}
+                <SplitTreatments names={featureFlagNames[0]} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    expect(treatments).toEqual({});
+                    return null;
+                  }}
+                </SplitTreatments>
+                {/* @ts-expect-error Test error handling */}
+                <SplitTreatments names={[true]} attributes={'invalid'} >
+                  {({ treatments }: ISplitTreatmentsChildProps) => {
+                    expect(treatments).toEqual({});
+                    return null;
+                  }}
+                </SplitTreatments>
+              </>
+            );
+          }}
+        </SplitClient>
       </SplitFactoryProvider>
     );
     expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
@@ -149,16 +151,46 @@ describe('SplitTreatments', () => {
 
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
     render(
-      // @ts-expect-error flagSets and names are mutually exclusive
-      <SplitTreatments names={featureFlagNames} flagSets={flagSets} >
-        {({ treatments }) => {
-          expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
-          return null;
-        }}
-      </SplitTreatments>
+      <SplitFactoryProvider >
+        {/* @ts-expect-error flagSets and names are mutually exclusive */}
+        <SplitTreatments names={featureFlagNames} flagSets={flagSets} >
+          {({ treatments }) => {
+            expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
+            return null;
+          }}
+        </SplitTreatments>
+      </SplitFactoryProvider>
     );
 
     expect(logSpy).toBeCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
+  });
+
+  test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
+    const outerFactory = SplitFactory(sdkBrowser);
+    const client: any = outerFactory.client('user2');
+    const attributes = { att1: 'att1' };
+    let treatments: SplitIO.TreatmentsWithConfig;
+
+    render(
+      <SplitFactoryProvider factory={outerFactory} >
+        <SplitClient splitKey='user2' >
+          {React.createElement(() => {
+            treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
+            return null;
+          })}
+        </SplitClient>
+      </SplitFactoryProvider>
+    );
+
+    // returns control treatment if not operational (SDK not ready or destroyed), without calling `getTreatmentsWithConfig` method
+    expect(client.getTreatmentsWithConfig).not.toBeCalled();
+    expect(treatments!).toEqual({ split1: CONTROL_WITH_CONFIG, split2: CONTROL_WITH_CONFIG });
+
+    // once operational (SDK_READY_FROM_CACHE), it evaluates feature flags
+    act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
+
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 });
 
@@ -184,7 +216,7 @@ describe.each([
     return null;
   }
 ])('SplitTreatments & useSplitTreatments optimization', (InnerComponent) => {
-  let outerFactory = SplitSdk(sdkBrowser);
+  let outerFactory = SplitFactory(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
   function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
@@ -301,14 +333,14 @@ describe.each([
 
   it('rerenders and re-evaluate feature flags when Split context changes (in both SplitFactoryProvider and SplitClient components).', async () => {
     // changes in SplitContext implies that either the factory, the client (user key), or its status changed, what might imply a change in treatments
-    const outerFactory = SplitSdk(sdkBrowser);
+    const outerFactory = SplitFactory(sdkBrowser);
     let renderTimesComp1 = 0;
     let renderTimesComp2 = 0;
 
     // test context updates on SplitFactoryProvider
     render(
-      <SplitFactoryProvider factory={outerFactory} updateOnSdkReady={false} updateOnSdkTimedout={true} updateOnSdkUpdate={true} >
-        <SplitTreatments names={names} attributes={attributes} >
+      <SplitFactoryProvider factory={outerFactory} >
+        <SplitTreatments names={names} attributes={attributes} updateOnSdkReady={false} >
           {() => {
             renderTimesComp1++;
             return null;
