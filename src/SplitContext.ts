@@ -3,9 +3,8 @@ import { ISplitContextValues } from './types';
 import { EXCEPTION_NO_SFP } from './constants';
 
 /**
- * Split Context is the React Context instance that represents our SplitIO global state.
- * It contains Split SDK objects, such as a factory instance, a client and its status (isReady, isTimedout, lastUpdate)
- * The context is created with default empty values, that SplitFactoryProvider and SplitClient access and update.
+ * Split Context is the React Context instance provided by the SplitFactoryProvider and consumed by the Split Hooks.
+ * It is used to share the SDK factory instance and other values across the application.
  */
 export const SplitContext = React.createContext<ISplitContextValues | undefined>(undefined);
 

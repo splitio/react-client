@@ -1,5 +1,6 @@
 import {
   SplitFactory,
+  withSplitFactory, withSplitClient, withSplitTreatments,
   SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,
@@ -7,6 +8,7 @@ import {
 
 export default {
   SplitFactory,
+  withSplitFactory, withSplitClient, withSplitTreatments,
   SplitFactoryProvider, SplitClient, SplitTreatments,
   useSplitClient, useSplitTreatments, useTrack, useSplitManager,
   SplitContext,

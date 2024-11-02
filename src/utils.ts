@@ -21,9 +21,6 @@ export interface IClientWithContext extends SplitIO.IBrowserClient {
   };
 }
 
-/**
- * FactoryWithClientInstances interface.
- */
 export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   config: SplitIO.IBrowserSettings;
   init(): void;
