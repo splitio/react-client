@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 /** Mocks */
-import { mockSdk } from './testUtils/mockSplitSdk';
+import { mockSdk } from './testUtils/mockSplitFactory';
 jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
