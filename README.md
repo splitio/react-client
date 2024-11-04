@@ -9,9 +9,7 @@ This SDK is designed to work with Split, the platform for controlled rollouts, w
 
 ## Compatibility
 
-This SDK is compatible with React 16.3.0 and above, since it uses [React Context API](https://reactjs.org/docs/context.html).
-
-Some features, such as `useSplitClient` and `useSplitTreatments`, use [React Hooks API](https://reactjs.org/docs/hooks-overview.html) that requires React 16.8.0 or later.
+This SDK is compatible with React 16.8.0 and above, since it uses **React Hooks** introduced in that version.
 
 ## Getting started
 Below is a simple example that describes the instantiation and most basic usage of our SDK:
