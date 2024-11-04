@@ -13,7 +13,7 @@ const logSpy = jest.spyOn(console, 'log');
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitContext, useSplitContext } from '../SplitContext';
-import { __factories, IClientWithContext } from '../utils';
+import { getStatus } from '../utils';
 import { WARN_SF_CONFIG_AND_FACTORY } from '../constants';
 import { INITIAL_STATUS } from './testUtils/utils';
 import { useSplitClient } from '../useSplitClient';
@@ -54,7 +54,7 @@ describe('SplitFactoryProvider', () => {
             client: outerFactory.client(),
             isReady: true,
             isReadyFromCache: true,
-            lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
+            lastUpdate: getStatus(outerFactory.client()).lastUpdate
           });
           return null;
         })}
@@ -183,8 +183,7 @@ describe('SplitFactoryProvider', () => {
 
     wrapper.unmount();
 
-    // Created factories are removed from `factories` cache and `destroy` method is called
-    expect(__factories.size).toBe(0);
+    // factory `destroy` methods are called
     expect(createdFactories.size).toBe(2);
     expect(factoryDestroySpies.length).toBe(2);
     factoryDestroySpies.forEach(spy => expect(spy).toBeCalledTimes(1));
@@ -197,8 +196,6 @@ describe('SplitFactoryProvider', () => {
       <SplitFactoryProvider factory={outerFactory}>
         {React.createElement(() => {
           const { factory } = useSplitClient();
-          // if factory is provided as a prop, `factories` cache is not modified
-          expect(__factories.size).toBe(0);
           destroySpy = jest.spyOn(factory!, 'destroy');
           return null;
         })}

@@ -15,7 +15,7 @@ import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
 import { SplitContext } from '../SplitContext';
 import { INITIAL_STATUS, testAttributesBinding, TestComponentProps } from './testUtils/utils';
-import { IClientWithContext } from '../utils';
+import { getStatus } from '../utils';
 import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('SplitClient', () => {
@@ -56,7 +56,7 @@ describe('SplitClient', () => {
               client: outerFactory.client(),
               isReady: true,
               isReadyFromCache: true,
-              lastUpdate: (outerFactory.client() as IClientWithContext).__getStatus().lastUpdate
+              lastUpdate: getStatus(outerFactory.client()).lastUpdate
             });
 
             return null;
