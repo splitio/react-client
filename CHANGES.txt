@@ -1,3 +1,6 @@
+2.0.1 (November XX, 2024)
+ - Bugfixing - Fixed issue with the `updateOn***` object params of the `useSplitClient` and `useSplitTreatments` hooks, that were not defaulting to `true` when other than a boolean value was provided.
+
 2.0.0 (November 1, 2024)
  - Added support for targeting rules based on large segments.
  - Added support for passing factory instances to the `factory` prop of the `SplitFactoryProvider` component from other SDK packages that extends the `SplitIO.IBrowserSDK` interface, such as `@splitsoftware/splitio-react-native`, `@splitsoftware/splitio-browserjs` and `@splitsoftware/browser-suite` packages.

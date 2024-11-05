@@ -18,8 +18,8 @@ export function withSplitFactory(config?: SplitIO.IBrowserSettings, factory?: Sp
 
   return function withSplitFactoryHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitFactoryChildProps>,
-    updateOnSdkUpdate = false,
-    updateOnSdkTimedout = false,
+    updateOnSdkUpdate = true,
+    updateOnSdkTimedout = true,
     updateOnSdkReady = true,
     updateOnSdkReadyFromCache = true,
   ) {

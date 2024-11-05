@@ -16,8 +16,8 @@ export function withSplitClient(splitKey: SplitIO.SplitKey, attributes?: SplitIO
 
   return function withSplitClientHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitClientChildProps>,
-    updateOnSdkUpdate = false,
-    updateOnSdkTimedout = false,
+    updateOnSdkUpdate = true,
+    updateOnSdkTimedout = true,
     updateOnSdkReady = true,
     updateOnSdkReadyFromCache = true,
   ) {
