@@ -16,12 +16,20 @@ export function withSplitTreatments(names: string[], attributes?: SplitIO.Attrib
 
   return function withSplitTreatmentsHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitTreatmentsChildProps>,
+    updateOnSdkUpdate = true,
+    updateOnSdkTimedout = true,
+    updateOnSdkReady = true,
+    updateOnSdkReadyFromCache = true,
   ) {
 
     return function wrapper(props: OuterProps) {
       return (
         <SplitTreatments
           names={names}
+          updateOnSdkUpdate={updateOnSdkUpdate}
+          updateOnSdkTimedout={updateOnSdkTimedout}
+          updateOnSdkReady={updateOnSdkReady}
+          updateOnSdkReadyFromCache={updateOnSdkReadyFromCache}
           attributes={attributes} >
           {(splitProps) => {
             return (
