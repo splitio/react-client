@@ -1,5 +1,5 @@
 
-# Migrating to React SDK v2.0.0:
+# Migrating to React SDK v2.0.0
 
 React SDK v2.0.0 has a few breaking changes that you should consider when migrating from a previous version. The main changes are:
 
@@ -9,7 +9,7 @@ Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-t
 
 - **Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept `updateOn` props and a render function as children anymore.**
 
-To migrate your existing code to the new version of `SplitFactoryProvider`, consider the following refactor example. Replace:
+To migrate your existing code to the new version of `SplitFactoryProvider`, consider the following refactor example:
 
 ```tsx
 const MyComponent = (props: ISplitContextValues) => {
@@ -41,7 +41,7 @@ const App = withSplitFactory(mySplitConfig, undefined, DEFAULT_CLIENT_ATTRIBUTES
 );
 ```
 
-with:
+should be refactored to:
 
 ```tsx
 const MyComponent = () => {
@@ -59,12 +59,14 @@ const App = () => {
 };
 ```
 
-Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React element rather than a render function as children.
-The `useSplitClient` hook is called without providing an `splitKey` param, meaning that the client at the context will be used, i.e., the default client which key is set in the `core.key` property of the `mySplitConfig` object, and the `updateOn` and `attributes` props are passed as options to the hook.
+Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function.
+The `useSplitClient` hook is called without providing an `splitKey` param, meaning that the default client, which key is set in the `core.key` property of the `mySplitConfig` object, will be used, and the `updateOn` and `attributes` props are passed as options to the hook.
 
 - **High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.**
 
-The deprecation is intended to simplify the API and discourage the use of old patterns (HOCs and render props) in favor of hook alternatives to take advantage of React optimizations. To migrate your existing code based on `withSplitClient` or `SplitClient`, consider the following refactor using the `useSplitClient` hook. Replace:
+The deprecation is intended to simplify the API and discourage the use of old patterns (HOCs and render props) in favor of hook alternatives to take advantage of React optimizations.
+
+To migrate your existing code based on `withSplitClient` or `SplitClient`, consider the following refactor using the `useSplitClient` hook:
 
 ```tsx
 const MyComponent = (props: ISplitContextValues) => {
@@ -90,7 +92,7 @@ const App = () => {
 };
 ```
 
-with:
+should be refactored to:
 
 ```tsx
 const MyComponent = () => {
@@ -108,7 +110,7 @@ const App = () => {
 };
 ```
 
-To migrate your existing code based on `withSplitTreatments` or `SplitTreatments`, consider the following refactor using the `useSplitTreatments` hook. Replace:
+To migrate your existing code based on `withSplitTreatments` or `SplitTreatments`, consider the following refactor using the `useSplitTreatments` hook:
 
 ```tsx
 const MyComponent = (props: ISplitTreatmentsChildProps) => {
@@ -138,7 +140,7 @@ const App = () => {
 };
 ```
 
-with:
+should be refactored to:
 
 ```tsx
 const MyComponent = () => {
