@@ -16,10 +16,10 @@ export function withSplitClient(splitKey: SplitIO.SplitKey, attributes?: SplitIO
 
   return function withSplitClientHoc<OuterProps>(
     WrappedComponent: React.ComponentType<OuterProps & ISplitClientChildProps>,
-    updateOnSdkUpdate = true,
-    updateOnSdkTimedout = true,
-    updateOnSdkReady = true,
-    updateOnSdkReadyFromCache = true,
+    updateOnSdkUpdate?: boolean,
+    updateOnSdkTimedout?: boolean,
+    updateOnSdkReady?: boolean,
+    updateOnSdkReadyFromCache?: boolean,
   ) {
 
     return function wrapper(props: OuterProps) {

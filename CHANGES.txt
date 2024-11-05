@@ -1,5 +1,5 @@
 2.0.1 (November XX, 2024)
- - Bugfixing - Fixed an issue with the `updateOn***` object parameters of the `useSplitClient` and `useSplitTreatments` hooks, which were not defaulting to `true` when a non-boolean value was provided.
+ - Bugfixing - Fixed an issue with the `updateOn***` object parameters of the `useSplitClient` and `useSplitTreatments` hooks, and their components and HOCs alternatives, which were not defaulting to `true` when a non-boolean value was provided.
 
 2.0.0 (November 1, 2024)
  - Added support for targeting rules based on large segments.
