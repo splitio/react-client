@@ -9,7 +9,7 @@ This SDK is designed to work with Split, the platform for controlled rollouts, w
 
 ## Compatibility
 
-This SDK is compatible with React 16.8.0 and above, since it uses **React Hooks** introduced in that version.
+This SDK is compatible with React 16.8.0 and above, since it uses **React Hooks API** introduced in that version.
 
 ## Getting started
 Below is a simple example that describes the instantiation and most basic usage of our SDK:

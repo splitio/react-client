@@ -64,7 +64,7 @@ The `useSplitClient` hook is called without providing an `splitKey` param, meani
 
 - **High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.**
 
-The deprecation is intended to simplify the API and discourage the use of old patterns (HOCs and render props) in favor of hook alternatives to take advantage of React optimizations.
+The deprecation is intended to simplify the API and discourage using old patterns (HOCs and render props) in favor of the *hook* alternatives, to take advantage of React optimizations.
 
 To migrate your existing code based on `withSplitClient` or `SplitClient`, consider the following refactor using the `useSplitClient` hook:
 
