@@ -30,7 +30,7 @@ module.exports = {
     ],
   },
 
-  node: false, // Not include Node polyfills, https://webpack.js.org/configuration/node
+  node: false, // Not include Node.js polyfills, https://webpack.js.org/configuration/node
   target: ['web', 'es5'], // target 'es5', since 'es2015' is the default in Webpack 5
 
   externals: {
