@@ -3,11 +3,11 @@
 
 React SDK v2.0.0 has a few breaking changes that you should consider when migrating from a previous version. The main changes are:
 
-- **Deprecated `useClient`, `useTreatments`, and `useManager` hooks have been removed.**
+### • Deprecated `useClient`, `useTreatments`, and `useManager` hooks have been removed.
 
-Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-the-deprecated-useclient-usetreatments-and-usemanager-hooks) to migrate to the new hooks `useSplitClient`, `useSplitTreatments`, and `useSplitManager` respectively.
+Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-the-deprecated-useclient-usetreatments-and-usemanager-hooks) to migrate to the new hooks `useSplitClient`, `useSplitTreatments`, and `useSplitManager`.
 
-- **Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept `updateOn` props and a render function as children anymore.**
+### • Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept `updateOn` props and a render function as children anymore.
 
 To migrate your existing code to the new version of `SplitFactoryProvider`, consider the following refactor example:
 
@@ -62,7 +62,7 @@ const App = () => {
 Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function.
 The `useSplitClient` hook is called without providing an `splitKey` param, meaning that the default client, which key is set in the `core.key` property of the `mySplitConfig` object, will be used, and the `updateOn` and `attributes` props are passed as options to the hook.
 
-- **High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.**
+### • High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.
 
 The deprecation is intended to simplify the API and discourage using old patterns (HOCs and render props) in favor of the *hook* alternatives, to take advantage of React optimizations.
 
@@ -158,7 +158,7 @@ const App = () => {
 };
 ```
 
-- **Renamed `SplitSdk` function to `SplitFactory`.**
+### • Renamed `SplitSdk` function to `SplitFactory`.
 
 If you are using the `SplitSdk` function to create a factory and pass it to the `SplitFactoryProvider` component, you should rename it to `SplitFactory`. For example:
 
@@ -192,9 +192,9 @@ const App = () => {
 };
 ```
 
-- **Traffic type cannot be bound to SDK clients anymore.**
+### • Traffic type cannot be bound to SDK clients anymore.
 
-If you were passing the `trafficType` to the SDK config or the `useSplitClient` or `useTrack` hooks, you should remove it. The `trafficType` is now required to be passed as initial argument of the `track` method. For example:
+If you were passing the `trafficType` to the SDK config, `useSplitClient` hook, or `useTrack` hook, you should remove it. The `trafficType` must now be passed as the first argument of the `track` method. For example:
 
 ```tsx
 const mySplitConfig = {

@@ -9,7 +9,7 @@ This SDK is designed to work with Split, the platform for controlled rollouts, w
 
 ## Compatibility
 
-This SDK is compatible with React 16.8.0 and above, since it uses **React Hooks API** introduced in that version.
+This SDK is compatible with React 16.8.0 and above, since it uses [React Hooks API](https://react.dev/reference/react/hooks) introduced in that version.
 
 ## Getting started
 Below is a simple example that describes the instantiation and most basic usage of our SDK:
@@ -83,7 +83,7 @@ Split has built and maintains SDKs for:
 * Java [Github](https://github.com/splitio/java-client) [Docs](https://help.split.io/hc/en-us/articles/360020405151-Java-SDK)
 * JavaScript [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK)
 * JavaScript for Browser [Github](https://github.com/splitio/javascript-browser-client) [Docs](https://help.split.io/hc/en-us/articles/360058730852-Browser-SDK)
-* Node [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK)
+* Node.js [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK)
 * PHP [Github](https://github.com/splitio/php-client) [Docs](https://help.split.io/hc/en-us/articles/360020350372-PHP-SDK)
 * PHP thin-client [Github](https://github.com/splitio/php-thin-client) [Docs](https://help.split.io/hc/en-us/articles/18305128673933-PHP-Thin-Client-SDK)
 * Python [Github](https://github.com/splitio/python-client) [Docs](https://help.split.io/hc/en-us/articles/360020359652-Python-SDK)

@@ -5,6 +5,7 @@
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - Bugfixing - When the `config` prop is provided, the `SplitFactoryProvider` now makes the SDK factory and client instances available in the context immediately during the initial render, instead of waiting for the first SDK event (Related to https://github.com/splitio/react-client/issues/198). This change fixes a bug in the `useTrack` hook, which was not retrieving the client's `track` method during the initial render.
  - BREAKING CHANGES:
+      - NOTE: Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate your codebase from version 1.x to 2.0.0.
       - Updated the default value of the `updateOnSdkUpdate` and `updateOnSdkTimedout` parameters of the `useSplitClient` and `useSplitTreatments` hooks options object to `true`, to re-render on all SDK events by default. The same applies for the equivalent props in the `[with]SplitClient` and `[with]SplitTreatments` components.
       - Updated error handling: using the library modules without wrapping them in a `SplitFactoryProvider` component will now throw an error instead of logging it, as the modules requires the `SplitContext` to work properly.
       - Updated the `SplitFactoryProvider` component to not accept a child as a function (render prop), to avoid unnecessary re-renders when using the library hooks. Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate your component to be passed as a regular React JSX element if you were using this pattern.
