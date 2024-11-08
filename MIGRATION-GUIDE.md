@@ -59,8 +59,7 @@ const App = () => {
 };
 ```
 
-Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function.
-The `useSplitClient` hook is called without providing an `splitKey` param, meaning that the default client, which key is set in the `core.key` property of the `mySplitConfig` object, will be used, and the `updateOn` and `attributes` props are passed as options to the hook.
+Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function. The `useSplitClient` hook is called without providing a `splitKey` param. This means that the default client (whose key is set in the `core.key` property of the `mySplitConfig` object) will be used, and the `updateOn` and `attributes` props are passed as options to the hook.
 
 ### • High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.
 
