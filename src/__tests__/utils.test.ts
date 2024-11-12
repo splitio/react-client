@@ -3,11 +3,11 @@ import { getControlTreatmentsWithConfig } from '../utils';
 
 describe('getControlTreatmentsWithConfig', () => {
 
-  it('should return an empty object if an empty array is provided', () => {
+  test('should return an empty object if an empty array is provided', () => {
     expect(Object.values(getControlTreatmentsWithConfig([])).length).toBe(0);
   });
 
-  it('should return an empty object if an empty array is provided', () => {
+  test('should return an empty object if an empty array is provided', () => {
     const featureFlagNames = ['split1', 'split2'];
     const treatments: SplitIO.TreatmentsWithConfig = getControlTreatmentsWithConfig(featureFlagNames);
     featureFlagNames.forEach((featureFlagName) => {

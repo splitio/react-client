@@ -1,6 +1,5 @@
 import { useSplitClient } from './useSplitClient';
 import { IUseSplitManagerResult } from './types';
-import { useSplitContext } from './SplitContext';
 
 /**
  * `useSplitManager` is a hook that returns an Split Context object with the manager instance from the Split factory.
@@ -15,12 +14,9 @@ import { useSplitContext } from './SplitContext';
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
  */
 export function useSplitManager(): IUseSplitManagerResult {
-  // @TODO refactor next lines to `const context = useSplitClient();` when `SplitClient` is removed
-  // This is required to avoid retrieving the status of a non-default client if context was updated by a `SplitClient` component.
-  const { factory } = useSplitContext();
-  const context = useSplitClient({ splitKey: factory?.settings.core.key });
+  const context = useSplitClient();
 
-  const manager = factory ? factory.manager() : undefined;
+  const manager = context.factory ? context.factory.manager() : undefined;
 
   return {
     ...context,

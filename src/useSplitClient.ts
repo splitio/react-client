@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSplitContext } from './SplitContext';
-import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
-import { ISplitContextValues, IUseSplitClientOptions } from './types';
+import { getSplitClient, initAttributes, getStatus } from './utils';
+import { IUseSplitClientOptions, IUseSplitClientResult } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
   updateOnSdkUpdate: true,
@@ -23,17 +23,15 @@ export const DEFAULT_UPDATE_OPTIONS = {
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
+export function useSplitClient(options?: IUseSplitClientOptions): IUseSplitClientResult {
   const {
     updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
   } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
 
-  const context = useSplitContext();
-  const { client: contextClient, factory } = context;
+  const { factory } = useSplitContext();
 
   // @TODO Move `getSplitClient` side effects
-  // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
-  const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient as IClientWithContext;
+  const client = factory ? getSplitClient(factory, splitKey) : undefined;
 
   initAttributes(client, attributes);
 
@@ -44,7 +42,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   React.useEffect(() => {
     if (!client) return;
 
-    const update = () => setLastUpdate(client.__getStatus().lastUpdate);
+    const update = () => setLastUpdate(getStatus(client).lastUpdate);
 
     // Clients are created on the hook's call, so the status may have changed
     const statusOnEffect = getStatus(client);

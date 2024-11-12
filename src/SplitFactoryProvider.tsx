@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ISplitFactoryProviderProps } from './types';
 import { WARN_SF_CONFIG_AND_FACTORY } from './constants';
-import { getSplitFactory, destroySplitFactory, getSplitClient, getStatus, initAttributes } from './utils';
+import { getSplitFactory, destroySplitFactory, initAttributes } from './utils';
 import { SplitContext } from './SplitContext';
 
 /**
@@ -22,7 +22,6 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
     initAttributes(factory && factory.client(), attributes);
     return factory;
   }, [config, propFactory, attributes]);
-  const client = factory ? getSplitClient(factory) : undefined;
 
   // Effect to initialize and destroy the factory when config is provided
   React.useEffect(() => {
@@ -42,7 +41,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, propFactory]);
 
   return (
-    <SplitContext.Provider value={{ factory, client, ...getStatus(client) }} >
+    <SplitContext.Provider value={{ factory }} >
       {props.children}
     </SplitContext.Provider>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { memoizeGetTreatmentsWithConfig } from './utils';
-import { ISplitTreatmentsChildProps, IUseSplitTreatmentsOptions } from './types';
+import { IUseSplitTreatmentsOptions, IUseSplitTreatmentsResult } from './types';
 import { useSplitClient } from './useSplitClient';
 
 /**
@@ -18,7 +18,7 @@ import { useSplitClient } from './useSplitClient';
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#get-treatments-with-configurations}
  */
-export function useSplitTreatments(options: IUseSplitTreatmentsOptions): ISplitTreatmentsChildProps {
+export function useSplitTreatments(options: IUseSplitTreatmentsOptions): IUseSplitTreatmentsResult {
   const context = useSplitClient({ ...options, attributes: undefined });
   const { client, lastUpdate } = context;
   const { names, flagSets, attributes } = options;

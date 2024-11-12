@@ -1,3 +1,10 @@
+3.0.0 (XXX XX, 2024)
+ - BREAKING CHANGES:
+      - Removed deprecated modules: `SplitClient` and `SplitTreatments` components, and `withSplitFactory`, `withSplitClient`, and `withSplitTreatments` high-order-components. Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate to the custom hook alternatives.
+      - Removed some TypeScript interfaces: `ISplitFactoryChildProps`, `ISplitClientChildProps`, `ISplitClientProps`, `ISplitTreatmentsChildProps`, and `ISplitTreatmentsProps` that were used by the deprecated components and high-order-components.
+      - Removed `client` and status properties (`isReady`, `isReadyFromCache`, `isTimedout`, `hasTimedout`, `isDestroyed`, and `lastUpdate`) from the Split context. Only the `factory` property is now available in the context.
+      - Renamed the return type of the `useSplitFactory` hook to `IUseSplitClientResult`, and the return type of the `useSplitTreatments` hook to `IUseSplitTreatmentsResult`.
+
 2.0.0 (November 1, 2024)
  - Added support for targeting rules based on large segments.
  - Added support for passing factory instances to the `factory` prop of the `SplitFactoryProvider` component from other SDK packages that extends the `SplitIO.IBrowserSDK` interface, such as `@splitsoftware/splitio-react-native`, `@splitsoftware/splitio-browserjs` and `@splitsoftware/browser-suite` packages.

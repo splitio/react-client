@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, render, RenderResult } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitFactory';
@@ -9,12 +9,13 @@ jest.mock('@splitsoftware/splitio/client', () => {
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
 import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
+import { newSplitFactoryLocalhostInstance } from './testUtils/utils';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { SplitContext } from '../SplitContext';
-import { ISplitTreatmentsChildProps } from '../types';
+import { ISplitFactoryProviderProps, IUseSplitTreatmentsOptions, IUseSplitTreatmentsResult } from '../types';
 
 const logSpy = jest.spyOn(console, 'log');
 
@@ -145,7 +146,7 @@ describe('useSplitTreatments', () => {
     const lastUpdateSetUser2 = new Set<number>();
     const lastUpdateSetUser2WithUpdate = new Set<number>();
 
-    function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTreatmentsChildProps) {
+    function validateTreatments({ treatments, isReady, isReadyFromCache }: IUseSplitTreatmentsResult) {
       if (isReady || isReadyFromCache) {
         expect(treatments).toEqual({
           split_test: {
@@ -236,6 +237,167 @@ describe('useSplitTreatments', () => {
     );
 
     expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
+  });
+
+});
+
+let renderTimes = 0;
+
+/**
+ * Tests for asserting that client.getTreatmentsWithConfig and client.getTreatmentsWithConfigByFlagSets are not called unnecessarily when using useSplitTreatments.
+ */
+describe('useSplitTreatments optimization', () => {
+  let outerFactory = SplitFactory(sdkBrowser);
+  (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+
+  function InnerComponent({ names, flagSets, attributes, splitKey }: {
+    names?: IUseSplitTreatmentsOptions['names']
+    flagSets?: IUseSplitTreatmentsOptions['flagSets']
+    attributes?: IUseSplitTreatmentsOptions['attributes']
+    splitKey?: IUseSplitTreatmentsOptions['splitKey']
+  }) { // @ts-expect-error names and flagSets are mutually exclusive
+    useSplitTreatments({ names, flagSets, attributes, splitKey });
+    renderTimes++;
+    return null;
+  }
+
+  function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
+    names?: IUseSplitTreatmentsOptions['names']
+    flagSets?: IUseSplitTreatmentsOptions['flagSets']
+    attributes: IUseSplitTreatmentsOptions['attributes']
+    splitKey?: IUseSplitTreatmentsOptions['splitKey']
+    clientAttributes?: ISplitFactoryProviderProps['attributes']
+  }) {
+    return (
+      <SplitFactoryProvider factory={outerFactory} attributes={clientAttributes} >
+        <InnerComponent names={names} attributes={attributes} flagSets={flagSets} splitKey={splitKey} />
+      </SplitFactoryProvider>
+    );
+  }
+
+  const names = ['split1', 'split2'];
+  const flagSets = ['set1', 'set2'];
+  const attributes = { att1: 'att1' };
+  const splitKey = sdkBrowser.core.key;
+
+  let wrapper: RenderResult;
+
+  beforeEach(() => {
+    renderTimes = 0;
+    (outerFactory.client().getTreatmentsWithConfig as jest.Mock).mockClear();
+    wrapper = render(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
+  })
+
+  afterEach(() => {
+    wrapper.unmount(); // unmount to remove event listener from factory
+  })
+
+  test('rerenders but does not re-evaluate feature flags if client, lastUpdate, names, flagSets and attributes are the same object.', () => {
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
+
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    expect(outerFactory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(0);
+  });
+
+  test('rerenders but does not re-evaluate feature flags if client, lastUpdate, names, flagSets and attributes are equals (shallow comparison).', () => {
+    wrapper.rerender(<Component names={[...names]} flagSets={[...flagSets]} attributes={{ ...attributes }} splitKey={splitKey} />);
+
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    expect(outerFactory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(0);
+  });
+
+  test('rerenders and re-evaluates feature flags if names are not equals (shallow array comparison).', () => {
+    wrapper.rerender(<Component names={[...names, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
+
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+    expect(outerFactory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(0);
+  });
+
+  test('rerenders and re-evaluates feature flags if flag sets are not equals (shallow array comparison).', () => {
+    wrapper.rerender(<Component flagSets={[...flagSets]} attributes={{ ...attributes }} splitKey={splitKey} />);
+    wrapper.rerender(<Component flagSets={[...flagSets]} attributes={{ ...attributes }} splitKey={splitKey} />);
+    expect(outerFactory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(1);
+
+    wrapper.rerender(<Component flagSets={[...flagSets, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
+
+    expect(renderTimes).toBe(4);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    expect(outerFactory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(2);
+  });
+
+  test('rerenders and re-evaluates feature flags if attributes are not equals (shallow object comparison).', () => {
+    const attributesRef = { ...attributes, att2: 'att2' };
+    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+
+    // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate feature flags
+    attributesRef.att2 = 'att2_val2';
+    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+  });
+
+  test('rerenders and re-evaluates feature flags if lastUpdate timestamp changes (e.g., SDK_UPDATE event).', () => {
+    expect(renderTimes).toBe(1);
+
+    // State update and split evaluation
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+
+    // State update after destroy doesn't re-evaluate because the sdk is not operational
+    (outerFactory as any).client().destroy();
+    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
+
+    // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+
+    // Restore the client to be READY
+    (outerFactory as any).client().__restore();
+    (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+  });
+
+  test('rerenders and re-evaluates feature flags if client changes.', async () => {
+    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={'otherKey'} />);
+    await act(() => (outerFactory as any).client('otherKey').__emitter__.emit(Event.SDK_READY));
+
+    // Initial render + 2 renders (in 3 updates) -> automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+    expect(outerFactory.client('otherKey').getTreatmentsWithConfig).toBeCalledTimes(1);
+  });
+
+  test('rerenders and re-evaluates feature flags if client attributes changes.', (done) => {
+    const originalFactory = outerFactory;
+    outerFactory = newSplitFactoryLocalhostInstance();
+
+    const client = outerFactory.client();
+    const clientSpy = {
+      getTreatmentsWithConfig: jest.spyOn(client, 'getTreatmentsWithConfig')
+    }
+
+    client.on(client.Event.SDK_READY, () => {
+      wrapper = render(<Component names={names} attributes={attributes} />);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(1);
+      wrapper.rerender(<Component names={names} attributes={attributes} clientAttributes={{ att2: 'att1_val1' }} />);
+      expect(renderTimes).toBe(3);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(2);
+
+      wrapper.rerender(<Component names={names} attributes={attributes} clientAttributes={{ att2: 'att1_val2' }} />);
+      expect(renderTimes).toBe(4);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3);
+
+      wrapper.rerender(<Component names={names} attributes={attributes} clientAttributes={{ att2: 'att1_val2' }} />);
+      expect(renderTimes).toBe(5);
+      expect(clientSpy.getTreatmentsWithConfig).toBeCalledTimes(3); // not called again. clientAttributes object is shallow equal
+
+      outerFactory = originalFactory;
+      client.destroy().then(done)
+    })
   });
 
 });
