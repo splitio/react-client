@@ -50,19 +50,23 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
     const statusOnEffect = getStatus(client);
 
     // Subscribe to SDK events
-    if (updateOnSdkReady) {
+    if (updateOnSdkReady !== false) {
       if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY, update);
       else if (!status.isReady) update();
     }
-    if (updateOnSdkReadyFromCache) {
+    if (updateOnSdkReadyFromCache !== false) {
       if (!statusOnEffect.isReadyFromCache) client.once(client.Event.SDK_READY_FROM_CACHE, update);
       else if (!status.isReadyFromCache) update();
     }
-    if (updateOnSdkTimedout) {
-      if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
-      else if (!status.hasTimedout) update();
+    if (updateOnSdkTimedout !== false) {
+      if (!statusOnEffect.hasTimedout) {
+        // Required to avoid error log for event already emitted
+        if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+      } else {
+        if (!status.hasTimedout) update();
+      }
     }
-    if (updateOnSdkUpdate) client.on(client.Event.SDK_UPDATE, update);
+    if (updateOnSdkUpdate !== false) client.on(client.Event.SDK_UPDATE, update);
 
     return () => {
       // Unsubscribe from events
