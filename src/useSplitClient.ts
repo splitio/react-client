@@ -59,8 +59,12 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
       else if (!status.isReadyFromCache) update();
     }
     if (updateOnSdkTimedout !== false) {
-      if (!statusOnEffect.hasTimedout) client.once(client.Event.SDK_READY_TIMED_OUT, update);
-      else if (!status.hasTimedout) update();
+      if (!statusOnEffect.hasTimedout) {
+        // Required to avoid error log for event already emitted
+        if (!statusOnEffect.isReady) client.once(client.Event.SDK_READY_TIMED_OUT, update);
+      } else {
+        if (!status.hasTimedout) update();
+      }
     }
     if (updateOnSdkUpdate !== false) client.on(client.Event.SDK_UPDATE, update);
 
