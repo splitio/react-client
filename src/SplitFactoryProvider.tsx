@@ -29,7 +29,6 @@ import { SplitFactory } from '@splitsoftware/splitio/client';
 export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   const { config, factory: propFactory, attributes } = props;
 
-  // Tomar nota de decisiones en RN: SFP con factory inmediato y sin SC
   const factory = React.useMemo<undefined | SplitIO.IBrowserSDK & { init?: () => void }>(() => {
     return propFactory ?
       propFactory :
@@ -43,6 +42,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, propFactory]);
 
   const client = factory ? getSplitClient(factory) : undefined;
+
   initAttributes(client, attributes);
 
   // Effect to initialize and destroy the factory when config is provided
