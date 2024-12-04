@@ -1,7 +1,6 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
-import { SplitFactory } from '@splitsoftware/splitio/client';
-import { CONTROL_WITH_CONFIG, VERSION, WARN_NAMES_AND_FLAGSETS } from './constants';
+import { CONTROL_WITH_CONFIG, WARN_NAMES_AND_FLAGSETS } from './constants';
 import { ISplitStatus } from './types';
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
@@ -9,7 +8,7 @@ import { ISplitStatus } from './types';
 /**
  * ClientWithContext interface.
  */
-export interface IClientWithContext extends SplitIO.IBrowserClient {
+interface IClientWithContext extends SplitIO.IBrowserClient {
   __getStatus(): {
     isReady: boolean;
     isReadyFromCache: boolean;
@@ -26,24 +25,6 @@ export interface IFactoryWithLazyInit extends SplitIO.IBrowserSDK {
   init(): void;
 }
 
-// exported for testing purposes
-export const __factories: Map<SplitIO.IBrowserSettings, IFactoryWithLazyInit> = new Map();
-
-// idempotent operation
-export function getSplitFactory(config: SplitIO.IBrowserSettings) {
-  if (!__factories.has(config)) {
-    // SplitFactory is not an idempotent operation
-    // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the SDK version
-    const newFactory = SplitFactory(config, (modules) => {
-      modules.settings.version = VERSION;
-      modules.lazyInit = true;
-    }) as IFactoryWithLazyInit;
-    newFactory.config = config;
-    __factories.set(config, newFactory);
-  }
-  return __factories.get(config) as IFactoryWithLazyInit;
-}
-
 // idempotent operation
 export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.SplitKey): IClientWithContext {
   // factory.client is an idempotent operation
@@ -54,11 +35,6 @@ export function getSplitClient(factory: SplitIO.IBrowserSDK, key?: SplitIO.Split
   client.setMaxListeners && client.setMaxListeners(0);
 
   return client;
-}
-
-export function destroySplitFactory(factory: IFactoryWithLazyInit): Promise<void> | undefined {
-  __factories.delete(factory.config);
-  return factory.destroy();
 }
 
 // Util used to get client status.
@@ -79,6 +55,7 @@ export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
 /**
  * Manage client attributes binding
  */
+// @TODO should reset attributes rather than set/merge them, to keep SFP and hooks pure.
 export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: SplitIO.Attributes) {
   if (client && attributes) client.setAttributes(attributes);
 }
