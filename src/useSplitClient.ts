@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSplitContext } from './SplitContext';
-import { getSplitClient, initAttributes, IClientWithContext, getStatus } from './utils';
+import { getSplitClient, initAttributes, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
 export const DEFAULT_UPDATE_OPTIONS = {
@@ -33,7 +33,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
   // @TODO Move `getSplitClient` side effects
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
-  const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient as IClientWithContext;
+  const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient;
 
   initAttributes(client, attributes);
 
@@ -44,7 +44,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   React.useEffect(() => {
     if (!client) return;
 
-    const update = () => setLastUpdate(client.__getStatus().lastUpdate);
+    const update = () => setLastUpdate(getStatus(client).lastUpdate);
 
     // Clients are created on the hook's call, so the status may have changed
     const statusOnEffect = getStatus(client);
