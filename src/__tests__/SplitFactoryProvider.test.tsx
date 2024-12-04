@@ -20,7 +20,23 @@ import { useSplitClient } from '../useSplitClient';
 
 describe('SplitFactoryProvider', () => {
 
-  test('passes no-ready props to the child if initialized with a config.', () => {
+  test('passes no-ready properties, no factory and no client to the context if initialized without a config and factory props.', () => {
+    render(
+      <SplitFactoryProvider >
+        {React.createElement(() => {
+          const context = useSplitContext();
+          expect(context).toEqual({
+            ...INITIAL_STATUS,
+            factory: undefined,
+            client: undefined,
+          });
+          return null;
+        })}
+      </SplitFactoryProvider>
+    );
+  });
+
+  test('passes no-ready properties to the context if initialized with a config.', () => {
     render(
       <SplitFactoryProvider config={sdkBrowser} >
         {React.createElement(() => {
@@ -36,7 +52,7 @@ describe('SplitFactoryProvider', () => {
     );
   });
 
-  test('passes ready props to the child if initialized with a ready factory.', async () => {
+  test('passes ready properties to the context if initialized with a ready factory.', async () => {
     const outerFactory = SplitFactory(sdkBrowser);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
