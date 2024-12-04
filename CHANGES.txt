@@ -1,3 +1,9 @@
+2.0.1 (December 4, 2024)
+ - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
+ - Updated internal handling of the `updateOnSdkTimedout` param to remove the wrong log "[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won't be emitted again".
+ - Updated implementation of `SplitFactoryProvider` component to support React Strict Mode (Related to https://github.com/splitio/react-client/issues/221).
+ - Bugfixing - Fixed an issue with the `updateOn***` object parameters of the `useSplitClient` and `useSplitTreatments` hooks, and their components and HOCs alternatives, which were not defaulting to `true` when a non-boolean value was provided.
+
 2.0.0 (November 1, 2024)
  - Added support for targeting rules based on large segments.
  - Added support for passing factory instances to the `factory` prop of the `SplitFactoryProvider` component from other SDK packages that extends the `SplitIO.IBrowserSDK` interface, such as `@splitsoftware/splitio-react-native`, `@splitsoftware/splitio-browserjs` and `@splitsoftware/browser-suite` packages.
