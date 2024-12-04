@@ -13,5 +13,7 @@ const noOpFalse = () => false;
 export function useTrack(splitKey?: SplitIO.SplitKey): SplitIO.IBrowserClient['track'] {
   // All update options are false to avoid re-renders. The track method doesn't need the client to be operational.
   const { client } = useSplitClient({ splitKey, updateOnSdkReady: false, updateOnSdkReadyFromCache: false, updateOnSdkTimedout: false, updateOnSdkUpdate: false });
+
+  // Retrieve the client `track` rather than a bound version of it, as there is no need to bind the function, and can be used as a reactive dependency that only changes if the underlying client changes.
   return client ? client.track : noOpFalse;
 }

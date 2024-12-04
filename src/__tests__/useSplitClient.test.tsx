@@ -103,7 +103,7 @@ describe('useSplitClient', () => {
             return null;
           })}
           {React.createElement(() => {
-            const { client, isReady, isReadyFromCache, hasTimedout } = useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: true });
+            const { client, isReady, isReadyFromCache, hasTimedout } = useSplitClient({ splitKey: 'user_2', updateOnSdkUpdate: undefined /* default is true */ });
             expect(client).toBe(user2Client);
 
             countUseSplitClientUser2++;
@@ -218,7 +218,7 @@ describe('useSplitClient', () => {
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
     expect(rendersCount).toBe(2);
 
-    wrapper.rerender(<Component updateOnSdkUpdate={true} />); // trigger re-render
+    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render
     expect(rendersCount).toBe(3);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
