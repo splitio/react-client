@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { ISplitFactoryProviderProps } from './types';
 import { VERSION, WARN_SF_CONFIG_AND_FACTORY } from './constants';

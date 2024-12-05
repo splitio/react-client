@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { memoizeGetTreatmentsWithConfig } from './utils';
 import { ISplitTreatmentsChildProps, IUseSplitTreatmentsOptions } from './types';
 import { useSplitClient } from './useSplitClient';

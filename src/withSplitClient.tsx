@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ISplitClientChildProps } from './types';
 import { SplitClient } from './SplitClient';
 

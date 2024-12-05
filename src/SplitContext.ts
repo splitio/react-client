@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ISplitContextValues } from './types';
 import { EXCEPTION_NO_SFP } from './constants';
 

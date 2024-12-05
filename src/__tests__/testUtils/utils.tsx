@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render } from '@testing-library/react';
 import { ISplitStatus } from '../../types';
 const { SplitFactory: originalSplitFactory } = jest.requireActual('@splitsoftware/splitio/client');

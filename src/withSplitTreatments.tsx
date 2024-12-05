@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ISplitTreatmentsChildProps } from './types';
 import { SplitTreatments } from './SplitTreatments';
 
