@@ -1,3 +1,6 @@
+2.0.2 (December XX, 2024)
+ - Updated the import of the React library from default imports to namespace imports for better compatibility with React, TypeScript, ES modules, and tree shaking.
+
 2.0.1 (December 4, 2024)
  - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
  - Updated internal handling of the `updateOnSdkTimedout` param to remove the wrong log "[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won't be emitted again".
