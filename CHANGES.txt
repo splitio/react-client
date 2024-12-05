@@ -1,5 +1,5 @@
 2.0.2 (December XX, 2024)
- - Updated the import of the React library from default imports to namespace imports for better compatibility with React, TypeScript, ES modules, and tree shaking.
+ - Updated the internal imports of React library from default to namespace imports as this is the recommended approach for better compatibility with React, TypeScript, ES modules, and tree shaking (https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html#removing-unused-react-imports).
 
 2.0.1 (December 4, 2024)
  - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
