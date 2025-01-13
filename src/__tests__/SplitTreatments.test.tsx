@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render, RenderResult, act } from '@testing-library/react';
 
 /** Mocks */

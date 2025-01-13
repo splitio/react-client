@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useSplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
