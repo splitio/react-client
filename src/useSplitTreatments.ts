@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { memoizeGetTreatmentsWithConfig } from './utils';
 import { ISplitTreatmentsChildProps, IUseSplitTreatmentsOptions } from './types';
 import { useSplitClient } from './useSplitClient';
@@ -21,13 +21,13 @@ import { useSplitClient } from './useSplitClient';
 export function useSplitTreatments(options: IUseSplitTreatmentsOptions): ISplitTreatmentsChildProps {
   const context = useSplitClient({ ...options, attributes: undefined });
   const { client, lastUpdate } = context;
-  const { names, flagSets, attributes } = options;
+  const { names, flagSets, attributes, properties } = options;
 
   const getTreatmentsWithConfig = React.useMemo(memoizeGetTreatmentsWithConfig, []);
 
   // Shallow copy `client.getAttributes` result for memoization, as it returns the same reference unless `client.clearAttributes` is invoked.
   // Note: the same issue occurs with the `names` and `attributes` arguments if they are mutated directly by the user instead of providing a new object.
-  const treatments = getTreatmentsWithConfig(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets);
+  const treatments = getTreatmentsWithConfig(client, lastUpdate, names, attributes, client ? { ...client.getAttributes() } : {}, flagSets, properties && { properties });
 
   return {
     ...context,

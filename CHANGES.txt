@@ -1,3 +1,13 @@
+2.1.0 (March 28, 2025)
+ - Added a new optional `properties` argument to the options object of the `useSplitTreatments` hook, allowing to pass a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
+ - Updated @splitsoftware/splitio package to version 11.2.0 that includes some minor updates:
+      - Added support for the new impressions tracking toggle available on feature flags, both respecting the setting and including the new field being returned on `SplitView` type objects. Read more in our docs.
+      - Added two new configuration options for the SDK's `LOCALSTORAGE` storage type to control the behavior of the persisted rollout plan cache in the browser:
+           - `storage.expirationDays` to specify the validity period of the rollout plan cache in days.
+           - `storage.clearOnInit` to clear the rollout plan cache on SDK initialization.
+      - Updated SDK_READY_FROM_CACHE event when using the `LOCALSTORAGE` storage type to be emitted alongside the SDK_READY event if it has not already been emitted.
+ - Updated the internal imports of React library from default to namespace imports as this is the recommended approach for better compatibility with React, TypeScript, ES modules, and tree shaking (https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html#removing-unused-react-imports).
+
 2.0.1 (December 4, 2024)
  - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
  - Updated internal handling of the `updateOnSdkTimedout` param to remove the wrong log "[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won't be emitted again".

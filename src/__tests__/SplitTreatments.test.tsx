@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render, RenderResult, act } from '@testing-library/react';
 
 /** Mocks */
@@ -189,7 +189,7 @@ describe('SplitTreatments', () => {
     // once operational (SDK_READY_FROM_CACHE), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY_FROM_CACHE));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, undefined);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
   });
 });
