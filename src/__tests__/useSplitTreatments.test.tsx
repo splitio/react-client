@@ -23,7 +23,7 @@ describe('useSplitTreatments', () => {
   const featureFlagNames = ['split1'];
   const flagSets = ['set1'];
   const attributes = { att1: 'att1' };
-  const evaluationOptions = { properties: { prop1: 'prop1' } };
+  const properties = { prop1: 'prop1' };
 
   test('returns the treatments evaluated by the main client of the factory at Split context, or control if the client is not operational.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
@@ -34,8 +34,8 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          treatments = useSplitTreatments({ names: featureFlagNames, attributes, options: evaluationOptions }).treatments;
-          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes, options: evaluationOptions }).treatments;
+          treatments = useSplitTreatments({ names: featureFlagNames, attributes, properties }).treatments;
+          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes, properties }).treatments;
 
           // @ts-expect-error Options object must provide either names or flagSets
           expect(useSplitTreatments({}).treatments).toEqual({});
@@ -55,10 +55,10 @@ describe('useSplitTreatments', () => {
     // once operational (SDK_READY), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, evaluationOptions);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, { properties });
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
 
-    expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes, evaluationOptions);
+    expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes, { properties });
     expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
   });
 
@@ -70,7 +70,7 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          const treatments = useSplitTreatments({ names: featureFlagNames, attributes, options: evaluationOptions, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
+          const treatments = useSplitTreatments({ names: featureFlagNames, attributes, properties, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
 
           renderTimes++;
           switch (renderTimes) {
@@ -82,7 +82,7 @@ describe('useSplitTreatments', () => {
             case 2:
             case 3:
               // once operational (SDK_READY or SDK_READY_FROM_CACHE), it evaluates feature flags
-              expect(client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(featureFlagNames, attributes, evaluationOptions);
+              expect(client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(featureFlagNames, attributes, { properties });
               expect(client.getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
               break;
             default:

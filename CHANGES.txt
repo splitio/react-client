@@ -1,5 +1,5 @@
 2.1.0 (March 28, 2025)
- - Added a new `options` argument to the options object of the `useSplitTreatments` method to allow passing additional evaluation options, such as a map of properties to append to the generated impression object sent to Split's backend. Read more in our docs.
+ - Added a new optional `properties` argument to the options object of the `useSplitTreatments` hook, allowing to pass a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
  - Updated @splitsoftware/splitio package to version 11.2.0 that includes some minor updates:
       - Added two new configuration options for the SDK's `LOCALSTORAGE` storage type to control the behavior of the persisted rollout plan cache in the browser:
            - `storage.expirationDays` to specify the validity period of the rollout plan cache in days.

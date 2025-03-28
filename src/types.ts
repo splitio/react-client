@@ -203,9 +203,9 @@ export type GetTreatmentsOptions = ({
   attributes?: SplitIO.Attributes;
 
   /**
-   * Advanced evaluation options.
+   * Optional properties to append to the generated impression object sent to Split backend.
    */
-  options?: SplitIO.EvaluationOptions;
+  properties?: SplitIO.Properties;
 }
 
 /**
