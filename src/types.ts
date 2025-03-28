@@ -201,6 +201,11 @@ export type GetTreatmentsOptions = ({
    * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
+
+  /**
+   * Optional properties to append to the generated impression object sent to Split backend.
+   */
+  properties?: SplitIO.Properties;
 }
 
 /**
