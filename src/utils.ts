@@ -150,13 +150,13 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[]) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions) {
   if (names && flagSets) console.log(WARN_NAMES_AND_FLAGSETS);
 
   return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
     names ?
-      client.getTreatmentsWithConfig(names, attributes) :
-      client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes) :
+      client.getTreatmentsWithConfig(names, attributes, options) :
+      client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes, options) :
     names ?
       getControlTreatmentsWithConfig(names) :
       {} // empty object when evaluating with flag sets and client is not ready

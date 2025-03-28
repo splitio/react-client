@@ -201,6 +201,11 @@ export type GetTreatmentsOptions = ({
    * An object of type Attributes used to evaluate the feature flags.
    */
   attributes?: SplitIO.Attributes;
+
+  /**
+   * Advanced evaluation options.
+   */
+  options?: SplitIO.EvaluationOptions;
 }
 
 /**

@@ -23,6 +23,7 @@ describe('useSplitTreatments', () => {
   const featureFlagNames = ['split1'];
   const flagSets = ['set1'];
   const attributes = { att1: 'att1' };
+  const evaluationOptions = { properties: { prop1: 'prop1' } };
 
   test('returns the treatments evaluated by the main client of the factory at Split context, or control if the client is not operational.', () => {
     const outerFactory = SplitFactory(sdkBrowser);
@@ -33,8 +34,8 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          treatments = useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
-          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes }).treatments;
+          treatments = useSplitTreatments({ names: featureFlagNames, attributes, options: evaluationOptions }).treatments;
+          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes, options: evaluationOptions }).treatments;
 
           // @ts-expect-error Options object must provide either names or flagSets
           expect(useSplitTreatments({}).treatments).toEqual({});
@@ -54,10 +55,10 @@ describe('useSplitTreatments', () => {
     // once operational (SDK_READY), it evaluates feature flags
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
-    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes);
+    expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, evaluationOptions);
     expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
 
-    expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes);
+    expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes, evaluationOptions);
     expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
   });
 
@@ -69,7 +70,7 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          const treatments = useSplitTreatments({ names: featureFlagNames, attributes, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
+          const treatments = useSplitTreatments({ names: featureFlagNames, attributes, options: evaluationOptions, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
 
           renderTimes++;
           switch (renderTimes) {
@@ -81,7 +82,7 @@ describe('useSplitTreatments', () => {
             case 2:
             case 3:
               // once operational (SDK_READY or SDK_READY_FROM_CACHE), it evaluates feature flags
-              expect(client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(featureFlagNames, attributes);
+              expect(client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(featureFlagNames, attributes, evaluationOptions);
               expect(client.getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
               break;
             default:
@@ -209,7 +210,7 @@ describe('useSplitTreatments', () => {
     // If useSplitTreatments evaluates with the main client and have default update options, it re-renders for each main client event.
     expect(countUseSplitTreatments).toEqual(4);
     expect(mainClient.getTreatmentsWithConfig).toHaveBeenCalledTimes(3); // when ready from cache, ready and update
-    expect(mainClient.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], { att1: 'att1' });
+    expect(mainClient.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], { att1: 'att1' }, undefined);
 
     // If useSplitTreatments evaluates with a different client and have default update options, it re-renders for each event of the new client.
     expect(countUseSplitTreatmentsUser2).toEqual(4);
@@ -218,7 +219,7 @@ describe('useSplitTreatments', () => {
     expect(countUseSplitTreatmentsUser2WithoutUpdate).toEqual(3);
     expect(lastUpdateSetUser2WithUpdate.size).toEqual(3);
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(5); // when ready from cache x2, ready x2 and update x1
-    expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined);
+    expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined, undefined);
   });
 
   test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
