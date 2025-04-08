@@ -1,5 +1,5 @@
 2.1.1 (April 8, 2025)
- - Bugfix - Fixed `useSplitClient` and `useSplitTreatments` hooks to properly respect `updateOn<Event>` options. Previously, if the hooks were re-called due to a component re-render, they used the latest version of the SDK client status ignoring when `updateOn<Event>` options were set to `false`.
+ - Bugfix - Fixed `useSplitClient` and `useSplitTreatments` hooks to properly respect `updateOn<Event>` options. Previously, if the hooks were re-called due to a component re-render, they used the latest version of the SDK client status ignoring when `updateOn<Event>` options were set to `false` and resulting in unexpected changes in treatment values.
 
 2.1.0 (March 28, 2025)
  - Added a new optional `properties` argument to the options object of the `useSplitTreatments` hook, allowing to pass a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
