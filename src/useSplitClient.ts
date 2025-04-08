@@ -37,8 +37,10 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
 
   initAttributes(client, attributes);
 
-  const status = getStatus(client);
-  const [, setLastUpdate] = React.useState(status.lastUpdate);
+  const [lastUpdate, setLastUpdate] = React.useState(0);
+  // `getStatus` is not pure. Its result depends on `client` and `lastUpdate`
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const status = React.useMemo(() => getStatus(client), [client, lastUpdate]);
 
   // Handle client events
   React.useEffect(() => {
