@@ -228,7 +228,7 @@ describe.each([
   }) {
     return (
       <SplitFactoryProvider factory={outerFactory} >
-        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
+        <SplitClient splitKey={splitKey} attributes={clientAttributes} >
           <InnerComponent names={names} attributes={attributes} flagSets={flagSets} />
         </SplitClient>
       </SplitFactoryProvider>
@@ -269,7 +269,7 @@ describe.each([
   });
 
   it('rerenders and re-evaluates feature flags if names are not equals (shallow array comparison).', () => {
-    wrapper.rerender(<Component names={[...names, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={[...names, 'split3']} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
@@ -290,14 +290,14 @@ describe.each([
 
   it('rerenders and re-evaluates feature flags if attributes are not equals (shallow object comparison).', () => {
     const attributesRef = { ...attributes, att2: 'att2' };
-    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributesRef} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
     // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate feature flags
     attributesRef.att2 = 'att2_val2';
-    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributesRef} splitKey={splitKey} />);
     expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
@@ -307,10 +307,11 @@ describe.each([
 
     // State update and split evaluation
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
     // State update after destroy doesn't re-evaluate because the sdk is not operational
     (outerFactory as any).client().destroy();
-    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
 
     // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
     expect(renderTimes).toBe(3);
