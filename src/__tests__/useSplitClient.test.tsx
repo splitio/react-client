@@ -147,7 +147,7 @@ describe('useSplitClient', () => {
                 expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
                 expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
                 break;
-              case 4: // Forced update
+              case 4: // Forced re-render, lastUpdate doesn't change after SDK_UPDATE due to updateOnSdkUpdate = false
                 expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
                 expect(lastUpdate).toBe(previousLastUpdate);
                 break;
