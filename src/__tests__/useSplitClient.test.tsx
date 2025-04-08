@@ -13,7 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { useSplitClient } from '../useSplitClient';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitContext } from '../SplitContext';
-import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { INITIAL_STATUS, testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useSplitClient', () => {
@@ -222,9 +222,11 @@ describe('useSplitClient', () => {
     const mainClient = outerFactory.client() as any;
 
     let rendersCount = 0;
+    let currentStatus, previousStatus;
 
     function InnerComponent(updateOptions) {
-      useSplitClient(updateOptions);
+      previousStatus = currentStatus;
+      currentStatus = useSplitClient(updateOptions);
       rendersCount++;
       return null;
     }
@@ -237,26 +239,46 @@ describe('useSplitClient', () => {
       )
     }
 
-    const wrapper = render(<Component updateOnSdkUpdate={false} />);
+    const wrapper = render(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />);
     expect(rendersCount).toBe(1);
 
-    act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY_TIMED_OUT)); // do not trigger re-render because updateOnSdkTimedout is false
+    expect(rendersCount).toBe(1);
+    expect(currentStatus).toMatchObject(INITIAL_STATUS);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />);
     expect(rendersCount).toBe(2);
+    expect(currentStatus).toEqual(previousStatus);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={true} />); // trigger re-render because there was an SDK_READY_TIMED_OUT event
+    expect(rendersCount).toBe(4);
+    expect(currentStatus).toMatchObject({ isReady: false, isReadyFromCache: false, hasTimedout: true });
+
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    expect(rendersCount).toBe(5);
+    expect(currentStatus).toMatchObject({ isReady: true, isReadyFromCache: false, hasTimedout: true });
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
-    expect(rendersCount).toBe(2);
-
-    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render
-    expect(rendersCount).toBe(3);
-
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
-    expect(rendersCount).toBe(4);
-
-    wrapper.rerender(<Component updateOnSdkUpdate={false} />); // trigger re-render
     expect(rendersCount).toBe(5);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />); // should not update the status (SDK_UPDATE event should be ignored)
+    expect(rendersCount).toBe(6);
+    expect(currentStatus).toEqual(previousStatus);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render and update the status because updateOnSdkUpdate is true and there was an SDK_UPDATE event
+    expect(rendersCount).toBe(8);
+    expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
+
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true
+    expect(rendersCount).toBe(9);
+    expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} />);
+    expect(rendersCount).toBe(10);
+    expect(currentStatus).toEqual(previousStatus);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
-    expect(rendersCount).toBe(5);
+    expect(rendersCount).toBe(10);
   });
 
 });

@@ -31,7 +31,7 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
 
-  // @TODO Move `getSplitClient` side effects
+  // @TODO Move `getSplitClient` side effects and reduce the function cognitive complexity
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
   const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient;
 
@@ -68,7 +68,10 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
         if (!status.hasTimedout) update();
       }
     }
-    if (updateOnSdkUpdate !== false) client.on(client.Event.SDK_UPDATE, update);
+    if (updateOnSdkUpdate !== false) {
+      client.on(client.Event.SDK_UPDATE, update);
+      if (statusOnEffect.isReady && statusOnEffect.lastUpdate > status.lastUpdate) update();
+    }
 
     return () => {
       // Unsubscribe from events
