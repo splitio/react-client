@@ -68,7 +68,10 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
         if (!status.hasTimedout) update();
       }
     }
-    if (updateOnSdkUpdate !== false) client.on(client.Event.SDK_UPDATE, update);
+    if (updateOnSdkUpdate !== false) {
+      client.on(client.Event.SDK_UPDATE, update);
+      if (statusOnEffect.isReady && statusOnEffect.lastUpdate > status.lastUpdate) update();
+    }
 
     return () => {
       // Unsubscribe from events
