@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitFactory';
@@ -87,8 +87,9 @@ describe('useSplitClient', () => {
 
     let countSplitContext = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
     let countUseSplitClientWithoutUpdate = 0, countUseSplitClientUser2WithoutTimeout = 0;
+    let previousLastUpdate = -1;
 
-    render(
+    const { getByTestId } = render(
       <SplitFactoryProvider factory={outerFactory} >
         <>
           <SplitContext.Consumer>
@@ -129,9 +130,35 @@ describe('useSplitClient', () => {
             return null;
           })}
           {React.createElement(() => {
-            useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: false }).client;
+            const [state, setState] = React.useState(false);
+
+            const { isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: false });
             countUseSplitClientWithoutUpdate++;
-            return null;
+            switch (countUseSplitClientWithoutUpdate) {
+              case 1: // initial render
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, false, false]);
+                expect(lastUpdate).toBe(0);
+                break;
+              case 2: // SDK_READY_FROM_CACHE
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, true, false]);
+                expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+                break;
+              case 3: // SDK_READY
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
+                expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+                break;
+              case 4: // Forced re-render, lastUpdate doesn't change after SDK_UPDATE due to updateOnSdkUpdate = false
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
+                expect(lastUpdate).toBe(previousLastUpdate);
+                break;
+              default:
+                throw new Error('Unexpected render');
+            }
+
+            previousLastUpdate = lastUpdate;
+            return (
+              <button data-testid="update-button" onClick={() => setState(!state)}>Force Update</button>
+            );
           })}
           {React.createElement(() => {
             useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: false });
@@ -149,6 +176,7 @@ describe('useSplitClient', () => {
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
+    act(() => fireEvent.click(getByTestId('update-button')));
 
     // SplitFactoryProvider renders once
     expect(countSplitContext).toEqual(1);
@@ -160,7 +188,7 @@ describe('useSplitClient', () => {
     expect(countUseSplitClientUser2).toEqual(5);
 
     // If useSplitClient retrieves the main client and have updateOnSdkUpdate = false, it doesn't render when the main client updates.
-    expect(countUseSplitClientWithoutUpdate).toEqual(3);
+    expect(countUseSplitClientWithoutUpdate).toEqual(4);
 
     // If useSplitClient retrieves a different client and have updateOnSdkTimedout = false, it doesn't render when the the new client times out.
     expect(countUseSplitClientUser2WithoutTimeout).toEqual(4);

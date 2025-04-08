@@ -200,18 +200,18 @@ let renderTimes = 0;
  * Tests for asserting that client.getTreatmentsWithConfig and client.getTreatmentsWithConfigByFlagSets are not called unnecessarily when using SplitTreatments and useSplitTreatments.
  */
 describe.each([
-  ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => (
+  ({ names, flagSets, attributes, updateOnSdkUpdate }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes, updateOnSdkUpdate?: boolean }) => (
     // @ts-expect-error names and flagSets are mutually exclusive
-    <SplitTreatments names={names} attributes={attributes} flagSets={flagSets} >
+    <SplitTreatments names={names} attributes={attributes} flagSets={flagSets} updateOnSdkUpdate={updateOnSdkUpdate} >
       {() => {
         renderTimes++;
         return null;
       }}
     </SplitTreatments>
   ),
-  ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => {
+  ({ names, flagSets, attributes, updateOnSdkUpdate }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes, updateOnSdkUpdate?: boolean }) => {
     // @ts-expect-error names and flagSets are mutually exclusive
-    useSplitTreatments({ names, flagSets, attributes });
+    useSplitTreatments({ names, flagSets, attributes, updateOnSdkUpdate });
     renderTimes++;
     return null;
   }
@@ -219,17 +219,18 @@ describe.each([
   let outerFactory = SplitFactory(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
-  function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
+  function Component({ names, flagSets, attributes, splitKey, clientAttributes, updateOnSdkUpdate }: {
     names?: ISplitTreatmentsProps['names']
     flagSets?: ISplitTreatmentsProps['flagSets']
     attributes: ISplitTreatmentsProps['attributes']
     splitKey: ISplitClientProps['splitKey']
-    clientAttributes?: ISplitClientProps['attributes']
+    clientAttributes?: ISplitClientProps['attributes'],
+    updateOnSdkUpdate?: boolean
   }) {
     return (
       <SplitFactoryProvider factory={outerFactory} >
         <SplitClient splitKey={splitKey} attributes={clientAttributes} >
-          <InnerComponent names={names} attributes={attributes} flagSets={flagSets} />
+          <InnerComponent names={names} attributes={attributes} flagSets={flagSets} updateOnSdkUpdate={updateOnSdkUpdate} />
         </SplitClient>
       </SplitFactoryProvider>
     );
@@ -320,6 +321,17 @@ describe.each([
     // Restore the client to be READY
     (outerFactory as any).client().__restore();
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+  });
+
+  it('rerenders and does not re-evaluate feature flags if lastUpdate timestamp does not change (e.g., SDK_UPDATE event but `updateOnSdkUpdate` false).', () => {
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} updateOnSdkUpdate={false} />);
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+
+    // SDK_UPDATE doesn't re-evaluate due to updateOnSdkUpdate false
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluates feature flags if client changes.', async () => {
