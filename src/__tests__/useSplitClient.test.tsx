@@ -261,15 +261,15 @@ describe('useSplitClient', () => {
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
     expect(rendersCount).toBe(5);
 
-    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />); // trigger re-render but should not update the status (SDK_UPDATE event should be ignored)
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />); // should not update the status (SDK_UPDATE event should be ignored)
     expect(rendersCount).toBe(6);
     expect(currentStatus).toEqual(previousStatus);
 
-    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render because there was an SDK_UPDATE event
+    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render and update the status because updateOnSdkUpdate is true and there was an SDK_UPDATE event
     expect(rendersCount).toBe(8);
     expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
 
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true
     expect(rendersCount).toBe(9);
     expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
 
