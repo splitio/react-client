@@ -34,7 +34,9 @@ export interface ISplitStatus {
   isDestroyed: boolean;
 
   /**
-   * Indicates when was the last status event, either `SDK_READY`, `SDK_READY_FROM_CACHE`, `SDK_READY_TIMED_OUT` or `SDK_UPDATE`.
+   * `lastUpdate` indicates when the most recent status event was emitted. This timestamp is only updated for events that are being listened to,
+   * configured via the `updateOnSdkReady` option for `SDK_READY` event, `updateOnSdkReadyFromCache` for `SDK_READY_FROM_CACHE` event,
+   * `updateOnSdkTimedout` for `SDK_READY_TIMED_OUT` event, and `updateOnSdkUpdate` for `SDK_UPDATE` event.
    */
   lastUpdate: number;
 }
@@ -45,29 +47,29 @@ export interface ISplitStatus {
 export interface IUpdateProps {
 
   /**
-   * `updateOnSdkUpdate` indicates if the component will update (i.e., re-render) in case of an `SDK_UPDATE` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_UPDATE`.
+   * `updateOnSdkUpdate` indicates if the hook or component will update (i.e., re-render) in case of an `SDK_UPDATE` event.
+   * If `true`, hooks or components consuming the context (such as `useSplitClient` and `useSplitTreatments`) will re-render on `SDK_UPDATE`.
    * It's value is `true` by default.
    */
   updateOnSdkUpdate?: boolean;
 
   /**
-   * `updateOnSdkTimedout` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_TIMED_OUT` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_TIMED_OUT`.
+   * `updateOnSdkTimedout` indicates if the hook or component will update (i.e., re-render) in case of a `SDK_READY_TIMED_OUT` event.
+   * If `true`, hooks or components consuming the context (such as `useSplitClient` and `useSplitTreatments`) will re-render on `SDK_READY_TIMED_OUT`.
    * It's value is `true` by default.
    */
   updateOnSdkTimedout?: boolean;
 
   /**
-   * `updateOnSdkReady` indicates if the component will update (i.e., re-render) in case of a `SDK_READY` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY`.
+   * `updateOnSdkReady` indicates if the hook or component will update (i.e., re-render) in case of a `SDK_READY` event.
+   * If `true`, hooks or components consuming the context (such as `useSplitClient` and `useSplitTreatments`) will re-render on `SDK_READY`.
    * It's value is `true` by default.
    */
   updateOnSdkReady?: boolean;
 
   /**
-   * `updateOnSdkReadyFromCache` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_FROM_CACHE` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_FROM_CACHE`.
+   * `updateOnSdkReadyFromCache` indicates if the hook or component will update (i.e., re-render) in case of a `SDK_READY_FROM_CACHE` event.
+   * If `true`, hooks or components consuming the context (such as `useSplitClient` and `useSplitTreatments`) will re-render on `SDK_READY_FROM_CACHE`.
    * This params is only relevant when using `'LOCALSTORAGE'` as storage type, since otherwise the event is never emitted.
    * It's value is `true` by default.
    */

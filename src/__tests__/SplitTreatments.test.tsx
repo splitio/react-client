@@ -385,7 +385,7 @@ describe.each([
     });
 
     expect(renderTimesComp1).toBe(2);
-    expect(renderTimesComp2).toBe(2); // updateOnSdkReadyFromCache === false, in second component
+    expect(renderTimesComp2).toBe(1); // updateOnSdkReadyFromCache === false, in second component
 
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
@@ -393,7 +393,7 @@ describe.each([
     });
 
     expect(renderTimesComp1).toBe(3);
-    expect(renderTimesComp2).toBe(3);
+    expect(renderTimesComp2).toBe(2);
 
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
@@ -401,7 +401,7 @@ describe.each([
     });
 
     expect(renderTimesComp1).toBe(3); // updateOnSdkReady === false, in first component
-    expect(renderTimesComp2).toBe(4);
+    expect(renderTimesComp2).toBe(3);
 
     act(() => {
       (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE);
@@ -409,9 +409,9 @@ describe.each([
     });
 
     expect(renderTimesComp1).toBe(4);
-    expect(renderTimesComp2).toBe(5);
+    expect(renderTimesComp2).toBe(4);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(3); // renderTimes - 1, for the 1st render where SDK is not operational
-    expect(outerFactory.client('user2').getTreatmentsWithConfig).toBeCalledTimes(4); // idem
+    expect(outerFactory.client('user2').getTreatmentsWithConfig).toBeCalledTimes(3); // idem
   });
 
   it('rerenders and re-evaluates feature flags if client attributes changes.', (done) => {
