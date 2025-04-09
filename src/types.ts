@@ -40,33 +40,6 @@ export interface ISplitStatus {
 }
 
 /**
- * Split Context Value interface. It is used to define the value types of Split Context
- */
-export interface ISplitContextValues extends ISplitStatus {
-
-  /**
-   * Split factory instance.
-   *
-   * NOTE: This property is available for accessing factory methods not covered by the library hooks,
-   * such as Logging configuration and User Consent.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#logging}),
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
-   */
-  factory?: SplitIO.IBrowserSDK;
-
-  /**
-   * Split client instance.
-   *
-   * NOTE: This property is not recommended for direct use, as better alternatives are available:
-   * - `useSplitTreatments` hook to evaluate feature flags.
-   * - `useTrack` hook to track events.
-   *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
-   */
-  client?: SplitIO.IBrowserClient;
-}
-
-/**
  * Update Props interface. It defines the props used to configure what SDK events are listened to update the component.
  */
 export interface IUpdateProps {
@@ -102,6 +75,33 @@ export interface IUpdateProps {
 }
 
 /**
+ * Split Context Value interface. It is used to define the value types of Split Context
+ */
+export interface ISplitContextValues extends ISplitStatus, IUpdateProps {
+
+  /**
+   * Split factory instance.
+   *
+   * NOTE: This property is available for accessing factory methods not covered by the library hooks,
+   * such as Logging configuration and User Consent.
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#logging}),
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
+   */
+  factory?: SplitIO.IBrowserSDK;
+
+  /**
+   * Split client instance.
+   *
+   * NOTE: This property is not recommended for direct use, as better alternatives are available:
+   * - `useSplitTreatments` hook to evaluate feature flags.
+   * - `useTrack` hook to track events.
+   *
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+   */
+  client?: SplitIO.IBrowserClient;
+}
+
+/**
  * Props interface for components wrapped by the `withSplitFactory` HOC. These props are provided by the HOC to the wrapped component.
  *
  * @deprecated `withSplitFactory` will be removed in a future major release. We recommend replacing it with the `SplitFactoryProvider` component.
@@ -112,7 +112,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues { }
  * SplitFactoryProvider Props interface. These are the props accepted by the `SplitFactoryProvider` component,
  * used to instantiate a factory and provide it to the Split Context.
  */
-export interface ISplitFactoryProviderProps {
+export interface ISplitFactoryProviderProps extends IUpdateProps {
 
   /**
    * Config object used to instantiate a Split factory.

@@ -24,12 +24,11 @@ export const DEFAULT_UPDATE_OPTIONS = {
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
 export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
-  const {
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
-  } = { ...DEFAULT_UPDATE_OPTIONS, ...options };
-
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
+  const {
+    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
+  } = { ...DEFAULT_UPDATE_OPTIONS, ...context, ...options };
 
   // @TODO Move `getSplitClient` side effects and reduce the function cognitive complexity
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
