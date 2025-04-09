@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 
 /** Mocks */
 import { mockSdk, Event } from './testUtils/mockSplitFactory';
@@ -13,7 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { useSplitClient } from '../useSplitClient';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitContext } from '../SplitContext';
-import { testAttributesBinding, TestComponentProps } from './testUtils/utils';
+import { INITIAL_STATUS, testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { EXCEPTION_NO_SFP } from '../constants';
 
 describe('useSplitClient', () => {
@@ -87,8 +87,9 @@ describe('useSplitClient', () => {
 
     let countSplitContext = 0, countUseSplitClient = 0, countUseSplitClientUser2 = 0;
     let countUseSplitClientWithoutUpdate = 0, countUseSplitClientUser2WithoutTimeout = 0;
+    let previousLastUpdate = -1;
 
-    render(
+    const { getByTestId } = render(
       <SplitFactoryProvider factory={outerFactory} >
         <>
           <SplitContext.Consumer>
@@ -129,9 +130,35 @@ describe('useSplitClient', () => {
             return null;
           })}
           {React.createElement(() => {
-            useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: false }).client;
+            const [state, setState] = React.useState(false);
+
+            const { isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: sdkBrowser.core.key, updateOnSdkUpdate: false });
             countUseSplitClientWithoutUpdate++;
-            return null;
+            switch (countUseSplitClientWithoutUpdate) {
+              case 1: // initial render
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, false, false]);
+                expect(lastUpdate).toBe(0);
+                break;
+              case 2: // SDK_READY_FROM_CACHE
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([false, true, false]);
+                expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+                break;
+              case 3: // SDK_READY
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
+                expect(lastUpdate).toBeGreaterThan(previousLastUpdate);
+                break;
+              case 4: // Forced re-render, lastUpdate doesn't change after SDK_UPDATE due to updateOnSdkUpdate = false
+                expect([isReady, isReadyFromCache, hasTimedout]).toEqual([true, true, false]);
+                expect(lastUpdate).toBe(previousLastUpdate);
+                break;
+              default:
+                throw new Error('Unexpected render');
+            }
+
+            previousLastUpdate = lastUpdate;
+            return (
+              <button data-testid="update-button" onClick={() => setState(!state)}>Force Update</button>
+            );
           })}
           {React.createElement(() => {
             useSplitClient({ splitKey: 'user_2', updateOnSdkTimedout: false });
@@ -149,6 +176,7 @@ describe('useSplitClient', () => {
     act(() => user2Client.__emitter__.emit(Event.SDK_READY));
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE));
     act(() => user2Client.__emitter__.emit(Event.SDK_UPDATE));
+    act(() => fireEvent.click(getByTestId('update-button')));
 
     // SplitFactoryProvider renders once
     expect(countSplitContext).toEqual(1);
@@ -160,7 +188,7 @@ describe('useSplitClient', () => {
     expect(countUseSplitClientUser2).toEqual(5);
 
     // If useSplitClient retrieves the main client and have updateOnSdkUpdate = false, it doesn't render when the main client updates.
-    expect(countUseSplitClientWithoutUpdate).toEqual(3);
+    expect(countUseSplitClientWithoutUpdate).toEqual(4);
 
     // If useSplitClient retrieves a different client and have updateOnSdkTimedout = false, it doesn't render when the the new client times out.
     expect(countUseSplitClientUser2WithoutTimeout).toEqual(4);
@@ -194,9 +222,11 @@ describe('useSplitClient', () => {
     const mainClient = outerFactory.client() as any;
 
     let rendersCount = 0;
+    let currentStatus, previousStatus;
 
     function InnerComponent(updateOptions) {
-      useSplitClient(updateOptions);
+      previousStatus = currentStatus;
+      currentStatus = useSplitClient(updateOptions);
       rendersCount++;
       return null;
     }
@@ -209,26 +239,46 @@ describe('useSplitClient', () => {
       )
     }
 
-    const wrapper = render(<Component updateOnSdkUpdate={false} />);
+    const wrapper = render(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />);
     expect(rendersCount).toBe(1);
 
-    act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY_TIMED_OUT)); // do not trigger re-render because updateOnSdkTimedout is false
+    expect(rendersCount).toBe(1);
+    expect(currentStatus).toMatchObject(INITIAL_STATUS);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />);
     expect(rendersCount).toBe(2);
+    expect(currentStatus).toEqual(previousStatus);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={true} />); // trigger re-render because there was an SDK_READY_TIMED_OUT event
+    expect(rendersCount).toBe(4);
+    expect(currentStatus).toMatchObject({ isReady: false, isReadyFromCache: false, hasTimedout: true });
+
+    act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
+    expect(rendersCount).toBe(5);
+    expect(currentStatus).toMatchObject({ isReady: true, isReadyFromCache: false, hasTimedout: true });
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
-    expect(rendersCount).toBe(2);
-
-    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render
-    expect(rendersCount).toBe(3);
-
-    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true now
-    expect(rendersCount).toBe(4);
-
-    wrapper.rerender(<Component updateOnSdkUpdate={false} />); // trigger re-render
     expect(rendersCount).toBe(5);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />); // should not update the status (SDK_UPDATE event should be ignored)
+    expect(rendersCount).toBe(6);
+    expect(currentStatus).toEqual(previousStatus);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render and update the status because updateOnSdkUpdate is true and there was an SDK_UPDATE event
+    expect(rendersCount).toBe(8);
+    expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
+
+    act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true
+    expect(rendersCount).toBe(9);
+    expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
+
+    wrapper.rerender(<Component updateOnSdkUpdate={false} />);
+    expect(rendersCount).toBe(10);
+    expect(currentStatus).toEqual(previousStatus);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
-    expect(rendersCount).toBe(5);
+    expect(rendersCount).toBe(10);
   });
 
 });

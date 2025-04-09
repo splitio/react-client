@@ -200,18 +200,18 @@ let renderTimes = 0;
  * Tests for asserting that client.getTreatmentsWithConfig and client.getTreatmentsWithConfigByFlagSets are not called unnecessarily when using SplitTreatments and useSplitTreatments.
  */
 describe.each([
-  ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => (
+  ({ names, flagSets, attributes, updateOnSdkUpdate }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes, updateOnSdkUpdate?: boolean }) => (
     // @ts-expect-error names and flagSets are mutually exclusive
-    <SplitTreatments names={names} attributes={attributes} flagSets={flagSets} >
+    <SplitTreatments names={names} attributes={attributes} flagSets={flagSets} updateOnSdkUpdate={updateOnSdkUpdate} >
       {() => {
         renderTimes++;
         return null;
       }}
     </SplitTreatments>
   ),
-  ({ names, flagSets, attributes }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes }) => {
+  ({ names, flagSets, attributes, updateOnSdkUpdate }: { names?: string[], flagSets?: string[], attributes?: SplitIO.Attributes, updateOnSdkUpdate?: boolean }) => {
     // @ts-expect-error names and flagSets are mutually exclusive
-    useSplitTreatments({ names, flagSets, attributes });
+    useSplitTreatments({ names, flagSets, attributes, updateOnSdkUpdate });
     renderTimes++;
     return null;
   }
@@ -219,17 +219,18 @@ describe.each([
   let outerFactory = SplitFactory(sdkBrowser);
   (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
 
-  function Component({ names, flagSets, attributes, splitKey, clientAttributes }: {
+  function Component({ names, flagSets, attributes, splitKey, clientAttributes, updateOnSdkUpdate }: {
     names?: ISplitTreatmentsProps['names']
     flagSets?: ISplitTreatmentsProps['flagSets']
     attributes: ISplitTreatmentsProps['attributes']
     splitKey: ISplitClientProps['splitKey']
-    clientAttributes?: ISplitClientProps['attributes']
+    clientAttributes?: ISplitClientProps['attributes'],
+    updateOnSdkUpdate?: boolean
   }) {
     return (
       <SplitFactoryProvider factory={outerFactory} >
-        <SplitClient splitKey={splitKey} updateOnSdkUpdate={true} attributes={clientAttributes} >
-          <InnerComponent names={names} attributes={attributes} flagSets={flagSets} />
+        <SplitClient splitKey={splitKey} attributes={clientAttributes} >
+          <InnerComponent names={names} attributes={attributes} flagSets={flagSets} updateOnSdkUpdate={updateOnSdkUpdate} />
         </SplitClient>
       </SplitFactoryProvider>
     );
@@ -269,7 +270,7 @@ describe.each([
   });
 
   it('rerenders and re-evaluates feature flags if names are not equals (shallow array comparison).', () => {
-    wrapper.rerender(<Component names={[...names, 'split3']} attributes={{ ...attributes }} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={[...names, 'split3']} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
@@ -290,14 +291,14 @@ describe.each([
 
   it('rerenders and re-evaluates feature flags if attributes are not equals (shallow object comparison).', () => {
     const attributesRef = { ...attributes, att2: 'att2' };
-    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributesRef} splitKey={splitKey} />);
 
     expect(renderTimes).toBe(2);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
     // If passing same reference but mutated (bad practice), the component re-renders but doesn't re-evaluate feature flags
     attributesRef.att2 = 'att2_val2';
-    wrapper.rerender(<Component names={[...names]} attributes={attributesRef} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributesRef} splitKey={splitKey} />);
     expect(renderTimes).toBe(3);
     expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
   });
@@ -307,10 +308,11 @@ describe.each([
 
     // State update and split evaluation
     act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
 
     // State update after destroy doesn't re-evaluate because the sdk is not operational
     (outerFactory as any).client().destroy();
-    wrapper.rerender(<Component names={names} attributes={attributes} splitKey={splitKey} />);
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} />);
 
     // Updates were batched as a single render, due to automatic batching https://reactjs.org/blog/2022/03/29/react-v18.html#new-feature-automatic-batching
     expect(renderTimes).toBe(3);
@@ -319,6 +321,17 @@ describe.each([
     // Restore the client to be READY
     (outerFactory as any).client().__restore();
     (outerFactory as any).client().__emitter__.emit(Event.SDK_READY);
+  });
+
+  it('rerenders and does not re-evaluate feature flags if lastUpdate timestamp does not change (e.g., SDK_UPDATE event but `updateOnSdkUpdate` false).', () => {
+    wrapper.rerender(<Component names={names} flagSets={flagSets} attributes={attributes} splitKey={splitKey} updateOnSdkUpdate={false} />);
+    expect(renderTimes).toBe(2);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
+
+    // SDK_UPDATE doesn't re-evaluate due to updateOnSdkUpdate false
+    act(() => (outerFactory as any).client().__emitter__.emit(Event.SDK_UPDATE));
+    expect(renderTimes).toBe(3);
+    expect(outerFactory.client().getTreatmentsWithConfig).toBeCalledTimes(1);
   });
 
   it('rerenders and re-evaluates feature flags if client changes.', async () => {

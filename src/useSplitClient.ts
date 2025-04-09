@@ -31,14 +31,16 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
 
-  // @TODO Move `getSplitClient` side effects
+  // @TODO Move `getSplitClient` side effects and reduce the function cognitive complexity
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
   const client = factory && splitKey ? getSplitClient(factory, splitKey) : contextClient;
 
   initAttributes(client, attributes);
 
-  const status = getStatus(client);
-  const [, setLastUpdate] = React.useState(status.lastUpdate);
+  const [lastUpdate, setLastUpdate] = React.useState(0);
+  // `getStatus` is not pure. Its result depends on `client` and `lastUpdate`
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const status = React.useMemo(() => getStatus(client), [client, lastUpdate]);
 
   // Handle client events
   React.useEffect(() => {
@@ -66,7 +68,10 @@ export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextV
         if (!status.hasTimedout) update();
       }
     }
-    if (updateOnSdkUpdate !== false) client.on(client.Event.SDK_UPDATE, update);
+    if (updateOnSdkUpdate !== false) {
+      client.on(client.Event.SDK_UPDATE, update);
+      if (statusOnEffect.isReady && statusOnEffect.lastUpdate > status.lastUpdate) update();
+    }
 
     return () => {
       // Unsubscribe from events
