@@ -18,6 +18,10 @@ import { withSplitClient } from '../withSplitClient';
 
 describe('withSplitClient', () => {
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('passes no-ready props to the child if client is not ready.', () => {
     const Component = withSplitFactory(sdkBrowser)(
       withSplitClient('user1')(
@@ -77,15 +81,13 @@ describe('withSplitClient', () => {
     );
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 
-    expect(SplitClientSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        updateOnSdkUpdate,
-        updateOnSdkTimedout,
-        updateOnSdkReady,
-        updateOnSdkReadyFromCache,
-      }),
-      expect.anything()
-    );
+    expect(SplitClientSpy).toHaveBeenCalledTimes(2);
+    expect(SplitClientSpy.mock.calls[1][0]).toMatchObject({
+      updateOnSdkUpdate,
+      updateOnSdkTimedout,
+      updateOnSdkReady,
+      updateOnSdkReadyFromCache,
+    });
   });
 
   test('attributes binding test with utility', (done) => {

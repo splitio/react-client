@@ -17,6 +17,10 @@ import { withSplitFactory } from '../withSplitFactory';
 
 describe('withSplitFactory', () => {
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('passes no-ready props to the child if initialized with a no ready factory (e.g., using config object).', () => {
     const Component = withSplitFactory(sdkBrowser)(
       ({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
@@ -69,15 +73,13 @@ describe('withSplitFactory', () => {
 
     render(<Component outerProp1='outerProp1' outerProp2={2} />);
 
-    expect(SplitClient).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        updateOnSdkUpdate,
-        updateOnSdkTimedout,
-        updateOnSdkReady,
-        updateOnSdkReadyFromCache
-      }),
-      expect.anything(),
-    );
+    expect(SplitClient).toHaveBeenCalledTimes(1);
+    expect((SplitClient as jest.Mock).mock.calls[0][0]).toMatchObject({
+      updateOnSdkUpdate,
+      updateOnSdkTimedout,
+      updateOnSdkReady,
+      updateOnSdkReadyFromCache
+    });
   });
 
 });
