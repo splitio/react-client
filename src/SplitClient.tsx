@@ -19,10 +19,10 @@ export function SplitClient(props: ISplitClientProps) {
   return (
     <SplitContext.Provider value={{
       ...context,
-      updateOnSdkReady: props.updateOnSdkReady,
-      updateOnSdkReadyFromCache: props.updateOnSdkReadyFromCache,
-      updateOnSdkTimedout: props.updateOnSdkTimedout,
-      updateOnSdkUpdate: props.updateOnSdkUpdate
+      updateOnSdkReady: props.updateOnSdkReady ?? context.updateOnSdkReady,
+      updateOnSdkReadyFromCache: props.updateOnSdkReadyFromCache ?? context.updateOnSdkReadyFromCache,
+      updateOnSdkTimedout: props.updateOnSdkTimedout ?? context.updateOnSdkTimedout,
+      updateOnSdkUpdate: props.updateOnSdkUpdate ?? context.updateOnSdkUpdate
     }}>
       {
         typeof children === 'function' ?

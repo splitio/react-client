@@ -3,13 +3,6 @@ import { useSplitContext } from './SplitContext';
 import { getSplitClient, initAttributes, getStatus } from './utils';
 import { ISplitContextValues, IUseSplitClientOptions } from './types';
 
-export const DEFAULT_UPDATE_OPTIONS = {
-  updateOnSdkUpdate: true,
-  updateOnSdkTimedout: true,
-  updateOnSdkReady: true,
-  updateOnSdkReadyFromCache: true,
-};
-
 /**
  * `useSplitClient` is a hook that returns an Split Context object with the client and its status corresponding to the provided key.
  *
@@ -23,12 +16,14 @@ export const DEFAULT_UPDATE_OPTIONS = {
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
  */
-export function useSplitClient(options?: IUseSplitClientOptions): ISplitContextValues {
+export function useSplitClient(options: IUseSplitClientOptions = {}): ISplitContextValues {
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
-  const {
-    updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, splitKey, attributes
-  } = { ...DEFAULT_UPDATE_OPTIONS, ...context, ...options };
+  const { splitKey, attributes } = options;
+  const updateOnSdkReady = options.updateOnSdkReady ?? context.updateOnSdkReady;
+  const updateOnSdkReadyFromCache = options.updateOnSdkReadyFromCache ?? context.updateOnSdkReadyFromCache;
+  const updateOnSdkTimedout = options.updateOnSdkTimedout ?? context.updateOnSdkTimedout;
+  const updateOnSdkUpdate = options.updateOnSdkUpdate ?? context.updateOnSdkUpdate;
 
   // @TODO Move `getSplitClient` side effects and reduce the function cognitive complexity
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
