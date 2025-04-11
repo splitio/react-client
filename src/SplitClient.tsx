@@ -17,7 +17,13 @@ export function SplitClient(props: ISplitClientProps) {
   const context = useSplitClient(props);
 
   return (
-    <SplitContext.Provider value={context}>
+    <SplitContext.Provider value={{
+      ...context,
+      updateOnSdkReady: props.updateOnSdkReady ?? context.updateOnSdkReady,
+      updateOnSdkReadyFromCache: props.updateOnSdkReadyFromCache ?? context.updateOnSdkReadyFromCache,
+      updateOnSdkTimedout: props.updateOnSdkTimedout ?? context.updateOnSdkTimedout,
+      updateOnSdkUpdate: props.updateOnSdkUpdate ?? context.updateOnSdkUpdate
+    }}>
       {
         typeof children === 'function' ?
           children(context) :

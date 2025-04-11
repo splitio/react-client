@@ -62,7 +62,13 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, propFactory, factory]);
 
   return (
-    <SplitContext.Provider value={{ factory, client, ...getStatus(client) }} >
+    <SplitContext.Provider value={{
+      factory, client, ...getStatus(client),
+      updateOnSdkReady: props.updateOnSdkReady,
+      updateOnSdkReadyFromCache: props.updateOnSdkReadyFromCache,
+      updateOnSdkTimedout: props.updateOnSdkTimedout,
+      updateOnSdkUpdate: props.updateOnSdkUpdate
+    }} >
       {props.children}
     </SplitContext.Provider>
   );
