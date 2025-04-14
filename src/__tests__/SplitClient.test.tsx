@@ -13,7 +13,7 @@ import { sdkBrowser } from './testUtils/sdkConfigs';
 import { ISplitClientChildProps, ISplitFactoryChildProps } from '../types';
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
 import { SplitClient } from '../SplitClient';
-import { SplitContext } from '../SplitContext';
+import { SplitContext, useSplitContext } from '../SplitContext';
 import { INITIAL_STATUS, testAttributesBinding, TestComponentProps } from './testUtils/utils';
 import { getStatus } from '../utils';
 import { EXCEPTION_NO_SFP } from '../constants';
@@ -360,6 +360,31 @@ describe('SplitClient', () => {
     testAttributesBinding(Component);
   });
 
+
+  test('must overwrite `updateOn<Event>` options in context', () => {
+    render(
+      <SplitFactoryProvider updateOnSdkReady={true} updateOnSdkReadyFromCache={false} updateOnSdkTimedout={undefined} >
+        {React.createElement(() => {
+          expect(useSplitContext()).toEqual({
+            ...INITIAL_STATUS,
+            updateOnSdkReadyFromCache: false
+          });
+          return null;
+        })}
+        <SplitClient updateOnSdkReady={false} updateOnSdkReadyFromCache={undefined} updateOnSdkTimedout={false} >
+          {React.createElement(() => {
+            expect(useSplitContext()).toEqual({
+              ...INITIAL_STATUS,
+              updateOnSdkReady: false,
+              updateOnSdkReadyFromCache: false,
+              updateOnSdkTimedout: false
+            });
+            return null;
+          })}
+        </SplitClient>
+      </SplitFactoryProvider>
+    );
+  });
 });
 
 // Tests to validate the migration from `SplitFactoryProvider` with child as a function in v1, to `SplitFactoryProvider` + `SplitClient` with child as a function in v2.

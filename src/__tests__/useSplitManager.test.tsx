@@ -32,15 +32,16 @@ describe('useSplitManager', () => {
     );
 
     expect(hookResult).toStrictEqual({
+      ...INITIAL_STATUS,
       manager: outerFactory.manager(),
       client: outerFactory.client(),
       factory: outerFactory,
-      ...INITIAL_STATUS,
     });
 
     act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));
 
     expect(hookResult).toStrictEqual({
+      ...INITIAL_STATUS,
       manager: outerFactory.manager(),
       client: outerFactory.client(),
       factory: outerFactory,
@@ -80,16 +81,17 @@ describe('useSplitManager', () => {
     );
 
     expect(hookResult).toStrictEqual({
+      ...INITIAL_STATUS,
       manager: outerFactory.manager(),
       client: outerFactory.client(),
       factory: outerFactory,
-      ...INITIAL_STATUS,
     });
 
     act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));
     // act(() => (outerFactory.client() as any).__emitter__.emit(Event.SDK_READY));
 
     expect(hookResult).toStrictEqual({
+      ...INITIAL_STATUS,
       manager: outerFactory.manager(),
       client: outerFactory.client(),
       factory: outerFactory,

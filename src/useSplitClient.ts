@@ -19,11 +19,13 @@ import { ISplitContextValues, IUseSplitClientOptions } from './types';
 export function useSplitClient(options: IUseSplitClientOptions = {}): ISplitContextValues {
   const context = useSplitContext();
   const { client: contextClient, factory } = context;
-  const { splitKey, attributes } = options;
-  const updateOnSdkReady = options.updateOnSdkReady ?? context.updateOnSdkReady;
-  const updateOnSdkReadyFromCache = options.updateOnSdkReadyFromCache ?? context.updateOnSdkReadyFromCache;
-  const updateOnSdkTimedout = options.updateOnSdkTimedout ?? context.updateOnSdkTimedout;
-  const updateOnSdkUpdate = options.updateOnSdkUpdate ?? context.updateOnSdkUpdate;
+  const {
+    splitKey, attributes,
+    updateOnSdkReady = context.updateOnSdkReady,
+    updateOnSdkReadyFromCache = context.updateOnSdkReadyFromCache,
+    updateOnSdkTimedout = context.updateOnSdkTimedout,
+    updateOnSdkUpdate = context.updateOnSdkUpdate
+  } = options;
 
   // @TODO Move `getSplitClient` side effects and reduce the function cognitive complexity
   // @TODO Once `SplitClient` is removed, which updates the context, simplify next line as `const client = factory ? getSplitClient(factory, splitKey) : undefined;`
@@ -77,6 +79,6 @@ export function useSplitClient(options: IUseSplitClientOptions = {}): ISplitCont
   }, [client, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate, status]);
 
   return {
-    factory, client, ...status
+    factory, client, ...status, updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
   };
 }
