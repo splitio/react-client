@@ -27,7 +27,10 @@ import { SplitFactory } from '@splitsoftware/splitio/client';
  * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
 export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
-  const { config, factory: propFactory, attributes } = props;
+  const {
+    config, factory: propFactory, attributes,
+    updateOnSdkReady = true, updateOnSdkReadyFromCache = true, updateOnSdkTimedout = true, updateOnSdkUpdate = true
+  } = props;
 
   const factory = React.useMemo<undefined | SplitIO.IBrowserSDK & { init?: () => void }>(() => {
     return propFactory ?
@@ -62,7 +65,10 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   }, [config, propFactory, factory]);
 
   return (
-    <SplitContext.Provider value={{ factory, client, ...getStatus(client) }} >
+    <SplitContext.Provider value={{
+      factory, client, ...getStatus(client),
+      updateOnSdkReady, updateOnSdkReadyFromCache, updateOnSdkTimedout, updateOnSdkUpdate
+    }} >
       {props.children}
     </SplitContext.Provider>
   );

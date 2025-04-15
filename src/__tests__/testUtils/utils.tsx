@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
-import { ISplitStatus } from '../../types';
+import { ISplitStatus, IUpdateProps } from '../../types';
 const { SplitFactory: originalSplitFactory } = jest.requireActual('@splitsoftware/splitio/client');
 
 export interface TestComponentProps {
@@ -116,11 +116,15 @@ export function testAttributesBinding(Component: React.FunctionComponent<TestCom
   wrapper.rerender(<Component splitKey={undefined} attributesFactory={undefined} attributesClient={undefined} testSwitch={attributesBindingSwitch} factory={factory} />);
 }
 
-export const INITIAL_STATUS: ISplitStatus = {
+export const INITIAL_STATUS: ISplitStatus & IUpdateProps = {
   isReady: false,
   isReadyFromCache: false,
   isTimedout: false,
   hasTimedout: false,
   lastUpdate: 0,
   isDestroyed: false,
+  updateOnSdkReady: true,
+  updateOnSdkReadyFromCache: true,
+  updateOnSdkTimedout: true,
+  updateOnSdkUpdate: true,
 }
