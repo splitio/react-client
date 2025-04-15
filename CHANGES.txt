@@ -1,4 +1,8 @@
-2.1.1 (April 8, 2025)
+2.2.0 (April 15, 2025)
+ - Added `updateOnSdkUpdate`, `updateOnSdkReady`, `updateOnSdkReadyFromCache` and `updateOnSdkTimedout` props to the `SplitFactoryProvider` component to overwrite the default value (`true`) of the `updateOnSdk<Event>` options in the `useSplitClient` and `useSplitTreatments` hooks.
+ - Updated development dependencies to use React v19 and TypeScript v4.5.5 to test compatibility and avoid type conflicts when using the SDK with React v19 types.
+
+2.1.1 (April 9, 2025)
  - Bugfixing - Fixed `useSplitClient` and `useSplitTreatments` hooks to properly respect `updateOn<Event>` options. Previously, if the hooks were re-called due to a component re-render, they used the latest version of the SDK client status ignoring when `updateOn<Event>` options were set to `false` and resulting in unexpected changes in treatment values.
 
 2.1.0 (March 28, 2025)

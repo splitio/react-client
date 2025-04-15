@@ -7,6 +7,14 @@ React SDK v2.0.0 has a few breaking changes that you should consider when migrat
 
 Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-the-deprecated-useclient-usetreatments-and-usemanager-hooks) to migrate to the new hooks `useSplitClient`, `useSplitTreatments`, and `useSplitManager`.
 
+### • Updated the default value of `updateOnSdkUpdate` and `updateOnSdkTimedout` options to `true`.
+
+Since v2.0.0, the **default values** of the `updateOnSdkUpdate` and `updateOnSdkTimedout` options of the `useSplitClient` and `useSplitTreatments` hooks were changed from `false` to `true`, meaning that the components using them will update by default when an `SDK_UPDATE` or `SDK_READY_TIMED_OUT` event is emitted.
+
+Consider setting the `updateOnSdkUpdate` option to `false` to revert to the previous behavior if you want to avoid re-renders and re-evaluations of treatments when feature flags are updated by the SDK in background.
+
+The same applies for the equivalent props in the `[with]SplitClient` and `[with]SplitTreatments` components, although these components are deprecated and we recommend [migrating to their hook alternatives](#-high-order-components-withsplitclient-withsplittreatments-and-components-that-accept-a-render-function-as-child-component-splittreatments-and-splitclient-have-been-deprecated-and-might-be-removed-in-a-future-major-release).
+
 ### • Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept `updateOn` props and a render function as children anymore.
 
 To migrate your existing code to the new version of `SplitFactoryProvider`, consider the following refactor example:
@@ -59,7 +67,7 @@ const App = () => {
 };
 ```
 
-Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function. The `useSplitClient` hook is called without providing a `splitKey` param. This means that the default client (whose key is set in the `core.key` property of the `mySplitConfig` object) will be used, and the `updateOn` and `attributes` props are passed as options to the hook.
+Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function. The `useSplitClient` hook is called without providing a `splitKey` param. This means that the default client (whose key is set in the `core.key` property of the `mySplitConfig` object) will be used, and the `updateOnSdkUpdate` and `attributes` props are passed as options to the hook.
 
 ### • High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.
 

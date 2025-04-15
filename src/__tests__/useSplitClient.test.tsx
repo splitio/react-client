@@ -244,14 +244,14 @@ describe('useSplitClient', () => {
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY_TIMED_OUT)); // do not trigger re-render because updateOnSdkTimedout is false
     expect(rendersCount).toBe(1);
-    expect(currentStatus).toMatchObject(INITIAL_STATUS);
+    expect(currentStatus).toMatchObject({ ...INITIAL_STATUS, updateOnSdkUpdate: false, updateOnSdkTimedout: false });
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />);
     expect(rendersCount).toBe(2);
     expect(currentStatus).toEqual(previousStatus);
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={true} />); // trigger re-render because there was an SDK_READY_TIMED_OUT event
-    expect(rendersCount).toBe(4);
+    expect(rendersCount).toBe(4); // @TODO optimize `useSplitClient` to avoid double render
     expect(currentStatus).toMatchObject({ isReady: false, isReadyFromCache: false, hasTimedout: true });
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
@@ -263,10 +263,10 @@ describe('useSplitClient', () => {
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} updateOnSdkTimedout={false} />); // should not update the status (SDK_UPDATE event should be ignored)
     expect(rendersCount).toBe(6);
-    expect(currentStatus).toEqual(previousStatus);
+    expect(currentStatus).toEqual({ ...previousStatus, updateOnSdkTimedout: false });
 
     wrapper.rerender(<Component updateOnSdkUpdate={null /** invalid type should default to `true` */} />); // trigger re-render and update the status because updateOnSdkUpdate is true and there was an SDK_UPDATE event
-    expect(rendersCount).toBe(8);
+    expect(rendersCount).toBe(8); // @TODO optimize `useSplitClient` to avoid double render
     expect(currentStatus.lastUpdate).toBeGreaterThan(previousStatus.lastUpdate);
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // trigger re-render because updateOnSdkUpdate is true
@@ -275,10 +275,31 @@ describe('useSplitClient', () => {
 
     wrapper.rerender(<Component updateOnSdkUpdate={false} />);
     expect(rendersCount).toBe(10);
-    expect(currentStatus).toEqual(previousStatus);
+    expect(currentStatus).toEqual({ ...previousStatus, updateOnSdkUpdate: false });
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false now
     expect(rendersCount).toBe(10);
+  });
+
+  test('must prioritize explicitly provided `updateOn<Event>` options over context defaults', () => {
+    render(
+      <SplitFactoryProvider updateOnSdkReady={true} updateOnSdkReadyFromCache={false} updateOnSdkTimedout={undefined} >
+        {React.createElement(() => {
+          expect(useSplitClient()).toEqual({
+            ...INITIAL_STATUS,
+            updateOnSdkReadyFromCache: false
+          });
+
+          expect(useSplitClient({ updateOnSdkReady: false, updateOnSdkReadyFromCache: undefined, updateOnSdkTimedout: false })).toEqual({
+            ...INITIAL_STATUS,
+            updateOnSdkReady: false,
+            updateOnSdkReadyFromCache: false,
+            updateOnSdkTimedout: false
+          });
+          return null;
+        })}
+      </SplitFactoryProvider>
+    );
   });
 
 });

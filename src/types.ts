@@ -34,15 +34,48 @@ export interface ISplitStatus {
   isDestroyed: boolean;
 
   /**
-   * Indicates when was the last status event, either `SDK_READY`, `SDK_READY_FROM_CACHE`, `SDK_READY_TIMED_OUT` or `SDK_UPDATE`.
+   * `lastUpdate` indicates the timestamp of the most recent status event. This timestamp is only updated for events that are being listened to,
+   * configured via the `updateOnSdkReady` option for `SDK_READY` event, `updateOnSdkReadyFromCache` for `SDK_READY_FROM_CACHE` event,
+   * `updateOnSdkTimedout` for `SDK_READY_TIMED_OUT` event, and `updateOnSdkUpdate` for `SDK_UPDATE` event.
    */
   lastUpdate: number;
 }
 
 /**
+ * Update Props interface. It defines the props used to configure what SDK events are listened to update the component.
+ */
+export interface IUpdateProps {
+
+  /**
+   * `updateOnSdkUpdate` indicates if the hook or component will update (i.e., re-render) or not in case of an `SDK_UPDATE` event.
+   * It's value is `true` by default.
+   */
+  updateOnSdkUpdate?: boolean;
+
+  /**
+   * `updateOnSdkTimedout` indicates if the hook or component will update (i.e., re-render) or not in case of a `SDK_READY_TIMED_OUT` event.
+   * It's value is `true` by default.
+   */
+  updateOnSdkTimedout?: boolean;
+
+  /**
+   * `updateOnSdkReady` indicates if the hook or component will update (i.e., re-render) or not in case of a `SDK_READY` event.
+   * It's value is `true` by default.
+   */
+  updateOnSdkReady?: boolean;
+
+  /**
+   * `updateOnSdkReadyFromCache` indicates if the hook or component will update (i.e., re-render) or not in case of a `SDK_READY_FROM_CACHE` event.
+   * This params is only relevant when using `'LOCALSTORAGE'` as storage type, since otherwise the event is never emitted.
+   * It's value is `true` by default.
+   */
+  updateOnSdkReadyFromCache?: boolean;
+}
+
+/**
  * Split Context Value interface. It is used to define the value types of Split Context
  */
-export interface ISplitContextValues extends ISplitStatus {
+export interface ISplitContextValues extends ISplitStatus, IUpdateProps {
 
   /**
    * Split factory instance.
@@ -67,41 +100,6 @@ export interface ISplitContextValues extends ISplitStatus {
 }
 
 /**
- * Update Props interface. It defines the props used to configure what SDK events are listened to update the component.
- */
-export interface IUpdateProps {
-
-  /**
-   * `updateOnSdkUpdate` indicates if the component will update (i.e., re-render) in case of an `SDK_UPDATE` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_UPDATE`.
-   * It's value is `true` by default.
-   */
-  updateOnSdkUpdate?: boolean;
-
-  /**
-   * `updateOnSdkTimedout` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_TIMED_OUT` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_TIMED_OUT`.
-   * It's value is `true` by default.
-   */
-  updateOnSdkTimedout?: boolean;
-
-  /**
-   * `updateOnSdkReady` indicates if the component will update (i.e., re-render) in case of a `SDK_READY` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY`.
-   * It's value is `true` by default.
-   */
-  updateOnSdkReady?: boolean;
-
-  /**
-   * `updateOnSdkReadyFromCache` indicates if the component will update (i.e., re-render) in case of a `SDK_READY_FROM_CACHE` event.
-   * If `true`, components consuming the context (such as `SplitClient` and `SplitTreatments`) will re-render on `SDK_READY_FROM_CACHE`.
-   * This params is only relevant when using `'LOCALSTORAGE'` as storage type, since otherwise the event is never emitted.
-   * It's value is `true` by default.
-   */
-  updateOnSdkReadyFromCache?: boolean;
-}
-
-/**
  * Props interface for components wrapped by the `withSplitFactory` HOC. These props are provided by the HOC to the wrapped component.
  *
  * @deprecated `withSplitFactory` will be removed in a future major release. We recommend replacing it with the `SplitFactoryProvider` component.
@@ -112,7 +110,7 @@ export interface ISplitFactoryChildProps extends ISplitContextValues { }
  * SplitFactoryProvider Props interface. These are the props accepted by the `SplitFactoryProvider` component,
  * used to instantiate a factory and provide it to the Split Context.
  */
-export interface ISplitFactoryProviderProps {
+export interface ISplitFactoryProviderProps extends IUpdateProps {
 
   /**
    * Config object used to instantiate a Split factory.

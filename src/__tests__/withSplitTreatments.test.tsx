@@ -8,6 +8,7 @@ jest.mock('@splitsoftware/splitio/client', () => {
 });
 import { SplitFactory } from '@splitsoftware/splitio/client';
 import { sdkBrowser } from './testUtils/sdkConfigs';
+import { INITIAL_STATUS } from './testUtils/utils';
 
 /** Test target */
 import { withSplitFactory } from '../withSplitFactory';
@@ -32,15 +33,10 @@ describe('withSplitTreatments', () => {
               expect((clientMock.getTreatmentsWithConfig as jest.Mock).mock.calls.length).toBe(0);
 
               expect(props).toStrictEqual({
+                ...INITIAL_STATUS,
                 factory: factory, client: clientMock,
                 outerProp1: 'outerProp1', outerProp2: 2,
                 treatments: getControlTreatmentsWithConfig(featureFlagNames),
-                isReady: false,
-                isReadyFromCache: false,
-                hasTimedout: false,
-                isTimedout: false,
-                isDestroyed: false,
-                lastUpdate: 0
               });
 
               return null;
