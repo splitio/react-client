@@ -14,7 +14,7 @@ import { SplitFactory } from '@splitsoftware/splitio/client';
  *   - Hooks can support Suspense and Server components where `useEffect` is not called (related to https://github.com/splitio/react-client/issues/192).
  *   - Re-renders are avoided for child components that do not depend on the factory being ready (e.g., tracking events, updating attributes, or managing consent).
  * - `SplitFactoryProvider` updates the context only when props change (`config` or `factory`) but not the state (e.g., client status), preventing unnecessary updates to child components and allowing them to control when to update independently.
- * - For these reasons, and to reduce component tree depth, `SplitFactoryProvider` no longer wraps the child component in a `SplitClient` component and thus does not accept a child as a function or `updateOn` props anymore.
+ * - For these reasons, and to reduce component tree depth, `SplitFactoryProvider` no longer wraps the child component in a `SplitClient` component and thus does not accept a child as a function.
  */
 
 /**
