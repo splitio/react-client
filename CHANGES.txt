@@ -1,4 +1,4 @@
-2.4.0 (September 9, 2025)
+2.4.0 (September 10, 2025)
  - Updated @splitsoftware/splitio package to version 11.5.0 that includes minor updates:
       - Added `initialRolloutPlan` configuration option, which allows preloading the SDK storage with a snapshot of the rollout plan and support server-side rendering (SSR) with the SDK ready from cache in the initial render.
       - Updated some transitive dependencies for vulnerability fixes.
