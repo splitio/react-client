@@ -82,8 +82,8 @@ export interface ISplitContextValues extends ISplitStatus, IUpdateProps {
    *
    * NOTE: This property is available for accessing factory methods not covered by the library hooks,
    * such as Logging configuration and User Consent.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#logging}),
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#user-consent}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#logging}),
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#user-consent}
    */
   factory?: SplitIO.IBrowserSDK;
 
@@ -94,7 +94,7 @@ export interface ISplitContextValues extends ISplitStatus, IUpdateProps {
    * - `useSplitTreatments` hook to evaluate feature flags.
    * - `useTrack` hook to track events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#2-instantiate-the-sdk-and-create-a-new-split-client}
    */
   client?: SplitIO.IBrowserClient;
 }
@@ -114,7 +114,7 @@ export interface ISplitFactoryProviderProps extends IUpdateProps {
 
   /**
    * Config object used to instantiate a Split factory.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#configuration}
    */
   config?: SplitIO.IBrowserSettings;
 
@@ -174,7 +174,7 @@ export interface IUseSplitManagerResult extends ISplitContextValues {
   /**
    * Split manager instance.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#manager}
    */
   manager?: SplitIO.IManager;
 }

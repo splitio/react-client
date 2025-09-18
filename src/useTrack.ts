@@ -8,7 +8,7 @@ const noOpFalse = () => false;
  *
  * @returns The track method of the Split client for the provided user key. If the client is not available, the result is a no-op function that returns false.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#track}
  */
 export function useTrack(splitKey?: SplitIO.SplitKey): SplitIO.IBrowserClient['track'] {
   // All update options are false to avoid re-renders. The track method doesn't need the client to be operational.
