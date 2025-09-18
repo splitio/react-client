@@ -14,7 +14,7 @@ import { ISplitContextValues, IUseSplitClientOptions } from './types';
  * const { factory, client, isReady, isReadyFromCache, hasTimedout, lastUpdate } = useSplitClient({ splitKey: 'user_id' });
  * ```
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-instantiate-multiple-sdk-clients}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#advanced-instantiate-multiple-sdk-clients}
  */
 export function useSplitClient(options: IUseSplitClientOptions = {}): ISplitContextValues {
   const context = useSplitContext();
