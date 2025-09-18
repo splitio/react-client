@@ -24,7 +24,7 @@ import { SplitFactory } from '@splitsoftware/splitio/client';
  * NOTE: Either pass a `factory` instance or a `config` object as props. If both props are passed, the `config` prop will be ignored.
  * Pass the same reference to the `config` or `factory` object rather than a new instance on each render, to avoid unnecessary props changes and SDK re-initializations.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038825091-React-SDK#2-instantiate-the-sdk-and-create-a-new-split-client}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/react-sdk/#2-instantiate-the-sdk-and-create-a-new-split-client}
  */
 export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   const {

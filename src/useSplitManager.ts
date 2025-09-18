@@ -12,7 +12,7 @@ import { useSplitContext } from './SplitContext';
  * const { manager, isReady, isReadyFromCache, lastUpdate, ... } = useSplitManager();
  * ```
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#manager}
  */
 export function useSplitManager(): IUseSplitManagerResult {
   // @TODO refactor next lines to `const context = useSplitClient();` when `SplitClient` is removed
