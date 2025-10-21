@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
 import reactSdkPackageJson from '../../../package.json';
+import { DEFAULT_LOGGER } from '../../utils';
 
 export const jsSdkVersion = `javascript-${jsSdkPackageJson.version}`;
 export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
@@ -154,6 +155,7 @@ export function mockSdk() {
       __clients__,
       settings: Object.assign({
         version: jsSdkVersion,
+        log: DEFAULT_LOGGER
       }, config),
     };
 

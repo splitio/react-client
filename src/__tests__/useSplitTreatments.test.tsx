@@ -133,8 +133,8 @@ describe('useSplitTreatments', () => {
         }
       </SplitFactoryProvider>
     );
-    expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
-    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid feature flag name, feature flag name must be a non-empty string.');
+    expect(logSpy).toBeCalledWith('[ERROR] splitio => feature flag names must be a non-empty array.');
+    expect(logSpy).toBeCalledWith('[ERROR] splitio => you passed an invalid feature flag name, feature flag name must be a non-empty string.');
   });
 
   test('useSplitTreatments must update on SDK events', async () => {
@@ -236,7 +236,7 @@ describe('useSplitTreatments', () => {
       </SplitFactoryProvider>
     );
 
-    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
+    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  splitio => Both names and flagSets properties were provided. flagSets will be ignored.');
   });
 
 });

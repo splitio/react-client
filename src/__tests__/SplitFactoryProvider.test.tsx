@@ -113,7 +113,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    expect(logSpy).toBeCalledWith(WARN_SF_CONFIG_AND_FACTORY);
+    expect(logSpy).toBeCalledWith('[WARN]  splitio => ' + WARN_SF_CONFIG_AND_FACTORY);
     logSpy.mockRestore();
   });
 

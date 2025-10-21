@@ -142,8 +142,8 @@ describe('SplitTreatments', () => {
         </SplitClient>
       </SplitFactoryProvider>
     );
-    expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
-    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid feature flag name, feature flag name must be a non-empty string.');
+    expect(logSpy).toBeCalledWith('[ERROR] splitio => feature flag names must be a non-empty array.');
+    expect(logSpy).toBeCalledWith('[ERROR] splitio => you passed an invalid feature flag name, feature flag name must be a non-empty string.');
 
     done();
   });
@@ -162,7 +162,7 @@ describe('SplitTreatments', () => {
       </SplitFactoryProvider>
     );
 
-    expect(logSpy).toBeCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
+    expect(logSpy).toBeCalledWith('[WARN]  splitio => Both names and flagSets properties were provided. flagSets will be ignored.');
   });
 
   test('returns the treatments from the client at Split context updated by SplitClient, or control if the client is not operational.', async () => {
