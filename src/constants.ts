@@ -17,5 +17,3 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
 export const WARN_SF_CONFIG_AND_FACTORY: string = 'Both a config and factory props were provided to SplitFactoryProvider. Config prop will be ignored.';
 
 export const EXCEPTION_NO_SFP: string = 'No SplitContext was set. Please ensure the component is wrapped in a SplitFactoryProvider.';
-
-export const WARN_NAMES_AND_FLAGSETS: string = 'Both names and flagSets properties were provided. flagSets will be ignored.';

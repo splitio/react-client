@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
 import reactSdkPackageJson from '../../../package.json';
-import { DEFAULT_LOGGER } from '../../utils';
 
 export const jsSdkVersion = `javascript-${jsSdkPackageJson.version}`;
 export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
@@ -11,6 +10,13 @@ export const Event = {
   SDK_READY: 'init::ready',
   SDK_READY_FROM_CACHE: 'init::cache-ready',
   SDK_UPDATE: 'state::update',
+};
+
+const DEFAULT_LOGGER: SplitIO.Logger = {
+  error(msg) { console.log('[ERROR] splitio => ' + msg); },
+  warn(msg) { console.log('[WARN]  splitio => ' + msg); },
+  info(msg) { console.log('[INFO]  splitio => ' + msg); },
+  debug(msg) { console.log('[DEBUG] splitio => ' + msg); },
 };
 
 function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {

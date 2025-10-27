@@ -16,8 +16,6 @@ import { useSplitTreatments } from '../useSplitTreatments';
 import { SplitContext } from '../SplitContext';
 import { ISplitTreatmentsChildProps } from '../types';
 
-const logSpy = jest.spyOn(console, 'log');
-
 describe('useSplitTreatments', () => {
 
   const featureFlagNames = ['split1'];
@@ -56,10 +54,10 @@ describe('useSplitTreatments', () => {
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
     expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, { properties });
-    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments!);
 
     expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes, { properties });
-    expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
+    expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets!);
   });
 
   test('returns the treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
@@ -113,10 +111,9 @@ describe('useSplitTreatments', () => {
   });
 
   /**
-   * Input validation. Passing invalid feature flag names or attributes while the Sdk
-   * is not ready doesn't emit errors, and logs meaningful messages instead.
+   * Input validation: sanitize invalid feature flag names and return control while the SDK is not ready.
    */
-  test('Input validation: invalid "names" and "attributes" params in useSplitTreatments.', () => {
+  test('Input validation: invalid names are sanitized.', () => {
     render(
       <SplitFactoryProvider >
         {
@@ -125,16 +122,14 @@ describe('useSplitTreatments', () => {
             let treatments = useSplitTreatments('split1').treatments;
             expect(treatments).toEqual({});
             // @ts-expect-error Test error handling
-            treatments = useSplitTreatments({ names: [true] }).treatments;
-            expect(treatments).toEqual({});
+            treatments = useSplitTreatments({ names: [true, ' flag_1 ', ' '] }).treatments;
+            expect(treatments).toEqual({ flag_1: CONTROL_WITH_CONFIG });
 
             return null;
           })
         }
       </SplitFactoryProvider>
     );
-    expect(logSpy).toBeCalledWith('[ERROR] splitio => feature flag names must be a non-empty array.');
-    expect(logSpy).toBeCalledWith('[ERROR] splitio => you passed an invalid feature flag name, feature flag name must be a non-empty string.');
   });
 
   test('useSplitTreatments must update on SDK events', async () => {
@@ -222,7 +217,7 @@ describe('useSplitTreatments', () => {
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined, undefined);
   });
 
-  test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
+  test('ignores flagSets if both names and flagSets params are provided.', () => {
     render(
       <SplitFactoryProvider >
         {
@@ -235,8 +230,6 @@ describe('useSplitTreatments', () => {
         }
       </SplitFactoryProvider>
     );
-
-    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  splitio => Both names and flagSets properties were provided. flagSets will be ignored.');
   });
 
 });

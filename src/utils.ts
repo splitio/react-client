@@ -1,14 +1,7 @@
 import memoizeOne from 'memoize-one';
 import shallowEqual from 'shallowequal';
-import { CONTROL_WITH_CONFIG, WARN_NAMES_AND_FLAGSETS } from './constants';
+import { CONTROL_WITH_CONFIG } from './constants';
 import { ISplitStatus } from './types';
-
-export const DEFAULT_LOGGER: SplitIO.Logger = {
-  error(msg) { console.log('[ERROR] splitio => ' + msg); },
-  warn(msg) { console.log('[WARN]  splitio => ' + msg); },
-  info(msg) { console.log('[INFO]  splitio => ' + msg); },
-  debug(msg) { console.log('[DEBUG] splitio => ' + msg); },
-};
 
 // Utils used to access singleton instances of Split factories and clients, and to gracefully shutdown all clients together.
 
@@ -67,70 +60,19 @@ export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: Spl
   if (client && attributes) client.setAttributes(attributes);
 }
 
-// Input validation utils that will be replaced eventually
+export function getControlTreatmentsWithConfig(featureFlagNames: unknown): SplitIO.TreatmentsWithConfig {
+  if (!Array.isArray(featureFlagNames)) return {};
 
-function validateFeatureFlags(log: SplitIO.Logger, maybeFeatureFlags: unknown, listName = 'feature flag names'): false | string[] {
-  if (Array.isArray(maybeFeatureFlags) && maybeFeatureFlags.length > 0) {
-    const validatedArray: string[] = [];
-    // Remove invalid values
-    maybeFeatureFlags.forEach((maybeFeatureFlag) => {
-      const featureFlagName = validateFeatureFlag(log, maybeFeatureFlag);
-      if (featureFlagName) validatedArray.push(featureFlagName);
-    });
-
-    // Strip off duplicated values if we have valid feature flag names then return
-    if (validatedArray.length) return uniq(validatedArray);
-  }
-
-  log.error(`${listName} must be a non-empty array.`);
-  return false;
-}
-
-const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
-
-function validateFeatureFlag(log: SplitIO.Logger, maybeFeatureFlag: unknown, item = 'feature flag name'): false | string {
-  if (maybeFeatureFlag == undefined) {
-    log.error(`you passed a null or undefined ${item}, ${item} must be a non-empty string.`);
-  } else if (!isString(maybeFeatureFlag)) {
-    log.error(`you passed an invalid ${item}, ${item} must be a non-empty string.`);
-  } else {
-    if (TRIMMABLE_SPACES_REGEX.test(maybeFeatureFlag)) {
-      log.warn(`${item} "${maybeFeatureFlag}" has extra whitespace, trimming.`);
-      maybeFeatureFlag = maybeFeatureFlag.trim();
-    }
-
-    if ((maybeFeatureFlag as string).length > 0) {
-      return maybeFeatureFlag as string;
-    } else {
-      log.error(`you passed an empty ${item}, ${item} must be a non-empty string.`);
-    }
-  }
-
-  return false;
-}
-
-export function getControlTreatmentsWithConfig(log: SplitIO.Logger, featureFlagNames: unknown): SplitIO.TreatmentsWithConfig {
-  // validate featureFlags Names
-  const validatedFeatureFlagNames = validateFeatureFlags(log, featureFlagNames);
-
-  // return empty object if the returned value is false
-  if (!validatedFeatureFlagNames) return {};
+  featureFlagNames = featureFlagNames
+    .filter((featureFlagName) => isString(featureFlagName))
+    .map((featureFlagName) => featureFlagName.trim())
+    .filter((featureFlagName) => featureFlagName.length > 0);
 
   // return control treatments for each validated feature flag name
-  return validatedFeatureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+  return (featureFlagNames as string[]).reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});
-}
-
-/**
- * Removes duplicate items on an array of strings.
- */
-function uniq(arr: string[]): string[] {
-  const seen: Record<string, boolean> = {};
-  return arr.filter((item) => {
-    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
-  });
 }
 
 /**
@@ -149,22 +91,20 @@ export function memoizeGetTreatmentsWithConfig() {
 }
 
 function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
-  return newArgs[1] === lastArgs[1] && // client
-    newArgs[2] === lastArgs[2] && // lastUpdate
-    shallowEqual(newArgs[3], lastArgs[3]) && // names
-    shallowEqual(newArgs[4], lastArgs[4]) && // attributes
-    shallowEqual(newArgs[5], lastArgs[5]) && // client attributes
-    shallowEqual(newArgs[6], lastArgs[6]); // flagSets
+  return newArgs[0] === lastArgs[0] && // client
+    newArgs[1] === lastArgs[1] && // lastUpdate
+    shallowEqual(newArgs[2], lastArgs[2]) && // names
+    shallowEqual(newArgs[3], lastArgs[3]) && // attributes
+    shallowEqual(newArgs[4], lastArgs[4]) && // client attributes
+    shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlags(log: SplitIO.Logger, client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions) {
-  if (names && flagSets) log.warn(WARN_NAMES_AND_FLAGSETS);
-
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions) {
   return client && (client as IClientWithContext).__getStatus().isOperational && (names || flagSets) ?
     names ?
       client.getTreatmentsWithConfig(names, attributes, options) :
       client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes, options) :
     names ?
-      getControlTreatmentsWithConfig(log, names) :
+      getControlTreatmentsWithConfig(names) :
       {} // empty object when evaluating with flag sets and client is not ready
 }

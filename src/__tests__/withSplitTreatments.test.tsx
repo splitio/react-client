@@ -14,7 +14,7 @@ import { INITIAL_STATUS } from './testUtils/utils';
 import { withSplitFactory } from '../withSplitFactory';
 import { withSplitClient } from '../withSplitClient';
 import { withSplitTreatments } from '../withSplitTreatments';
-import { DEFAULT_LOGGER, getControlTreatmentsWithConfig } from '../utils';
+import { getControlTreatmentsWithConfig } from '../utils';
 
 const featureFlagNames = ['split1', 'split2'];
 
@@ -36,7 +36,7 @@ describe('withSplitTreatments', () => {
                 ...INITIAL_STATUS,
                 factory: factory, client: clientMock,
                 outerProp1: 'outerProp1', outerProp2: 2,
-                treatments: getControlTreatmentsWithConfig(DEFAULT_LOGGER, featureFlagNames),
+                treatments: getControlTreatmentsWithConfig(featureFlagNames),
               });
 
               return null;
