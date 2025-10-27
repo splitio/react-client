@@ -10,7 +10,7 @@ import { SplitTreatments } from './SplitTreatments';
  * @param names - list of feature flag names
  * @param attributes - An object of type Attributes used to evaluate the feature flags.
  *
- * @deprecated `withSplitTreatments` will be removed in a future major release. We recommend replacing it with the `useSplitTreatments` hook.
+ * @deprecated `withSplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatment*` hooks.
  */
 export function withSplitTreatments(names: string[], attributes?: SplitIO.Attributes) {
 
