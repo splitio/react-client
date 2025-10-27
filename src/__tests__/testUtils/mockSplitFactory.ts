@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
 import reactSdkPackageJson from '../../../package.json';
+import { CONTROL, CONTROL_WITH_CONFIG } from '../../constants';
 
 export const jsSdkVersion = `javascript-${jsSdkPackageJson.version}`;
 export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
@@ -65,6 +66,24 @@ export function mockSdk() {
       const track: jest.Mock = jest.fn(() => {
         return true;
       });
+      const getTreatment: jest.Mock = jest.fn((featureFlagName: string) => {
+        return typeof featureFlagName === 'string' ? 'on' : CONTROL;
+      });
+      const getTreatments: jest.Mock = jest.fn((featureFlagNames: string[]) => {
+        return featureFlagNames.reduce((result: SplitIO.Treatments, featureName: string) => {
+          result[featureName] = 'on';
+          return result;
+        }, {});
+      });
+      const getTreatmentsByFlagSets: jest.Mock = jest.fn((flagSets: string[]) => {
+        return flagSets.reduce((result: SplitIO.Treatments, flagSet: string) => {
+          result[flagSet + '_feature_flag'] = 'on';
+          return result;
+        }, {});
+      });
+      const getTreatmentWithConfig: jest.Mock = jest.fn((featureFlagName: string) => {
+        return typeof featureFlagName === 'string' ? { treatment: 'on', config: null } : CONTROL_WITH_CONFIG;
+      });
       const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames: string[]) => {
         return featureFlagNames.reduce((result: SplitIO.TreatmentsWithConfig, featureName: string) => {
           result[featureName] = { treatment: 'on', config: null };
@@ -113,6 +132,10 @@ export function mockSdk() {
       });
 
       return Object.assign(Object.create(__emitter__), {
+        getTreatment,
+        getTreatments,
+        getTreatmentsByFlagSets,
+        getTreatmentWithConfig,
         getTreatmentsWithConfig,
         getTreatmentsWithConfigByFlagSets,
         track,
