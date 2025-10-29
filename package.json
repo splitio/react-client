@@ -63,7 +63,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "11.6.0",
+    "@splitsoftware/splitio": "11.7.2-rc.4",
     "memoize-one": "^5.1.1",
     "shallowequal": "^1.1.0",
     "tslib": "^2.3.1"

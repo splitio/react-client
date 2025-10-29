@@ -51,7 +51,7 @@ export function SplitFactoryProvider(props: ISplitFactoryProviderProps) {
   // Effect to initialize and destroy the factory when config is provided
   React.useEffect(() => {
     if (propFactory) {
-      if (config) console.log(WARN_SF_CONFIG_AND_FACTORY);
+      if (config) (propFactory.settings as any).log.warn(WARN_SF_CONFIG_AND_FACTORY);
       return;
     }
 

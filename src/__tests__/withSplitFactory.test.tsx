@@ -40,7 +40,7 @@ describe('withSplitFactory', () => {
       const Component = withSplitFactory(undefined, outerFactory)(
         ({ factory, isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate }: ISplitFactoryChildProps) => {
           expect(factory).toBe(outerFactory);
-          expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, 0]);
+          expect([isReady, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, true, false, false, false, 0]);
           return null;
         }
       );

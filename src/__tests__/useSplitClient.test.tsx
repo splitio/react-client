@@ -207,7 +207,7 @@ describe('useSplitClient', () => {
 
           // side effect in the render phase
           const client = outerFactory.client('some_user') as any;
-          if (!client.__getStatus().isReady) client.__emitter__.emit(Event.SDK_READY);
+          if (!client.getStatus().isReady) client.__emitter__.emit(Event.SDK_READY);
 
           return null;
         })}
@@ -256,7 +256,7 @@ describe('useSplitClient', () => {
 
     act(() => mainClient.__emitter__.emit(Event.SDK_READY)); // trigger re-render
     expect(rendersCount).toBe(5);
-    expect(currentStatus).toMatchObject({ isReady: true, isReadyFromCache: false, hasTimedout: true });
+    expect(currentStatus).toMatchObject({ isReady: true, isReadyFromCache: true, hasTimedout: true });
 
     act(() => mainClient.__emitter__.emit(Event.SDK_UPDATE)); // do not trigger re-render because updateOnSdkUpdate is false
     expect(rendersCount).toBe(5);

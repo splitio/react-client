@@ -1,3 +1,9 @@
+2.6.0 (October 31, 2025)
+ - Updated @splitsoftware/splitio package to version 11.8.0 that includes minor updates:
+      - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
+      - Added support for custom loggers: added `logger` configuration option and `factory.Logger.setLogger` method to allow the SDK to use a custom logger.
+      - Updated the SDK_READY_FROM_CACHE event to be emitted alongside the SDK_READY event if it hasn’t already been emitted.
+
 2.5.0 (September 18, 2025)
  - Updated @splitsoftware/splitio package to version 11.6.0 that includes minor updates:
       - Added `storage.wrapper` configuration option to allow the SDK to use a custom storage wrapper for the storage type `LOCALSTORAGE`. Default value is `window.localStorage`.
