@@ -69,7 +69,7 @@ describe('SplitTreatments', () => {
                     expect(clientMock.getTreatmentsWithConfig.mock.calls.length).toBe(1);
                     expect(treatments).toBe(clientMock.getTreatmentsWithConfig.mock.results[0].value);
                     expect(featureFlagNames).toBe(clientMock.getTreatmentsWithConfig.mock.calls[0][0]);
-                    expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, false, false, false, false, getStatus(outerFactory.client()).lastUpdate]);
+                    expect([isReady2, isReadyFromCache, hasTimedout, isTimedout, isDestroyed, lastUpdate]).toStrictEqual([true, true, false, false, false, getStatus(outerFactory.client()).lastUpdate]);
                     return null;
                   }}
                 </SplitTreatments>

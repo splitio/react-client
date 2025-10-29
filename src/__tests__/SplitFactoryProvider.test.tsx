@@ -70,6 +70,7 @@ describe('SplitFactoryProvider', () => {
             client: outerFactory.client(),
             isReady: true,
             isReadyFromCache: true,
+            isOperational: true,
             lastUpdate: getStatus(outerFactory.client()).lastUpdate
           });
           return null;

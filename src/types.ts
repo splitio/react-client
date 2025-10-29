@@ -1,45 +1,10 @@
 import type { ReactNode } from 'react';
 
+// @TODO: remove in next major release (it duplicates SplitIO.ReadinessStatus)
 /**
- * Split Status interface. It represents the readiness state of an SDK client.
+ * Readiness Status interface. It represents the readiness state of an SDK client.
  */
-export interface ISplitStatus {
-
-  /**
-   * `isReady` indicates if the Split SDK client has triggered an `SDK_READY` event and thus is ready to be consumed.
-   */
-  isReady: boolean;
-
-  /**
-   * `isReadyFromCache` indicates if the Split SDK client has triggered an `SDK_READY_FROM_CACHE` event and thus is ready to be consumed,
-   * although the data in cache might be stale.
-   */
-  isReadyFromCache: boolean;
-
-  /**
-   * `isTimedout` indicates if the Split SDK client has triggered an `SDK_READY_TIMED_OUT` event and is not ready to be consumed.
-   * In other words, `isTimedout` is equivalent to `hasTimedout && !isReady`.
-   */
-  isTimedout: boolean;
-
-  /**
-   * `hasTimedout` indicates if the Split SDK client has ever triggered an `SDK_READY_TIMED_OUT` event.
-   * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
-   */
-  hasTimedout: boolean;
-
-  /**
-   * `isDestroyed` indicates if the Split SDK client has been destroyed.
-   */
-  isDestroyed: boolean;
-
-  /**
-   * `lastUpdate` indicates the timestamp of the most recent status event. This timestamp is only updated for events that are being listened to,
-   * configured via the `updateOnSdkReady` option for `SDK_READY` event, `updateOnSdkReadyFromCache` for `SDK_READY_FROM_CACHE` event,
-   * `updateOnSdkTimedout` for `SDK_READY_TIMED_OUT` event, and `updateOnSdkUpdate` for `SDK_UPDATE` event.
-   */
-  lastUpdate: number;
-}
+export interface ISplitStatus extends SplitIO.ReadinessStatus {}
 
 /**
  * Update Props interface. It defines the props used to configure what SDK events are listened to update the component.

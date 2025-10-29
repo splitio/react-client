@@ -123,6 +123,7 @@ export const INITIAL_STATUS: ISplitStatus & IUpdateProps = {
   hasTimedout: false,
   lastUpdate: 0,
   isDestroyed: false,
+  isOperational: false,
   updateOnSdkReady: true,
   updateOnSdkReadyFromCache: true,
   updateOnSdkTimedout: true,
