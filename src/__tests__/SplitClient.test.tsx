@@ -56,6 +56,7 @@ describe('SplitClient', () => {
               client: outerFactory.client(),
               isReady: true,
               isReadyFromCache: true,
+              isOperational: true,
               lastUpdate: getStatus(outerFactory.client()).lastUpdate
             });
 
@@ -141,7 +142,7 @@ describe('SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, true, true]);
                 break;
               case 2: // Updated. Although `updateOnSdkReady` is false, status props must reflect the current status of the client.
-                expect(statusProps).toStrictEqual([true, false, true, false]);
+                expect(statusProps).toStrictEqual([true, true, true, false]);
                 break;
               default:
                 fail('Child must not be rerendered');
@@ -182,7 +183,7 @@ describe('SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, false, false]);
                 break;
               case 1: // Ready
-                expect(statusProps).toStrictEqual([true, false, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
+                expect(statusProps).toStrictEqual([true, true, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
                 break;
               default:
                 fail('Child must not be rerendered');
@@ -214,7 +215,7 @@ describe('SplitClient', () => {
             count++;
 
             // side effect in the render phase
-            if (!(client as any).__getStatus().isReady) {
+            if (!client!.getStatus().isReady) {
               (client as any).__emitter__.emit(Event.SDK_READY);
             }
 
@@ -318,11 +319,11 @@ describe('SplitClient', () => {
                   break;
                 case 4:
                   expect(client).toBe(outerFactory.client('user3'));
-                  expect(statusProps).toStrictEqual([true, false, false, false]);
+                  expect(statusProps).toStrictEqual([true, true, false, false]);
                   break;
                 case 5:
                   expect(client).toBe(outerFactory.client('user3'));
-                  expect(statusProps).toStrictEqual([true, false, false, false]);
+                  expect(statusProps).toStrictEqual([true, true, false, false]);
                   break;
                 default:
                   fail('Child must not be rerendered');
@@ -501,7 +502,7 @@ describe('SplitFactoryProvider + SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, true, true]);
                 break;
               case 2: // Updated. Although `updateOnSdkReady` is false, status props must reflect the current status of the client.
-                expect(statusProps).toStrictEqual([true, false, true, false]);
+                expect(statusProps).toStrictEqual([true, true, true, false]);
                 break;
               default:
                 fail('Child must not be rerendered');
@@ -542,7 +543,7 @@ describe('SplitFactoryProvider + SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, true, true]);
                 break;
               case 2: // Updated. Although `updateOnSdkReady` is false, status props must reflect the current status of the client.
-                expect(statusProps).toStrictEqual([true, false, true, false]);
+                expect(statusProps).toStrictEqual([true, true, true, false]);
                 break;
               default:
                 fail('Child must not be rerendered');
@@ -578,7 +579,7 @@ describe('SplitFactoryProvider + SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, false, false]);
                 break;
               case 1: // Ready
-                expect(statusProps).toStrictEqual([true, false, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
+                expect(statusProps).toStrictEqual([true, true, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
                 break;
               default:
                 fail('Child must not be rerendered');
@@ -615,7 +616,7 @@ describe('SplitFactoryProvider + SplitClient', () => {
                 expect(statusProps).toStrictEqual([false, false, false, false]);
                 break;
               case 1: // Ready
-                expect(statusProps).toStrictEqual([true, false, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
+                expect(statusProps).toStrictEqual([true, true, true, false]); // not rerendering on SDK_TIMEOUT, but hasTimedout reflects the current state
                 break;
               default:
                 fail('Child must not be rerendered');
