@@ -55,7 +55,7 @@ export function mockSdk() {
       }
 
       const __emitter__ = new EventEmitter();
-      __emitter__.on(Event.SDK_READY, () => { isReady = true; syncLastUpdate(); });
+      __emitter__.on(Event.SDK_READY, () => { isReady = true; isReadyFromCache = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { isReadyFromCache = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { hasTimedout = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
@@ -115,13 +115,13 @@ export function mockSdk() {
           else { __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
         });
       });
-      const __getStatus = () => ({
+      const getStatus = () => ({
         isReady,
         isReadyFromCache,
         isTimedout: hasTimedout && !isReady,
         hasTimedout,
         isDestroyed,
-        isOperational: (isReady || isReadyFromCache) && !isDestroyed,
+        isOperational: isReadyFromCache && !isDestroyed,
         lastUpdate,
       });
       const destroy: jest.Mock = jest.fn(() => {
@@ -145,10 +145,9 @@ export function mockSdk() {
         setAttributes,
         clearAttributes,
         getAttributes,
+        getStatus,
         // EventEmitter exposed to trigger events manually
         __emitter__,
-        // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
-        __getStatus,
         // Restore the mock client to its initial NO-READY status.
         // Useful when you want to reuse the same mock between tests after emitting events or destroying the instance.
         __restore() {

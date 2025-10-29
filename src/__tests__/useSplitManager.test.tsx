@@ -48,8 +48,9 @@ describe('useSplitManager', () => {
       hasTimedout: false,
       isDestroyed: false,
       isReady: true,
-      isReadyFromCache: false,
+      isReadyFromCache: true,
       isTimedout: false,
+      isOperational: true,
       lastUpdate: getStatus(outerFactory.client()).lastUpdate,
     });
   });
@@ -98,8 +99,9 @@ describe('useSplitManager', () => {
       hasTimedout: false,
       isDestroyed: false,
       isReady: true,
-      isReadyFromCache: false,
+      isReadyFromCache: true,
       isTimedout: false,
+      isOperational: true,
       lastUpdate: getStatus(outerFactory.client()).lastUpdate,
     });
   });

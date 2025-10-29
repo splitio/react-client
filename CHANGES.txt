@@ -1,7 +1,9 @@
-2.6.0 (October XX, 2025)
+2.6.0 (October 31, 2025)
  - Added `useTreatment`, `useTreatments`, `useTreatmentWithConfig` and `useTreatmentsWithConfig` hooks to replace the now deprecated `useSplitTreatments` hook.
- - Updated @splitsoftware/splitio package to version 11.7.1 that includes minor updates:
+ - Updated @splitsoftware/splitio package to version 11.8.0 that includes minor updates:
+      - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
       - Added support for custom loggers: added `logger` configuration option and `factory.Logger.setLogger` method to allow the SDK to use a custom logger.
+      - Updated the SDK_READY_FROM_CACHE event to be emitted alongside the SDK_READY event if it hasn’t already been emitted.
 
 2.5.0 (September 18, 2025)
  - Updated @splitsoftware/splitio package to version 11.6.0 that includes minor updates:
