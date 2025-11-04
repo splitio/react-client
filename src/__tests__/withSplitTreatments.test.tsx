@@ -14,14 +14,14 @@ import { INITIAL_STATUS } from './testUtils/utils';
 import { withSplitFactory } from '../withSplitFactory';
 import { withSplitClient } from '../withSplitClient';
 import { withSplitTreatments } from '../withSplitTreatments';
-import { getControlTreatments } from '../utils';
+import { getTreatments } from '../utils';
 
 const featureFlagNames = ['split1', 'split2'];
 
 describe('withSplitTreatments', () => {
 
   it(`passes Split props and outer props to the child.
-      In this test, the value of "props.treatments" is obtained by the function "getControlTreatments",
+      In this test, the value of "props.treatments" is obtained by the function "getTreatments",
       and not "client.getTreatmentsWithConfig" since the client is not ready.`, () => {
 
     const Component = withSplitFactory(sdkBrowser)<{ outerProp1: string, outerProp2: number }>(
@@ -36,7 +36,7 @@ describe('withSplitTreatments', () => {
                 ...INITIAL_STATUS,
                 factory: factory, client: clientMock,
                 outerProp1: 'outerProp1', outerProp2: 2,
-                treatments: getControlTreatments(featureFlagNames, true),
+                treatments: getTreatments(featureFlagNames, true),
               });
 
               return null;
