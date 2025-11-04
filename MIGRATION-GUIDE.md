@@ -9,7 +9,7 @@ React SDK v2.0.0 has a few breaking changes that you should consider when migrat
 Since v2.6.0, there are 4 hooks variants to evaluate feature flags, to better cover the different evaluation methods available in the JavaScript SDK client:
 
 - `useTreatment`: returns a treatment value for a given feature flag name. It calls `client.getTreatment()` method under the hood.
-- `useTreatmentWithConfig`: returns a single treatment value and its configuration for a given feature flag name. It calls `client.getTreatmentWithConfig()` method under the hood.
+- `useTreatmentWithConfig`: returns a treatment value and its configuration for a given feature flag name. It calls `client.getTreatmentWithConfig()` method under the hood.
 - `useTreatments`: returns an object with treatment values for multiple feature flag names. It calls `client.getTreatments()` or `client.getTreatmentsByFlagSets()` methods under the hood, depending if the `names` or `flagSets` option is provided.
 - `useTreatmentsWithConfig`: returns an object with treatment values and their configurations for multiple feature flag names. It calls `client.getTreatmentsWithConfig()` or `client.getTreatmentsWithConfigByFlagSets()` methods under the hood, depending if the `names` or `flagSets` option is provided.
 
