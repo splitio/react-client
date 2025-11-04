@@ -70,6 +70,7 @@ describe('SplitFactoryProvider', () => {
             client: outerFactory.client(),
             isReady: true,
             isReadyFromCache: true,
+            isOperational: true,
             lastUpdate: getStatus(outerFactory.client()).lastUpdate
           });
           return null;
@@ -113,7 +114,7 @@ describe('SplitFactoryProvider', () => {
       </SplitFactoryProvider>
     );
 
-    expect(logSpy).toBeCalledWith(WARN_SF_CONFIG_AND_FACTORY);
+    expect(logSpy).toBeCalledWith('[WARN]  splitio => ' + WARN_SF_CONFIG_AND_FACTORY);
     logSpy.mockRestore();
   });
 

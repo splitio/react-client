@@ -12,6 +12,10 @@ import {
   useSplitClient as exportedUseSplitClient,
   useSplitTreatments as exportedUseSplitTreatments,
   useSplitManager as exportedUseSplitManager,
+  useTreatment as exportedUseTreatment,
+  useTreatmentWithConfig as exportedUseTreatmentWithConfig,
+  useTreatments as exportedUseTreatments,
+  useTreatmentsWithConfig as exportedUseTreatmentsWithConfig,
   // Checks that types are exported. Otherwise, the test would fail with a TS error.
   GetTreatmentsOptions,
   ISplitClientChildProps,
@@ -39,6 +43,10 @@ import { useTrack } from '../useTrack';
 import { useSplitClient } from '../useSplitClient';
 import { useSplitTreatments } from '../useSplitTreatments';
 import { useSplitManager } from '../useSplitManager';
+import { useTreatment } from '../useTreatment';
+import { useTreatmentWithConfig } from '../useTreatmentWithConfig';
+import { useTreatments } from '../useTreatments';
+import { useTreatmentsWithConfig } from '../useTreatmentsWithConfig';
 
 describe('index', () => {
 
@@ -59,6 +67,10 @@ describe('index', () => {
     expect(exportedUseSplitClient).toBe(useSplitClient);
     expect(exportedUseSplitTreatments).toBe(useSplitTreatments);
     expect(exportedUseSplitManager).toBe(useSplitManager);
+    expect(exportedUseTreatment).toBe(useTreatment);
+    expect(exportedUseTreatmentWithConfig).toBe(useTreatmentWithConfig);
+    expect(exportedUseTreatments).toBe(useTreatments);
+    expect(exportedUseTreatmentsWithConfig).toBe(useTreatmentsWithConfig);
   });
 
   it('should export SplitContext', () => {

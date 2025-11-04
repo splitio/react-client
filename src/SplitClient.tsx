@@ -9,8 +9,6 @@ import { useSplitClient } from './useSplitClient';
  *
  * The underlying SDK client can be changed during the component lifecycle
  * if the component is updated with a different splitKey prop.
- *
- * @deprecated `SplitClient` will be removed in a future major release. We recommend replacing it with the `useSplitClient` hook.
  */
 export function SplitClient(props: ISplitClientProps) {
   const { children } = props;

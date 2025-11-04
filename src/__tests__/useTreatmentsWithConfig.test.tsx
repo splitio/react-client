@@ -7,18 +7,16 @@ jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory } from '@splitsoftware/splitio/client';
-import { sdkBrowser } from './testUtils/sdkConfigs';
+import { sdkBrowser, sdkBrowserWithConfig } from './testUtils/sdkConfigs';
 import { CONTROL_WITH_CONFIG, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
 import { SplitFactoryProvider } from '../SplitFactoryProvider';
-import { useSplitTreatments } from '../useSplitTreatments';
+import { useTreatmentsWithConfig } from '../useTreatmentsWithConfig';
 import { SplitContext } from '../SplitContext';
-import { ISplitTreatmentsChildProps } from '../types';
+import { IUseTreatmentsWithConfigResult } from '../types';
 
-const logSpy = jest.spyOn(console, 'log');
-
-describe('useSplitTreatments', () => {
+describe('useTreatmentsWithConfig', () => {
 
   const featureFlagNames = ['split1'];
   const flagSets = ['set1'];
@@ -34,11 +32,11 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          treatments = useSplitTreatments({ names: featureFlagNames, attributes, properties }).treatments;
-          treatmentsByFlagSets = useSplitTreatments({ flagSets, attributes, properties }).treatments;
+          treatments = useTreatmentsWithConfig({ names: featureFlagNames, attributes, properties }).treatments;
+          treatmentsByFlagSets = useTreatmentsWithConfig({ flagSets, attributes, properties }).treatments;
 
           // @ts-expect-error Options object must provide either names or flagSets
-          expect(useSplitTreatments({}).treatments).toEqual({});
+          expect(useTreatmentsWithConfig({}).treatments).toEqual({});
           return null;
         })}
       </SplitFactoryProvider>
@@ -56,10 +54,10 @@ describe('useSplitTreatments', () => {
     act(() => client.__emitter__.emit(Event.SDK_READY));
 
     expect(client.getTreatmentsWithConfig).toBeCalledWith(featureFlagNames, attributes, { properties });
-    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments);
+    expect(client.getTreatmentsWithConfig).toHaveReturnedWith(treatments!);
 
     expect(client.getTreatmentsWithConfigByFlagSets).toBeCalledWith(flagSets, attributes, { properties });
-    expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets);
+    expect(client.getTreatmentsWithConfigByFlagSets).toHaveReturnedWith(treatmentsByFlagSets!);
   });
 
   test('returns the treatments from a new client given a splitKey, and re-evaluates on SDK events.', () => {
@@ -70,7 +68,7 @@ describe('useSplitTreatments', () => {
     render(
       <SplitFactoryProvider factory={outerFactory} >
         {React.createElement(() => {
-          const treatments = useSplitTreatments({ names: featureFlagNames, attributes, properties, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
+          const treatments = useTreatmentsWithConfig({ names: featureFlagNames, attributes, properties, splitKey: 'user2', updateOnSdkUpdate: false }).treatments;
 
           renderTimes++;
           switch (renderTimes) {
@@ -104,8 +102,8 @@ describe('useSplitTreatments', () => {
     expect(() => {
       render(
         React.createElement(() => {
-          useSplitTreatments({ names: featureFlagNames, attributes }).treatments;
-          useSplitTreatments({ flagSets: featureFlagNames }).treatments;
+          useTreatmentsWithConfig({ names: featureFlagNames, attributes }).treatments;
+          useTreatmentsWithConfig({ flagSets: featureFlagNames }).treatments;
           return null;
         })
       );
@@ -113,40 +111,37 @@ describe('useSplitTreatments', () => {
   });
 
   /**
-   * Input validation. Passing invalid feature flag names or attributes while the Sdk
-   * is not ready doesn't emit errors, and logs meaningful messages instead.
+   * Input validation: sanitize invalid feature flag names and return control while the SDK is not ready.
    */
-  test('Input validation: invalid "names" and "attributes" params in useSplitTreatments.', () => {
+  test('Input validation: invalid names are sanitized.', () => {
     render(
       <SplitFactoryProvider >
         {
           React.createElement(() => {
             // @ts-expect-error Test error handling
-            let treatments = useSplitTreatments('split1').treatments;
+            let treatments = useTreatmentsWithConfig('split1').treatments;
             expect(treatments).toEqual({});
             // @ts-expect-error Test error handling
-            treatments = useSplitTreatments({ names: [true] }).treatments;
-            expect(treatments).toEqual({});
+            treatments = useTreatmentsWithConfig({ names: [true, ' flag_1 ', ' '] }).treatments;
+            expect(treatments).toEqual({ flag_1: CONTROL_WITH_CONFIG });
 
             return null;
           })
         }
       </SplitFactoryProvider>
     );
-    expect(logSpy).toBeCalledWith('[ERROR] feature flag names must be a non-empty array.');
-    expect(logSpy).toBeCalledWith('[ERROR] you passed an invalid feature flag name, feature flag name must be a non-empty string.');
   });
 
-  test('useSplitTreatments must update on SDK events', async () => {
+  test('must update on SDK events', async () => {
     const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
 
-    let countSplitContext = 0, countUseSplitTreatments = 0, countUseSplitTreatmentsUser2 = 0, countUseSplitTreatmentsUser2WithoutUpdate = 0;
+    let countSplitContext = 0, countUseTreatmentsWithConfig = 0, countUseTreatmentsWithConfigUser2 = 0, countUseTreatmentsWithConfigUser2WithoutUpdate = 0;
     const lastUpdateSetUser2 = new Set<number>();
     const lastUpdateSetUser2WithUpdate = new Set<number>();
 
-    function validateTreatments({ treatments, isReady, isReadyFromCache }: ISplitTreatmentsChildProps) {
+    function validateTreatments({ treatments, isReady, isReadyFromCache }: IUseTreatmentsWithConfigResult) {
       if (isReady || isReadyFromCache) {
         expect(treatments).toEqual({
           split_test: {
@@ -171,26 +166,26 @@ describe('useSplitTreatments', () => {
             {() => countSplitContext++}
           </SplitContext.Consumer>
           {React.createElement(() => {
-            const context = useSplitTreatments({ names: ['split_test'], attributes: { att1: 'att1' } });
+            const context = useTreatmentsWithConfig({ names: ['split_test'], attributes: { att1: 'att1' } });
             expect(context.client).toBe(mainClient); // Assert that the main client was retrieved.
             validateTreatments(context);
-            countUseSplitTreatments++;
+            countUseTreatmentsWithConfig++;
             return null;
           })}
           {React.createElement(() => {
-            const context = useSplitTreatments({ names: ['split_test'], splitKey: 'user_2' });
+            const context = useTreatmentsWithConfig({ names: ['split_test'], splitKey: 'user_2' });
             expect(context.client).toBe(user2Client);
             validateTreatments(context);
             lastUpdateSetUser2.add(context.lastUpdate);
-            countUseSplitTreatmentsUser2++;
+            countUseTreatmentsWithConfigUser2++;
             return null;
           })}
           {React.createElement(() => {
-            const context = useSplitTreatments({ names: ['split_test'], splitKey: 'user_2', updateOnSdkUpdate: false });
+            const context = useTreatmentsWithConfig({ names: ['split_test'], splitKey: 'user_2', updateOnSdkUpdate: false });
             expect(context.client).toBe(user2Client);
             validateTreatments(context);
             lastUpdateSetUser2WithUpdate.add(context.lastUpdate);
-            countUseSplitTreatmentsUser2WithoutUpdate++;
+            countUseTreatmentsWithConfigUser2WithoutUpdate++;
             return null;
           })}
         </>
@@ -207,36 +202,46 @@ describe('useSplitTreatments', () => {
     // SplitFactoryProvider renders once
     expect(countSplitContext).toEqual(1);
 
-    // If useSplitTreatments evaluates with the main client and have default update options, it re-renders for each main client event.
-    expect(countUseSplitTreatments).toEqual(4);
+    // If useTreatmentsWithConfig evaluates with the main client and have default update options, it re-renders for each main client event.
+    expect(countUseTreatmentsWithConfig).toEqual(4);
     expect(mainClient.getTreatmentsWithConfig).toHaveBeenCalledTimes(3); // when ready from cache, ready and update
     expect(mainClient.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], { att1: 'att1' }, undefined);
 
-    // If useSplitTreatments evaluates with a different client and have default update options, it re-renders for each event of the new client.
-    expect(countUseSplitTreatmentsUser2).toEqual(4);
+    // If useTreatmentsWithConfig evaluates with a different client and have default update options, it re-renders for each event of the new client.
+    expect(countUseTreatmentsWithConfigUser2).toEqual(4);
     expect(lastUpdateSetUser2.size).toEqual(4);
     // If it is used with `updateOnSdkUpdate: false`, it doesn't render when the client emits an SDK_UPDATE event.
-    expect(countUseSplitTreatmentsUser2WithoutUpdate).toEqual(3);
+    expect(countUseTreatmentsWithConfigUser2WithoutUpdate).toEqual(3);
     expect(lastUpdateSetUser2WithUpdate.size).toEqual(3);
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenCalledTimes(5); // when ready from cache x2, ready x2 and update x1
     expect(user2Client.getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split_test'], undefined, undefined);
   });
 
-  test('ignores flagSets and logs a warning if both names and flagSets params are provided.', () => {
+  test('ignores flagSets if both names and flagSets params are provided.', () => {
     render(
       <SplitFactoryProvider >
         {
           React.createElement(() => {
             // @ts-expect-error names and flagSets are mutually exclusive
-            const treatments = useSplitTreatments({ names: featureFlagNames, flagSets, attributes }).treatments;
+            const treatments = useTreatmentsWithConfig({ names: featureFlagNames, flagSets, attributes }).treatments;
             expect(treatments).toEqual({ split1: CONTROL_WITH_CONFIG });
             return null;
           })
         }
       </SplitFactoryProvider>
     );
+  });
 
-    expect(logSpy).toHaveBeenLastCalledWith('[WARN]  Both names and flagSets properties were provided. flagSets will be ignored.');
+  test('returns fallback treatments if the client is not operational', () => {
+    render(
+      <SplitFactoryProvider config={sdkBrowserWithConfig} >
+        {React.createElement(() => {
+          const { treatments } = useTreatmentsWithConfig({ names: ['ff1', 'ff2'], attributes, properties });
+          expect(treatments).toEqual({ ff1: { treatment: 'control_ff1', config: 'control_ff1_config' }, ff2: { treatment: 'control_global', config: null } });
+          return null;
+        })}
+      </SplitFactoryProvider>
+    );
   });
 
 });

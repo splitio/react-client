@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import jsSdkPackageJson from '@splitsoftware/splitio/package.json';
 import reactSdkPackageJson from '../../../package.json';
+import { CONTROL, CONTROL_WITH_CONFIG } from '../../constants';
 
 export const jsSdkVersion = `javascript-${jsSdkPackageJson.version}`;
 export const reactSdkVersion = `react-${reactSdkPackageJson.version}`;
@@ -10,6 +11,13 @@ export const Event = {
   SDK_READY: 'init::ready',
   SDK_READY_FROM_CACHE: 'init::cache-ready',
   SDK_UPDATE: 'state::update',
+};
+
+const DEFAULT_LOGGER: SplitIO.Logger = {
+  error(msg) { console.log('[ERROR] splitio => ' + msg); },
+  warn(msg) { console.log('[WARN]  splitio => ' + msg); },
+  info(msg) { console.log('[INFO]  splitio => ' + msg); },
+  debug(msg) { console.log('[DEBUG] splitio => ' + msg); },
 };
 
 function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {
@@ -47,7 +55,7 @@ export function mockSdk() {
       }
 
       const __emitter__ = new EventEmitter();
-      __emitter__.on(Event.SDK_READY, () => { isReady = true; syncLastUpdate(); });
+      __emitter__.on(Event.SDK_READY, () => { isReady = true; isReadyFromCache = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_READY_FROM_CACHE, () => { isReadyFromCache = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_READY_TIMED_OUT, () => { hasTimedout = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
@@ -57,6 +65,24 @@ export function mockSdk() {
       // Client methods
       const track: jest.Mock = jest.fn(() => {
         return true;
+      });
+      const getTreatment: jest.Mock = jest.fn((featureFlagName: string) => {
+        return typeof featureFlagName === 'string' ? 'on' : CONTROL;
+      });
+      const getTreatments: jest.Mock = jest.fn((featureFlagNames: string[]) => {
+        return featureFlagNames.reduce((result: SplitIO.Treatments, featureName: string) => {
+          result[featureName] = 'on';
+          return result;
+        }, {});
+      });
+      const getTreatmentsByFlagSets: jest.Mock = jest.fn((flagSets: string[]) => {
+        return flagSets.reduce((result: SplitIO.Treatments, flagSet: string) => {
+          result[flagSet + '_feature_flag'] = 'on';
+          return result;
+        }, {});
+      });
+      const getTreatmentWithConfig: jest.Mock = jest.fn((featureFlagName: string) => {
+        return typeof featureFlagName === 'string' ? { treatment: 'on', config: null } : CONTROL_WITH_CONFIG;
       });
       const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames: string[]) => {
         return featureFlagNames.reduce((result: SplitIO.TreatmentsWithConfig, featureName: string) => {
@@ -89,13 +115,13 @@ export function mockSdk() {
           else { __emitter__.on(Event.SDK_READY_TIMED_OUT, rej); }
         });
       });
-      const __getStatus = () => ({
+      const getStatus = () => ({
         isReady,
         isReadyFromCache,
         isTimedout: hasTimedout && !isReady,
         hasTimedout,
         isDestroyed,
-        isOperational: (isReady || isReadyFromCache) && !isDestroyed,
+        isOperational: isReadyFromCache && !isDestroyed,
         lastUpdate,
       });
       const destroy: jest.Mock = jest.fn(() => {
@@ -106,6 +132,10 @@ export function mockSdk() {
       });
 
       return Object.assign(Object.create(__emitter__), {
+        getTreatment,
+        getTreatments,
+        getTreatmentsByFlagSets,
+        getTreatmentWithConfig,
         getTreatmentsWithConfig,
         getTreatmentsWithConfigByFlagSets,
         track,
@@ -115,10 +145,9 @@ export function mockSdk() {
         setAttributes,
         clearAttributes,
         getAttributes,
+        getStatus,
         // EventEmitter exposed to trigger events manually
         __emitter__,
-        // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
-        __getStatus,
         // Restore the mock client to its initial NO-READY status.
         // Useful when you want to reuse the same mock between tests after emitting events or destroying the instance.
         __restore() {
@@ -154,6 +183,7 @@ export function mockSdk() {
       __clients__,
       settings: Object.assign({
         version: jsSdkVersion,
+        log: DEFAULT_LOGGER
       }, config),
     };
 

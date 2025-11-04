@@ -13,6 +13,10 @@ export { SplitFactoryProvider } from './SplitFactoryProvider';
 
 // Hooks
 export { useTrack } from './useTrack';
+export { useTreatment } from './useTreatment';
+export { useTreatments } from './useTreatments';
+export { useTreatmentWithConfig } from './useTreatmentWithConfig';
+export { useTreatmentsWithConfig } from './useTreatmentsWithConfig';
 export { useSplitClient } from './useSplitClient';
 export { useSplitTreatments } from './useSplitTreatments';
 export { useSplitManager } from './useSplitManager';
@@ -34,5 +38,11 @@ export type {
   IUpdateProps,
   IUseSplitClientOptions,
   IUseSplitTreatmentsOptions,
-  IUseSplitManagerResult
+  IUseSplitManagerResult,
+  IUseTreatmentOptions,
+  IUseTreatmentsOptions,
+  IUseTreatmentResult,
+  IUseTreatmentWithConfigResult,
+  IUseTreatmentsResult,
+  IUseTreatmentsWithConfigResult
 } from './types';

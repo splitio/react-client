@@ -1,45 +1,10 @@
 import type { ReactNode } from 'react';
 
+// @TODO: remove in next major release (it duplicates SplitIO.ReadinessStatus)
 /**
- * Split Status interface. It represents the readiness state of an SDK client.
+ * Readiness Status interface. It represents the readiness state of an SDK client.
  */
-export interface ISplitStatus {
-
-  /**
-   * `isReady` indicates if the Split SDK client has triggered an `SDK_READY` event and thus is ready to be consumed.
-   */
-  isReady: boolean;
-
-  /**
-   * `isReadyFromCache` indicates if the Split SDK client has triggered an `SDK_READY_FROM_CACHE` event and thus is ready to be consumed,
-   * although the data in cache might be stale.
-   */
-  isReadyFromCache: boolean;
-
-  /**
-   * `isTimedout` indicates if the Split SDK client has triggered an `SDK_READY_TIMED_OUT` event and is not ready to be consumed.
-   * In other words, `isTimedout` is equivalent to `hasTimedout && !isReady`.
-   */
-  isTimedout: boolean;
-
-  /**
-   * `hasTimedout` indicates if the Split SDK client has ever triggered an `SDK_READY_TIMED_OUT` event.
-   * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
-   */
-  hasTimedout: boolean;
-
-  /**
-   * `isDestroyed` indicates if the Split SDK client has been destroyed.
-   */
-  isDestroyed: boolean;
-
-  /**
-   * `lastUpdate` indicates the timestamp of the most recent status event. This timestamp is only updated for events that are being listened to,
-   * configured via the `updateOnSdkReady` option for `SDK_READY` event, `updateOnSdkReadyFromCache` for `SDK_READY_FROM_CACHE` event,
-   * `updateOnSdkTimedout` for `SDK_READY_TIMED_OUT` event, and `updateOnSdkUpdate` for `SDK_UPDATE` event.
-   */
-  lastUpdate: number;
-}
+export interface ISplitStatus extends SplitIO.ReadinessStatus {}
 
 /**
  * Update Props interface. It defines the props used to configure what SDK events are listened to update the component.
@@ -170,6 +135,9 @@ export interface ISplitClientProps extends IUseSplitClientOptions {
   children: ((props: ISplitClientChildProps) => ReactNode) | ReactNode;
 }
 
+/**
+ * Result of the `useSplitManager` hook.
+ */
 export interface IUseSplitManagerResult extends ISplitContextValues {
   /**
    * Split manager instance.
@@ -179,6 +147,17 @@ export interface IUseSplitManagerResult extends ISplitContextValues {
   manager?: SplitIO.IManager;
 }
 
+type EvaluationOptions = SplitIO.EvaluationOptions & {
+
+  /**
+   * An object of type Attributes used to evaluate the feature flags.
+   */
+  attributes?: SplitIO.Attributes;
+}
+
+/**
+ * @deprecated `useSplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatment*` hooks.
+ */
 export type GetTreatmentsOptions = ({
 
   /**
@@ -193,27 +172,51 @@ export type GetTreatmentsOptions = ({
    */
   flagSets: string[];
   names?: undefined;
-}) & {
-
-  /**
-   * An object of type Attributes used to evaluate the feature flags.
-   */
-  attributes?: SplitIO.Attributes;
-
-  /**
-   * Optional properties to append to the generated impression object sent to Split backend.
-   */
-  properties?: SplitIO.Properties;
-}
+}) & EvaluationOptions;
 
 /**
  * Options object accepted by the `useSplitTreatments` hook, used to call `client.getTreatmentsWithConfig()`, or `client.getTreatmentsWithConfigByFlagSets()`,
  * depending on whether `names` or `flagSets` options are provided, and to retrieve the result along with the Split context.
+ *
+ * @deprecated `useSplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatment*` hooks.
  */
 export type IUseSplitTreatmentsOptions = GetTreatmentsOptions & IUseSplitClientOptions;
 
 /**
+ * Options object accepted by the `useTreatment` and `useTreatmentWithConfig` hooks.
+ */
+export type IUseTreatmentOptions = {
+
+  /**
+   * Feature flag name to evaluate.
+   */
+  name: string;
+} & EvaluationOptions & IUseSplitClientOptions;
+
+
+/**
+ * Options object accepted by the `useTreatments` and `useTreatmentsWithConfig` hooks.
+ */
+export type IUseTreatmentsOptions = ({
+
+  /**
+   * List of feature flag names to evaluate. Either this or the `flagSets` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  names: string[];
+  flagSets?: undefined;
+} | {
+
+  /**
+   * List of feature flag sets to evaluate. Either this or the `names` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  flagSets: string[];
+  names?: undefined;
+}) & EvaluationOptions & IUseSplitClientOptions;
+
+/**
  * SplitTreatments Child Props interface. These are the props that the child component receives from the 'SplitTreatments' component.
+ *
+ * @deprecated `SplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatments*` hooks.
  */
 export interface ISplitTreatmentsChildProps extends ISplitContextValues {
 
@@ -232,8 +235,67 @@ export interface ISplitTreatmentsChildProps extends ISplitContextValues {
 }
 
 /**
+ * Result of the `useTreatment` hook.
+ */
+export interface IUseTreatmentResult extends ISplitContextValues {
+  /**
+   * The treatment string for a feature flag, returned by client.getTreatment().
+   */
+  treatment: SplitIO.Treatment;
+}
+
+/**
+ * Result of the `useTreatmentWithConfig` hook.
+ */
+export interface IUseTreatmentWithConfigResult extends ISplitContextValues {
+  /**
+   * The treatment with config for a feature flag, returned by client.getTreatmentWithConfig().
+   */
+  treatment: SplitIO.TreatmentWithConfig;
+}
+
+/**
+ * Result of the `useTreatments` hook.
+ */
+export interface IUseTreatmentsResult extends ISplitContextValues {
+  /**
+   * An object with the treatment strings for a bulk of feature flags, returned by client.getTreatments() or client.getTreatmentsByFlagSets().
+   * For example:
+   *
+   * ```js
+   *   {
+   *     feature1: 'on',
+   *     feature2: 'off'
+   *   }
+   * ```
+   */
+  treatments: SplitIO.Treatments;
+}
+
+/**
+ * Result of the `useTreatmentsWithConfig` hook.
+ */
+export interface IUseTreatmentsWithConfigResult extends ISplitContextValues {
+
+  /**
+   * An object with the treatments with configs for a bulk of feature flags, returned by client.getTreatmentsWithConfig() or client.getTreatmentsWithConfigByFlagSets().
+   * Each existing configuration is a stringified version of the JSON you defined on the Split user interface. For example:
+   *
+   * ```js
+   *   {
+   *     feature1: { treatment: 'on', config: null },
+   *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
+   *   }
+   * ```
+   */
+  treatments: SplitIO.TreatmentsWithConfig;
+}
+
+/**
  * SplitTreatments Props interface. These are the props accepted by SplitTreatments component, used to call 'client.getTreatmentsWithConfig()', or 'client.getTreatmentsWithConfigByFlagSets()',
  * depending on whether `names` or `flagSets` props are provided, and to pass the result to the child component.
+ *
+ * @deprecated `SplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatments*` hooks.
  */
 export type ISplitTreatmentsProps = IUseSplitTreatmentsOptions & {
 
