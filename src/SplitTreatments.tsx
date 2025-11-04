@@ -9,7 +9,7 @@ import { useSplitTreatments } from './useSplitTreatments';
  * call the 'client.getTreatmentsWithConfig()' method if the `names` prop is provided, or the 'client.getTreatmentsWithConfigByFlagSets()' method
  * if the `flagSets` prop is provided. It then passes the resulting treatments to a child component as a function.
  *
- * @deprecated `SplitTreatments` will be removed in a future major release. We recommend replacing it with the `useSplitTreatments` hook.
+ * @deprecated `SplitTreatments` will be removed in a future major release. We recommend replacing it with the `useTreatment*` hooks.
  */
 export function SplitTreatments(props: ISplitTreatmentsProps) {
   const { children } = props;
