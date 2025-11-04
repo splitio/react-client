@@ -3,9 +3,32 @@
 
 React SDK v2.0.0 has a few breaking changes that you should consider when migrating from a previous version. The main changes are:
 
-### • Deprecated `useClient`, `useTreatments`, and `useManager` hooks have been removed.
 
-Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-the-deprecated-useclient-usetreatments-and-usemanager-hooks) to migrate to the new hooks `useSplitClient`, `useSplitTreatments`, and `useSplitManager`.
+### • `useTreatments` hook was removed in v2.0.0, but re-introduced in v2.6.0 with a different API:
+
+Since v2.6.0, there are 4 hooks variants to evaluate feature flags, to better cover the different evaluation methods available in the JavaScript SDK client:
+
+- `useTreatment`: returns a treatment value for a given feature flag name. It calls `client.getTreatment()` method under the hood.
+- `useTreatmentWithConfig`: returns a single treatment value and its configuration for a given feature flag name. It calls `client.getTreatmentWithConfig()` method under the hood.
+- `useTreatments`: returns an object with treatment values for multiple feature flag names. It calls `client.getTreatments()` or `client.getTreatmentsByFlagSets()` methods under the hood, depending if the `names` or `flagSets` option is provided.
+- `useTreatmentsWithConfig`: returns an object with treatment values and their configurations for multiple feature flag names. It calls `client.getTreatmentsWithConfig()` or `client.getTreatmentsWithConfigByFlagSets()` methods under the hood, depending if the `names` or `flagSets` option is provided.
+
+The `useTreatments` hook from v1.x.x should be replaced with `useTreatmentsWithConfig`, as follows:
+
+```javascript
+// v1.x.x
+const treatments = useTreatments(featureFlagNames, optionalAttributes, optionalSplitKey);
+
+// v2.6.0+
+const { treatments } = useTreatmentsWithConfig({ names: featureFlagNames, attributes: optionalAttributes, splitKey: optionalSplitKey });
+
+// v2.0.0-v2.5.0
+const { treatments } = useSplitTreatments({ names: featureFlagNames, attributes: optionalAttributes, splitKey: optionalSplitKey });
+```
+
+### • Deprecated `useClient` and `useManager` hooks have been removed.
+
+Follow [this section](#migrating-to-get-react-sdk-v1100-improvements-replacing-the-deprecated-useclient-usetreatments-and-usemanager-hooks) to migrate to the new hooks `useSplitClient` and `useSplitManager`.
 
 ### • Updated the default value of `updateOnSdkUpdate` and `updateOnSdkTimedout` options to `true`.
 
@@ -15,7 +38,7 @@ Consider setting the `updateOnSdkUpdate` option to `false` to revert to the prev
 
 The same applies for the equivalent props in the `[with]SplitClient` and `[with]SplitTreatments` components, although these components are deprecated and we recommend [migrating to their hook alternatives](#-high-order-components-withsplitclient-withsplittreatments-and-components-that-accept-a-render-function-as-child-component-splittreatments-and-splitclient-have-been-deprecated-and-might-be-removed-in-a-future-major-release).
 
-### • Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept `updateOn` props and a render function as children anymore.
+### • Deprecated `SplitFactory` provider has been removed, `withSplitFactory` is deprecated, and `SplitFactoryProvider` doesn't accept a render function as children anymore.
 
 To migrate your existing code to the new version of `SplitFactoryProvider`, consider the following refactor example:
 
@@ -53,21 +76,21 @@ should be refactored to:
 
 ```tsx
 const MyComponent = () => {
-  const props: ISplitContextValues = useSplitClient({ updateOnSdkUpdate: false });
+  const props: ISplitContextValues = useSplitClient();
   const { factory, client, isReady, isReadyFromCache, ... } = props;
   ...
 };
 
 const App = () => {
   return (
-    <SplitFactoryProvider config={mySplitConfig} attributes={DEFAULT_CLIENT_ATTRIBUTES} >
+    <SplitFactoryProvider config={mySplitConfig} updateOnSdkUpdate={false} attributes={DEFAULT_CLIENT_ATTRIBUTES} >
       <MyComponent />
     </SplitFactoryProvider>
   );
 };
 ```
 
-Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function. The `useSplitClient` hook is called without providing a `splitKey` param. This means that the default client (whose key is set in the `core.key` property of the `mySplitConfig` object) will be used, and the `updateOnSdkUpdate` and `attributes` props are passed as options to the hook.
+Notice that `MyComponent` was refactored to use the `useSplitClient` hook and is passed as a React JSX element rather than a render function. The `useSplitClient` hook is called without providing a `splitKey` param. This means that the default client (whose key is set in the `core.key` property of the `mySplitConfig` object) will be used.
 
 ### • High-Order-Components (`withSplitClient`, `withSplitTreatments`) and components that accept a render function as child component (`SplitTreatments`, and `SplitClient`) have been deprecated and might be removed in a future major release.
 
