@@ -1,7 +1,18 @@
 import * as React from 'react';
-import { memoizeGetTreatmentWithConfig } from './utils';
+import memoizeOne from 'memoize-one';
+import { argsAreEqual, getTreatment } from './utils';
 import { IUseTreatmentWithConfigResult, IUseTreatmentOptions } from './types';
 import { useSplitClient } from './useSplitClient';
+
+function evaluateFeatureFlagWithConfig(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names: string[], attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, _flagSets?: undefined, options?: SplitIO.EvaluationOptions, factory?: SplitIO.IBrowserSDK) {
+  return client && client.getStatus().isOperational ?
+    client.getTreatmentWithConfig(names[0], attributes, options) :
+    getTreatment(names[0], true, factory);
+}
+
+function memoizeGetTreatmentWithConfig() {
+  return memoizeOne(evaluateFeatureFlagWithConfig, argsAreEqual);
+}
 
 /**
  * `useTreatmentWithConfig` is a hook that returns an Split Context object extended with a `treatment` property.
