@@ -37,6 +37,24 @@ export function getStatus(client?: SplitIO.IBrowserClient): ISplitStatus {
     };
 }
 
+function resolveFallback(flagName: string, withConfig: true, factory?: SplitIO.IBrowserSDK): SplitIO.TreatmentWithConfig;
+function resolveFallback(flagName: string, withConfig: false, factory?: SplitIO.IBrowserSDK): SplitIO.Treatment;
+function resolveFallback(flagName: string, withConfig: boolean, factory?: SplitIO.IBrowserSDK): SplitIO.Treatment | SplitIO.TreatmentWithConfig {
+  if (factory && factory.settings.fallbackTreatments) {
+    const fallbacks = factory.settings.fallbackTreatments;
+
+    const treatment = fallbacks.byFlag?.[flagName] || fallbacks.global;
+
+    if (treatment) {
+      return isString(treatment) ?
+        withConfig ? { treatment, config: null } : treatment :
+        withConfig ? treatment : treatment.treatment;
+    }
+  }
+
+  return withConfig ? CONTROL_WITH_CONFIG : CONTROL;
+}
+
 /**
  * Manage client attributes binding
  */
@@ -45,9 +63,9 @@ export function initAttributes(client?: SplitIO.IBrowserClient, attributes?: Spl
   if (client && attributes) client.setAttributes(attributes);
 }
 
-export function getControlTreatments(featureFlagNames: unknown, withConfig: true): SplitIO.TreatmentsWithConfig;
-export function getControlTreatments(featureFlagNames: unknown, withConfig: false): SplitIO.Treatments;
-export function getControlTreatments(featureFlagNames: unknown, withConfig: boolean): SplitIO.Treatments | SplitIO.TreatmentsWithConfig {
+export function getControlTreatments(featureFlagNames: unknown, withConfig: true, factory?: SplitIO.IBrowserSDK): SplitIO.TreatmentsWithConfig;
+export function getControlTreatments(featureFlagNames: unknown, withConfig: false, factory?: SplitIO.IBrowserSDK): SplitIO.Treatments;
+export function getControlTreatments(featureFlagNames: unknown, withConfig: boolean, factory?: SplitIO.IBrowserSDK): SplitIO.Treatments | SplitIO.TreatmentsWithConfig {
   // validate feature flag names
   if (!Array.isArray(featureFlagNames)) return {};
 
@@ -56,9 +74,10 @@ export function getControlTreatments(featureFlagNames: unknown, withConfig: bool
     .map((featureFlagName) => featureFlagName.trim())
     .filter((featureFlagName) => featureFlagName.length > 0);
 
-  // return control treatments for each validated feature flag name
-  return (featureFlagNames as string[]).reduce((pValue: SplitIO.Treatments | SplitIO.TreatmentsWithConfig, cValue: string) => {
-    pValue[cValue] = withConfig ? CONTROL_WITH_CONFIG : CONTROL;
+  // return control or fallback treatment for each validated feature flag name
+  return (featureFlagNames as string[]).reduce((pValue: SplitIO.Treatments | SplitIO.TreatmentsWithConfig, featureFlagName: string) => {
+    // @ts-expect-error asd
+    pValue[featureFlagName] = resolveFallback(featureFlagName, withConfig, factory);
     return pValue;
   }, {});
 }
@@ -79,13 +98,13 @@ function argsAreEqual(newArgs: any[], lastArgs: any[]): boolean {
     shallowEqual(newArgs[5], lastArgs[5]); // flagSets
 }
 
-function evaluateFeatureFlagsWithConfig(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions) {
+function evaluateFeatureFlagsWithConfig(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions, factory?: SplitIO.IBrowserSDK) {
   return client && client.getStatus().isOperational && (names || flagSets) ?
     names ?
       client.getTreatmentsWithConfig(names, attributes, options) :
       client.getTreatmentsWithConfigByFlagSets(flagSets!, attributes, options) :
     names ?
-      getControlTreatments(names, true) :
+      getControlTreatments(names, true, factory) :
       {} // empty object when evaluating with flag sets and client is not ready
 }
 
@@ -97,13 +116,13 @@ export function memoizeGetTreatmentsWithConfig() {
   return memoizeOne(evaluateFeatureFlagsWithConfig, argsAreEqual);
 }
 
-function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions) {
+function evaluateFeatureFlags(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names?: SplitIO.SplitNames, attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, flagSets?: string[], options?: SplitIO.EvaluationOptions, factory?: SplitIO.IBrowserSDK) {
   return client && client.getStatus().isOperational && (names || flagSets) ?
     names ?
       client.getTreatments(names, attributes, options) :
       client.getTreatmentsByFlagSets(flagSets!, attributes, options) :
     names ?
-      getControlTreatments(names, false) :
+      getControlTreatments(names, false, factory) :
       {} // empty object when evaluating with flag sets and client is not ready
 }
 
@@ -111,20 +130,20 @@ export function memoizeGetTreatments() {
   return memoizeOne(evaluateFeatureFlags, argsAreEqual);
 }
 
-function evaluateFeatureFlagWithConfig(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names: string[], attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, _flagSets?: undefined, options?: SplitIO.EvaluationOptions) {
+function evaluateFeatureFlagWithConfig(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names: string[], attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, _flagSets?: undefined, options?: SplitIO.EvaluationOptions, factory?: SplitIO.IBrowserSDK) {
   return client && client.getStatus().isOperational ?
     client.getTreatmentWithConfig(names[0], attributes, options) :
-    CONTROL_WITH_CONFIG
+    resolveFallback(names[0], true, factory);
 }
 
 export function memoizeGetTreatmentWithConfig() {
   return memoizeOne(evaluateFeatureFlagWithConfig, argsAreEqual);
 }
 
-function evaluateFeatureFlag(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names: string[], attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, _flagSets?: undefined, options?: SplitIO.EvaluationOptions) {
+function evaluateFeatureFlag(client: SplitIO.IBrowserClient | undefined, _lastUpdate: number, names: string[], attributes?: SplitIO.Attributes, _clientAttributes?: SplitIO.Attributes, _flagSets?: undefined, options?: SplitIO.EvaluationOptions, factory?: SplitIO.IBrowserSDK) {
   return client && client.getStatus().isOperational ?
     client.getTreatment(names[0], attributes, options) :
-    CONTROL;
+    resolveFallback(names[0], false, factory);
 }
 
 export function memoizeGetTreatment() {

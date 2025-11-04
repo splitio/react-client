@@ -7,7 +7,7 @@ jest.mock('@splitsoftware/splitio/client', () => {
   return { SplitFactory: mockSdk() };
 });
 import { SplitFactory } from '@splitsoftware/splitio/client';
-import { sdkBrowser } from './testUtils/sdkConfigs';
+import { sdkBrowser, sdkBrowserWithConfig } from './testUtils/sdkConfigs';
 import { CONTROL, EXCEPTION_NO_SFP } from '../constants';
 
 /** Test target */
@@ -96,7 +96,7 @@ describe('useTreatment', () => {
     }).toThrow(EXCEPTION_NO_SFP);
   });
 
-  test('useTreatment must update on SDK events', async () => {
+  test('must update on SDK events', async () => {
     const outerFactory = SplitFactory(sdkBrowser);
     const mainClient = outerFactory.client() as any;
     const user2Client = outerFactory.client('user_2') as any;
@@ -169,6 +169,18 @@ describe('useTreatment', () => {
     expect(lastUpdateSetUser2WithUpdate.size).toEqual(3);
     expect(user2Client.getTreatment).toHaveBeenCalledTimes(5); // when ready from cache x2, ready x2 and update x1
     expect(user2Client.getTreatment).toHaveBeenLastCalledWith('split_test', undefined, undefined);
+  });
+
+  test('returns fallback treatment if the client is not operational', () => {
+    render(
+      <SplitFactoryProvider config={sdkBrowserWithConfig} >
+        {React.createElement(() => {
+          expect(useTreatment({ name: featureFlagName, attributes, properties }).treatment).toEqual('control_global');
+          expect(useTreatment({ name: 'ff1', attributes, properties }).treatment).toEqual('control_ff1');
+          return null;
+        })}
+      </SplitFactoryProvider>
+    );
   });
 
 });

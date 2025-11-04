@@ -19,14 +19,14 @@ import { useSplitClient } from './useSplitClient';
  */
 export function useTreatmentWithConfig(options: IUseTreatmentOptions): IUseTreatmentWithConfigResult {
   const context = useSplitClient({ ...options, attributes: undefined });
-  const { client, lastUpdate } = context;
+  const { factory, client, lastUpdate } = context;
   const { name, attributes, properties } = options;
 
   const getTreatmentWithConfig = React.useMemo(memoizeGetTreatmentWithConfig, []);
 
   // Shallow copy `client.getAttributes` result for memoization, as it returns the same reference unless `client.clearAttributes` is invoked.
   // Note: the same issue occurs with the `names` and `attributes` arguments if they are mutated directly by the user instead of providing a new object.
-  const treatment = getTreatmentWithConfig(client, lastUpdate, [name], attributes, client ? { ...client.getAttributes() } : {}, undefined, properties && { properties });
+  const treatment = getTreatmentWithConfig(client, lastUpdate, [name], attributes, client ? { ...client.getAttributes() } : {}, undefined, properties && { properties }, factory);
 
   return {
     ...context,
