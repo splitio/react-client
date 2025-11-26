@@ -1,5 +1,8 @@
+2.6.1 (November 26, 2025)
+ - Updated @splitsoftware/splitio package to version 11.9.0 that updates the order of storage operations to prevent inconsistent states when using the `LOCALSTORAGE` storage type and the browser’s `localStorage` fails due to quota limits.
+
 2.6.0 (November 4, 2025)
- - Added `useTreatment`, `useTreatments`, `useTreatmentWithConfig` and `useTreatmentsWithConfig` hooks to replace the now deprecated `useSplitTreatments` hook.
+ - Added `useTreatment`, `useTreatments`, `useTreatmentWithConfig` and `useTreatmentsWithConfig` hooks to replace the now deprecated `useSplitTreatments` hook. Related to https://github.com/splitio/react-client/issues/69 and contributed by Dave Beshero (@besh).
  - Updated @splitsoftware/splitio package to version 11.8.0 that includes minor updates:
       - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
       - Added support for custom loggers: added `logger` configuration option and `factory.Logger.setLogger` method to allow the SDK to use a custom logger.
