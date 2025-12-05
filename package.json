@@ -32,7 +32,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "all": "npm run check && npm run build && npm run test",
     "publish:rc": "npm publish --tag rc",
-    "publish:stable": "npm publish",
+    "publish:stable": "npm publish --tag release-1.x",
     "prepublishOnly": "npm run check && npm run build"
   },
   "repository": {
