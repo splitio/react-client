@@ -6,7 +6,7 @@ on:
       - '**'
   pull_request:
     branches:
-      - master
+      - main
       - development
 
 concurrency:
@@ -23,12 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Set up nodejs
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -48,37 +48,9 @@ jobs:
       - name: Set VERSION env
         run: echo "VERSION=$(cat package.json | jq -r .version)" >> $GITHUB_ENV
 
-      - name: SonarQube Scan (Push)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
-        uses: SonarSource/sonarcloud-github-action@v1.9
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectVersion=${{ env.VERSION }}
-            -Dsonar.branch.name=${{ github.ref_name }}
-
-      - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
-        uses: SonarSource/sonarcloud-github-action@v1.9
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectVersion=${{ env.VERSION }}
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-            -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
-            -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
-
       - name: Store assets
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
-        uses: actions/upload-artifact@v3
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
+        uses: actions/upload-artifact@v5
         with:
           name: assets
           path: umd/
@@ -100,7 +72,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           name: assets
           path: umd
@@ -110,7 +82,7 @@ jobs:
         working-directory: umd
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ matrix.account_id }}:role/gha-public-assets-role
           aws-region: us-east-1
@@ -127,7 +99,7 @@ jobs:
     name: Upload assets
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     strategy:
       matrix:
         environment:
@@ -139,7 +111,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           name: assets
           path: umd
@@ -149,7 +121,7 @@ jobs:
         working-directory: umd
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ matrix.account_id }}:role/gha-public-assets-role
           aws-region: us-east-1
