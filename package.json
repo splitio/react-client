@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-react",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "A React library to easily integrate and use Split JS SDK",
   "main": "cjs/index.js",
   "module": "esm/index.js",
@@ -28,7 +28,7 @@
     "check:types": "tsc --noEmit",
     "test": "jest src --silent",
     "test:watch": "npm test -- --watch",
-    "test:coverage": "jest src --coverage",
+    "test:coverage": "jest src --silent --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "all": "npm run check && npm run build && npm run test",
     "publish:rc": "npm publish --tag rc",
@@ -63,7 +63,7 @@
   },
   "homepage": "https://github.com/splitio/react-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "11.9.0",
+    "@splitsoftware/splitio": "11.11.2",
     "memoize-one": "^5.1.1",
     "shallowequal": "^1.1.0",
     "tslib": "^2.3.1"
