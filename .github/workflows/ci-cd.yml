@@ -40,7 +40,7 @@ jobs:
         run: npm run check
 
       - name: npm test
-        run: npm run test -- --coverage
+        run: npm run test
 
       - name: npm build
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") npm run build
