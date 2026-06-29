@@ -7,7 +7,7 @@ Split SDK is an open source project and we welcome feedback and contribution. Th
 ### Development process
 
 1. Fork the repository and create a topic branch from `development` branch. Please use a descriptive name for your branch.
-2. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
+2. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like "fix bug".
 3. Make sure to add tests for both positive and negative cases.
 4. Run the linter script of the project and fix any issues you find.
 5. Run the build script and make sure it runs with no errors.
