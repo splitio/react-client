@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react) [![Build Status](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml)
 
 ## Overview
-This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flag to manage your complete customer experience.
+This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flags to manage your complete customer experience.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/splitsoftware.svg?style=social&label=Follow&maxAge=1529000)](https://twitter.com/intent/follow?screen_name=splitsoftware)
 
@@ -64,7 +64,7 @@ The Split team monitors all issues submitted to this [issue tracker](https://git
 Please see [Contributors Guide](CONTRIBUTORS-GUIDE.md) to find all you need to submit a Pull Request (PR).
 
 ## License
-Licensed under the Apache License, Version 2.0. See: [Apache License](http://www.apache.org/licenses/).
+Licensed under the Apache License, Version 2.0. See: [Apache License](https://www.apache.org/licenses/).
 
 ## About Split
 
