@@ -107,7 +107,7 @@ pipeline:
                         -Dsonar.tests=src/__tests__ \
                         -Dsonar.host.url=https://sonar.harness.io \
                         -Dsonar.token=<+secrets.getValue("sonarqube-token")> \
-                        -Dsonar.exclusions="**/node_modules/**,**/umd/**,**/es/**,**/lib/**"
+                        -Dsonar.exclusions="**/node_modules/**,**/umd/**,**/es/**,**/lib/**,src/__tests__/**"
               - step:
                   type: Run
                   name: Post Quality Gate
