@@ -1,0 +1,115 @@
+pipeline:
+  name: reactclient_cd_s3
+  identifier: reactclient_cd_s3
+  projectIdentifier: Harness_Split
+  orgIdentifier: PROD
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: fmegithubharnessgitops
+        repoName: react-client
+        build: <+input>
+  stages:
+    - stage:
+        name: Deploy to Stage
+        identifier: Deploy_to_Stage
+        type: CI
+        when:
+          pipelineStatus: Success
+          condition: <+codebase.branch> == "development"
+        spec:
+          cloneCodebase: true
+          buildIntelligence:
+            enabled: false
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Build Release Assets
+                  identifier: Build_Release_Assets
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:lts
+                    shell: Bash
+                    command: |-
+                      npm ci
+                      npm run build
+              - step:
+                  type: Run
+                  name: Deploy to S3
+                  identifier: Deploy_to_S3
+                  when:
+                    stageStatus: Success
+                    condition: <+trigger.event> == "PUSH"
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: amazon/aws-cli:2.31.5
+                    shell: Bash
+                    command: |-
+                      aws s3 sync ./umd s3://split-public-stage/sdk \
+                        --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                    envVariables:
+                      AWS_DEFAULT_REGION: us-east-1
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: use1prod1cd
+              namespace: harness-delegate
+              serviceAccountName: use1-prod-1-reactclient-stage
+              automountServiceAccountToken: false
+              nodeSelector: {}
+              os: Linux
+        delegateSelectors:
+          - use1-prod-1-cd
+    - stage:
+        name: Deploy to Prod
+        identifier: Deploy_to_Prod
+        type: CI
+        when:
+          pipelineStatus: Success
+          condition: <+codebase.branch> == "main"
+        spec:
+          cloneCodebase: true
+          buildIntelligence:
+            enabled: false
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Build Release Assets
+                  identifier: Build_Release_Assets
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:lts
+                    shell: Bash
+                    command: |-
+                      npm ci
+                      npm run build
+              - step:
+                  type: Run
+                  name: Deploy to S3
+                  identifier: Deploy_to_S3
+                  when:
+                    stageStatus: Success
+                    condition: <+trigger.event> == "PUSH"
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: amazon/aws-cli:2.31.5
+                    shell: Bash
+                    command: |-
+                      aws s3 sync ./umd s3://split-public/sdk \
+                        --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                    envVariables:
+                      AWS_DEFAULT_REGION: us-east-1
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: use1prod1cd
+              namespace: harness-delegate
+              serviceAccountName: use1-prod-1-reactclient-prod
+              automountServiceAccountToken: false
+              nodeSelector: {}
+              os: Linux
+        delegateSelectors:
+          - use1-prod-1-cd
