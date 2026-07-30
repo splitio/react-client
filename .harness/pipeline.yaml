@@ -104,7 +104,7 @@ pipeline:
                       sonar-scanner \
                         -Dsonar.projectKey=react-client \
                         -Dsonar.sources=src \
-                        -Dsonar.tests=__tests__ \
+                        -Dsonar.tests=src/__tests__ \
                         -Dsonar.host.url=https://sonar.harness.io \
                         -Dsonar.token=<+secrets.getValue("sonarqube-token")> \
                         -Dsonar.exclusions="**/node_modules/**,**/umd/**,**/es/**,**/lib/**"
