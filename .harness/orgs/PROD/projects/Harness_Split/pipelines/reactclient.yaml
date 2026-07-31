@@ -33,14 +33,13 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: Install Node
-                  identifier: Install_Node
+                  name: Set up Node.js
+                  identifier: Set_up_Nodejs
                   spec:
                     shell: Bash
                     command: |-
-                      curl https://mise.run | sh
-                      export PATH="$HOME/.local/bin:$PATH"
-                      mise use --global node@<+matrix.nodeVersion>
+                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                      sudo apt-get install -y nodejs
                       node --version
                       npm --version
               - step:
@@ -49,47 +48,32 @@ pipeline:
                   identifier: Install_Dependencies
                   spec:
                     shell: Bash
-                    command: |-
-                      export PATH="$HOME/.local/bin:$PATH"
-                      eval "$(mise activate bash)"
-                      npm ci
+                    command: npm ci
               - step:
                   type: Run
                   name: Run Checks
                   identifier: Run_Checks
                   spec:
                     shell: Bash
-                    command: |-
-                      export PATH="$HOME/.local/bin:$PATH"
-                      eval "$(mise activate bash)"
-                      npm run check
+                    command: npm run check
               - step:
                   type: Run
                   name: Run Tests
                   identifier: Run_Tests
                   spec:
                     shell: Bash
-                    command: |-
-                      export PATH="$HOME/.local/bin:$PATH"
-                      eval "$(mise activate bash)"
-                      npm run test
+                    command: npm run test
               - step:
                   type: Run
                   name: Run Build
                   identifier: Run_Build
                   spec:
                     shell: Bash
-                    command: |-
-                      export PATH="$HOME/.local/bin:$PATH"
-                      eval "$(mise activate bash)"
-                      BUILD_BRANCH=<+codebase.branch> npm run build
+                    command: BUILD_BRANCH=<+codebase.branch> npm run build
               - step:
                   type: Run
                   name: SonarQube Scan
                   identifier: SonarQube_Scan
-                  when:
-                    stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     connectorRef: account.harnessImage
                     image: sonarsource/sonar-scanner-cli
@@ -128,9 +112,6 @@ pipeline:
                   type: Run
                   name: Post Quality Gate
                   identifier: Post_Quality_Gate
-                  when:
-                    stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     shell: Bash
                     command: |-
@@ -174,7 +155,7 @@ pipeline:
                       identifier: Deploy_to_Stage_S3
                       when:
                         stageStatus: Success
-                        condition: <+matrix.nodeVersion> == "lts" && <+codebase.branch> == "development" && <+trigger.event> == "PUSH"
+                        condition: <+codebase.branch> == "development" && <+trigger.event> == "PUSH"
                       spec:
                         connectorRef: artifacts
                         shell: Bash
@@ -189,7 +170,7 @@ pipeline:
                       identifier: Deploy_to_Prod_S3
                       when:
                         stageStatus: Success
-                        condition: <+matrix.nodeVersion> == "lts" && <+codebase.branch> == "main" && <+trigger.event> == "PUSH"
+                        condition: <+codebase.branch> == "main" && <+trigger.event> == "PUSH"
                       spec:
                         connectorRef: artifacts
                         shell: Bash
@@ -198,7 +179,3 @@ pipeline:
                             --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
-        strategy:
-          matrix:
-            nodeVersion:
-              - "lts"
