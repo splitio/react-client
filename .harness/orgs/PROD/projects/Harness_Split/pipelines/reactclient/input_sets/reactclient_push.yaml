@@ -1,0 +1,14 @@
+inputSet:
+  name: reactclient_push
+  identifier: reactclient_push
+  orgIdentifier: PROD
+  projectIdentifier: Harness_Split
+  pipeline:
+    identifier: reactclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

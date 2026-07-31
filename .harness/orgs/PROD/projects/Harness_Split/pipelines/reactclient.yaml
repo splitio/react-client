@@ -1,0 +1,173 @@
+pipeline:
+  name: react-client-repo
+  identifier: reactclient
+  projectIdentifier: Harness_Split
+  orgIdentifier: PROD
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: fmegithubharnessgitops
+        repoName: react-client
+        build: <+input>
+        depth: 0
+  stages:
+    - stage:
+        name: Build and Test
+        identifier: Build_and_Test
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec:
+              size: flex
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Install Node
+                  identifier: Install_Node
+                  spec:
+                    shell: Bash
+                    command: |-
+                      curl https://mise.run | sh
+                      export PATH="$HOME/.local/bin:$PATH"
+                      mise use --global node@<+matrix.nodeVersion>
+                      node --version
+                      npm --version
+              - step:
+                  type: Run
+                  name: Install Dependencies
+                  identifier: Install_Dependencies
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export PATH="$HOME/.local/bin:$PATH"
+                      eval "$(mise activate bash)"
+                      npm ci
+              - step:
+                  type: Run
+                  name: Run Checks
+                  identifier: Run_Checks
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export PATH="$HOME/.local/bin:$PATH"
+                      eval "$(mise activate bash)"
+                      npm run check
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export PATH="$HOME/.local/bin:$PATH"
+                      eval "$(mise activate bash)"
+                      npm run test
+              - step:
+                  type: Run
+                  name: Run Build
+                  identifier: Run_Build
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export PATH="$HOME/.local/bin:$PATH"
+                      eval "$(mise activate bash)"
+                      BUILD_BRANCH=<+codebase.branch> npm run build
+              - step:
+                  type: Run
+                  name: SonarQube Scan
+                  identifier: SonarQube_Scan
+                  when:
+                    stageStatus: Success
+                    condition: <+matrix.nodeVersion> == "lts"
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: sonarsource/sonar-scanner-cli
+                    shell: Bash
+                    command: |
+                      set -euo pipefail
+
+                      COMMON_ARGS="
+                        -Dsonar.host.url=https://sonar.harness.io
+                        -Dsonar.token=$SONAR_TOKEN
+                        -Dsonar.projectKey=react-client
+                        -Dsonar.sources=src
+                        -Dsonar.tests=src/__tests__
+                        -Dsonar.exclusions=**/node_modules/**,**/umd/**,**/es/**,**/lib/**,src/__tests__/**
+                        -Dsonar.scanner.skipJreProvisioning=true
+                        -Dsonar.scanner.skipSystemTruststore=true
+                      "
+
+                      if [ "<+codebase.prNumber>" != "" ] && [ "<+codebase.prNumber>" != "null" ]; then
+                        echo "Pull Request Analysis"
+                        sonar-scanner \
+                          $COMMON_ARGS \
+                          -Dsonar.pullrequest.key=<+codebase.prNumber> \
+                          -Dsonar.pullrequest.branch=<+codebase.sourceBranch> \
+                          -Dsonar.pullrequest.base=<+codebase.targetBranch>
+                      else
+                        echo "Branch Analysis"
+                        sonar-scanner \
+                          $COMMON_ARGS \
+                          -Dsonar.branch.name=<+codebase.branch>
+                      fi
+                    envVariables:
+                      SONAR_TOKEN: <+secrets.getValue("sonarqube-token")>
+                  timeout: 10m
+              - step:
+                  type: Run
+                  name: Post Quality Gate
+                  identifier: Post_Quality_Gate
+                  when:
+                    stageStatus: Success
+                    condition: <+matrix.nodeVersion> == "lts"
+                  spec:
+                    shell: Bash
+                    command: |-
+                      #!/bin/bash
+                      set -e
+
+                      SONAR_TOKEN="<+secrets.getValue("sonarqube-token")>"
+                      SONAR_URL="https://sonar.harness.io"
+                      SONAR_PROJECT_KEY="react-client"
+                      GITHUB_TOKEN="<+secrets.getValue("github-devops-token")>"
+                      GITHUB_REPO="react-client"
+                      COMMIT_SHA="<+codebase.commitSha>"
+
+                      STATUS_JSON=$(curl -sf \
+                        -H "Authorization: Bearer ${SONAR_TOKEN}" \
+                        "${SONAR_URL}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}")
+
+                      QG_STATUS=$(echo "$STATUS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])")
+
+                      case "$QG_STATUS" in
+                        OK)    GH_STATE="success"; DESCRIPTION="Quality gate passed" ;;
+                        ERROR) GH_STATE="failure"; DESCRIPTION="Quality gate failed" ;;
+                        WARN)  GH_STATE="success"; DESCRIPTION="Quality gate passed with warnings" ;;
+                        *)     GH_STATE="pending"; DESCRIPTION="Quality gate status unknown" ;;
+                      esac
+
+                      TARGET_URL="${SONAR_URL}/dashboard?id=${SONAR_PROJECT_KEY}"
+
+                      curl -sf -X POST \
+                        -H "Authorization: token ${GITHUB_TOKEN}" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"state\":\"${GH_STATE}\",\"description\":\"${DESCRIPTION}\",\"context\":\"sonarqube/quality-gate\",\"target_url\":\"${TARGET_URL}\"}" \
+                        "https://api.github.com/repos/splitio/${GITHUB_REPO}/statuses/${COMMIT_SHA}"
+
+                      echo "Posted SonarQube quality gate status: ${GH_STATE}"
+        strategy:
+          matrix:
+            nodeVersion:
+              - "lts"
