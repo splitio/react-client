@@ -10,11 +10,10 @@ pipeline:
         connectorRef: fmegithubharnessgitops
         repoName: react-client
         build: <+input>
-        depth: 0
   stages:
     - stage:
-        name: Build and Test
-        identifier: Build_and_Test
+        name: Check-Test-Build-Upload
+        identifier: Check_Test_Build_Upload
         description: ""
         type: CI
         spec:
@@ -22,52 +21,49 @@ pipeline:
           caching:
             enabled: true
             override: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec:
-              size: flex
+            paths: []
+          buildIntelligence:
+            enabled: false
           execution:
             steps:
               - step:
                   type: Run
-                  name: Set up Node.js
-                  identifier: Set_up_Nodejs
+                  name: npm ci
+                  identifier: npm_ci
                   spec:
-                    shell: Bash
-                    command: |-
-                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-                      sudo apt-get install -y nodejs
-                      node --version
-                      npm --version
-              - step:
-                  type: Run
-                  name: Install Dependencies
-                  identifier: Install_Dependencies
-                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm ci
               - step:
                   type: Run
-                  name: Run Checks
-                  identifier: Run_Checks
+                  name: npm run check
+                  identifier: npm_run_check
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm run check
               - step:
                   type: Run
-                  name: Run Tests
-                  identifier: Run_Tests
+                  name: npm run test
+                  identifier: npm_run_test
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
-                    command: npm run test
+                    command: npm run test -- --maxWorkers=2
+                    resources:
+                      limits:
+                        memory: 4Gi
+                        cpu: "2"
               - step:
                   type: Run
-                  name: Run Build
-                  identifier: Run_Build
+                  name: npm run build
+                  identifier: npm_run_build
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: BUILD_BRANCH=<+codebase.branch> npm run build
               - step:
@@ -75,7 +71,7 @@ pipeline:
                   name: SonarQube Scan
                   identifier: SonarQube_Scan
                   spec:
-                    connectorRef: account.harnessImage
+                    connectorRef: dockerhub
                     image: sonarsource/sonar-scanner-cli
                     shell: Bash
                     command: |
@@ -113,6 +109,8 @@ pipeline:
                   name: Post Quality Gate
                   identifier: Post_Quality_Gate
                   spec:
+                    connectorRef: dockerhub
+                    image: python:3
                     shell: Bash
                     command: |-
                       #!/bin/bash
@@ -151,31 +149,38 @@ pipeline:
               - parallel:
                   - step:
                       type: Run
-                      name: Deploy to Stage S3
-                      identifier: Deploy_to_Stage_S3
-                      when:
-                        stageStatus: Success
-                        condition: <+codebase.branch> == "development" && <+trigger.event> == "PUSH"
+                      name: upload dev assets to CDN
+                      identifier: upload_dev_assets_to_CDN
                       spec:
-                        connectorRef: artifacts
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
                         shell: Bash
-                        command: |-
-                          aws s3 sync ./umd s3://split-public-stage/sdk \
-                            --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
                   - step:
                       type: Run
-                      name: Deploy to Prod S3
-                      identifier: Deploy_to_Prod_S3
-                      when:
-                        stageStatus: Success
-                        condition: <+codebase.branch> == "main" && <+trigger.event> == "PUSH"
+                      name: upload prod assets to CDN
+                      identifier: upload_prod_assets_to_CDN
                       spec:
-                        connectorRef: artifacts
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
                         shell: Bash
-                        command: |-
-                          aws s3 sync ./umd s3://split-public/sdk \
-                            --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: "<+codebase.branch == \"main\" ? \"use1prod1cd\" : \"use1stage1cd\">"
+              namespace: harness-delegate
+              serviceAccountName: "<+codebase.branch == \"main\" ? \"use1-prod-1-public-assets\" : \"use1-stage-1-public-assets\">"
+              automountServiceAccountToken: false
+              nodeSelector: {}
+              os: Linux
