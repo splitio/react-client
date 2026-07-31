@@ -176,8 +176,7 @@ pipeline:
                         stageStatus: Success
                         condition: <+matrix.nodeVersion> == "lts" && <+codebase.branch> == "development" && <+trigger.event> == "PUSH"
                       spec:
-                        connectorRef: account.harnessImage
-                        image: amazon/aws-cli:2.31.5
+                        connectorRef: artifacts
                         shell: Bash
                         command: |-
                           aws s3 sync ./umd s3://split-public-stage/sdk \
@@ -192,8 +191,7 @@ pipeline:
                         stageStatus: Success
                         condition: <+matrix.nodeVersion> == "lts" && <+codebase.branch> == "main" && <+trigger.event> == "PUSH"
                       spec:
-                        connectorRef: account.harnessImage
-                        image: amazon/aws-cli:2.31.5
+                        connectorRef: artifacts
                         shell: Bash
                         command: |-
                           aws s3 sync ./umd s3://split-public/sdk \
