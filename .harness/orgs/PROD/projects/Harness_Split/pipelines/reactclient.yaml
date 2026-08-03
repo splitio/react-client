@@ -72,7 +72,8 @@ pipeline:
                   identifier: SonarQube_Scan
                   spec:
                     connectorRef: dockerhub
-                    image: sonarsource/sonar-scanner-cli
+                    image: sonarsource/sonar-scanner-cli:11.3
+                    imagePullPolicy: Always
                     shell: Bash
                     command: |
                       set -euo pipefail
