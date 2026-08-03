@@ -66,87 +66,6 @@ pipeline:
                     image: node:lts
                     shell: Bash
                     command: BUILD_BRANCH=<+codebase.branch> npm run build
-              # - step:
-              #     type: Run
-              #     name: SonarQube Scan
-              #     identifier: SonarQube_Scan
-              #     spec:
-              #       connectorRef: dockerhub
-              #       image: sonarsource/sonar-scanner-cli:11.3
-              #       imagePullPolicy: Always
-              #       shell: Bash
-              #       command: |
-              #         set -euo pipefail
-
-              #         COMMON_ARGS="
-              #           -Dsonar.host.url=https://sonar.harness.io
-              #           -Dsonar.token=$SONAR_TOKEN
-              #           -Dsonar.projectKey=react-client
-              #           -Dsonar.sources=src
-              #           -Dsonar.tests=src/__tests__
-              #           -Dsonar.exclusions=**/node_modules/**,**/umd/**,**/es/**,**/lib/**,src/__tests__/**
-              #           -Dsonar.scanner.skipJreProvisioning=true
-              #           -Dsonar.scanner.skipSystemTruststore=true
-              #         "
-
-              #         if [ "<+codebase.prNumber>" != "" ] && [ "<+codebase.prNumber>" != "null" ]; then
-              #           echo "Pull Request Analysis"
-              #           sonar-scanner \
-              #             $COMMON_ARGS \
-              #             -Dsonar.pullrequest.key=<+codebase.prNumber> \
-              #             -Dsonar.pullrequest.branch=<+codebase.sourceBranch> \
-              #             -Dsonar.pullrequest.base=<+codebase.targetBranch>
-              #         else
-              #           echo "Branch Analysis"
-              #           sonar-scanner \
-              #             $COMMON_ARGS \
-              #             -Dsonar.branch.name=<+codebase.branch>
-              #         fi
-              #       envVariables:
-              #         SONAR_TOKEN: <+secrets.getValue("sonarqube-token")>
-              #     timeout: 10m
-              # - step:
-              #     type: Run
-              #     name: Post Quality Gate
-              #     identifier: Post_Quality_Gate
-              #     spec:
-              #       connectorRef: dockerhub
-              #       image: python:3
-              #       shell: Bash
-              #       command: |-
-              #         #!/bin/bash
-              #         set -e
-
-              #         SONAR_TOKEN="<+secrets.getValue("sonarqube-token")>"
-              #         SONAR_URL="https://sonar.harness.io"
-              #         SONAR_PROJECT_KEY="react-client"
-              #         GITHUB_TOKEN="<+secrets.getValue("github-devops-token")>"
-              #         GITHUB_REPO="react-client"
-              #         COMMIT_SHA="<+codebase.commitSha>"
-
-              #         STATUS_JSON=$(curl -sf \
-              #           -H "Authorization: Bearer ${SONAR_TOKEN}" \
-              #           "${SONAR_URL}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}")
-
-              #         QG_STATUS=$(echo "$STATUS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])")
-
-              #         case "$QG_STATUS" in
-              #           OK)    GH_STATE="success"; DESCRIPTION="Quality gate passed" ;;
-              #           ERROR) GH_STATE="failure"; DESCRIPTION="Quality gate failed" ;;
-              #           WARN)  GH_STATE="success"; DESCRIPTION="Quality gate passed with warnings" ;;
-              #           *)     GH_STATE="pending"; DESCRIPTION="Quality gate status unknown" ;;
-              #         esac
-
-              #         TARGET_URL="${SONAR_URL}/dashboard?id=${SONAR_PROJECT_KEY}"
-
-              #         curl -sf -X POST \
-              #           -H "Authorization: token ${GITHUB_TOKEN}" \
-              #           -H "Accept: application/vnd.github.v3+json" \
-              #           -H "Content-Type: application/json" \
-              #           -d "{\"state\":\"${GH_STATE}\",\"description\":\"${DESCRIPTION}\",\"context\":\"sonarqube/quality-gate\",\"target_url\":\"${TARGET_URL}\"}" \
-              #           "https://api.github.com/repos/splitio/${GITHUB_REPO}/statuses/${COMMIT_SHA}"
-
-              #         echo "Posted SonarQube quality gate status: ${GH_STATE}"
               - parallel:
                   - step:
                       type: Run
@@ -184,7 +103,6 @@ pipeline:
               serviceAccountName: "<+codebase.branch == \"main\" ? \"use1-prod-1-public-assets\" : \"use1-stage-1-public-assets\">"
               automountServiceAccountToken: false
               nodeSelector: {}
-                # kubernetes.io/arch: amd64
               os: Linux
         delegateSelectors:
           - "<+codebase.branch == \"main\" ? \"use1-prod-1-cd\" : \"use1-stage-1-cd\">"
