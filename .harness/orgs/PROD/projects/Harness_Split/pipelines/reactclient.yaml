@@ -182,7 +182,8 @@ pipeline:
               namespace: harness-delegate
               serviceAccountName: "<+codebase.branch == \"main\" ? \"use1-prod-1-public-assets\" : \"use1-stage-1-public-assets\">"
               automountServiceAccountToken: false
-              nodeSelector: {}
+              nodeSelector:
+                kubernetes.io/arch: amd64
               os: Linux
         delegateSelectors:
           - "<+codebase.branch == \"main\" ? \"use1-prod-1-cd\" : \"use1-stage-1-cd\">"
