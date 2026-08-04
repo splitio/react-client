@@ -1,0 +1,108 @@
+pipeline:
+  name: react-client-repo
+  identifier: reactclient
+  projectIdentifier: Harness_Split
+  orgIdentifier: PROD
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: fmegithubharnessgitops
+        repoName: react-client
+        build: <+input>
+  stages:
+    - stage:
+        name: Check-Test-Build-Upload
+        identifier: Check_Test_Build_Upload
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+            paths: []
+          buildIntelligence:
+            enabled: false
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: npm ci
+                  identifier: npm_ci
+                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
+                    shell: Bash
+                    command: npm ci
+              - step:
+                  type: Run
+                  name: npm run check
+                  identifier: npm_run_check
+                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
+                    shell: Bash
+                    command: npm run check
+              - step:
+                  type: Run
+                  name: npm run test
+                  identifier: npm_run_test
+                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
+                    shell: Bash
+                    command: npm run test -- --maxWorkers=2
+                    resources:
+                      limits:
+                        memory: 4Gi
+                        cpu: "2"
+              - step:
+                  type: Run
+                  name: npm run build
+                  identifier: npm_run_build
+                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
+                    shell: Bash
+                    command: BUILD_BRANCH=<+codebase.branch> npm run build
+              - parallel:
+                  - step:
+                      type: Run
+                      name: upload dev assets to CDN
+                      identifier: upload_dev_assets_to_CDN
+                      spec:
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
+                        shell: Bash
+                        command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        envVariables:
+                          AWS_DEFAULT_REGION: us-east-1
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
+                  - step:
+                      type: Run
+                      name: upload prod assets to CDN
+                      identifier: upload_prod_assets_to_CDN
+                      spec:
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
+                        shell: Bash
+                        command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        envVariables:
+                          AWS_DEFAULT_REGION: us-east-1
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: "<+codebase.branch == \"main\" ? \"use1prod1cd\" : \"use1stage1cd\">"
+              namespace: harness-delegate
+              serviceAccountName: "<+codebase.branch == \"main\" ? \"use1-prod-1-public-assets\" : \"use1-stage-1-public-assets\">"
+              automountServiceAccountToken: false
+              nodeSelector: {}
+              os: Linux
+        delegateSelectors:
+          - "<+codebase.branch == \"main\" ? \"use1-prod-1-cd\" : \"use1-stage-1-cd\">"
