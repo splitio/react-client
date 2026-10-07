@@ -1,6 +1,6 @@
 # Split SDK for React
 
-[![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react) [![Build Status](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splitio/react-client/actions/workflows/ci-cd.yml)
+[![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-react)
 
 ## Overview
 This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flags to manage your complete customer experience.
