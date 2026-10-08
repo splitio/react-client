@@ -1,4 +1,4 @@
-2.6.3 (October 8, 2026)
+2.6.3 (October 7, 2026)
  - Updated @splitsoftware/splitio package to version 11.12.1, which:
      - updates the 'LOCALSTORAGE' storage to batch the writes of flag sets and traffic type/segment counters when storing feature flags, reducing storage update times and the time to SDK_READY event.
      - updates some transitive dependencies for vulnerability fixes (Related to issue https://github.com/splitio/react-client/issues/263).
