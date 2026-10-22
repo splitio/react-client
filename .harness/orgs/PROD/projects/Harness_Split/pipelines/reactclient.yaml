@@ -18,6 +18,8 @@ pipeline:
         type: CI
         spec:
           cloneCodebase: true
+          envVariables:
+            CI_ENABLE_HCLI_FOR_TESTS: "true"
           caching:
             enabled: true
             override: true
@@ -52,11 +54,26 @@ pipeline:
                     connectorRef: dockerhub
                     image: node:lts
                     shell: Bash
-                    command: npm run test -- --maxWorkers=2
+                    command: npm run test:coverage -- --coverageReporters=lcov --maxWorkers=2 --coverageDirectory=coverage
                     resources:
                       limits:
                         memory: 4Gi
                         cpu: "2"
+              - step:
+                  name: harnessCov
+                  identifier: harnessCov
+                  template:
+                    templateRef: account.k8sharnessCoverage
+                    versionLabel: v1
+                    templateInputs:
+                      type: Run
+                      spec:
+                        envVariables:
+                          patch_coverage_percent: "80"
+                          file_path: coverage/lcov.info
+                          overall_coverage_percent: ""
+                          ignore_failure: "true"
+                          exclude: "**/node_modules/**,**/dist/**,**/build/**,**/*.spec.js,**/*.spec.ts,**/*.spec.tsx,**/*.test.js,**/*.test.ts,**/*.test.tsx,**/__tests__/**"
               - step:
                   type: Run
                   name: npm run build
